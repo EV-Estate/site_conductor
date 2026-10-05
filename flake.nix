@@ -26,11 +26,7 @@
         # Canonical toolchain pinned in v_flakes — byte-identical across repos, so
         # the nix store dedups it and sccache cross-references compilations.
         rust = v_flakes.rs.default_nightly system;
-        # Lean toolchain for the production backend image: rustc + cargo + std only.
-        # Drops ~1.2 GB of dev tooling (rust-analyzer/docs/clippy/rustfmt/src) the
-        # container build never touches. CI builds only the containers, so this keeps
-        # the fat `rust` above out of the release closure entirely.
-        rustBuild = pkgs.rust-bin.selectLatestNightlyWith (toolchain: toolchain.minimal);
+        rustBuild = v_flakes.rs.build_nightly system;
         # v_flakes ships the treefmt hook; we extend it with the same `.#test`
         # derivation (typecheck + Playwright visual regression). Kept on pre-push,
         # not pre-commit — a full visual run per commit is too slow; flip `stages`
@@ -304,6 +300,21 @@
               MAIL_FROM = "EV Investment <admin@evinvest.ltd>";
               MAIL_TEAM = "admin@evinvest.ltd";
               SITE_URL = "https://evinvest.ltd";
+            };
+            settings = {
+              pkg = "site_conductor_backend";
+              values = {
+                database_url = { file = "/secrets/DATABASE_URL"; };
+                sentry_dsn = { file = "/secrets/SENTRY_DSN"; };
+                smtp = {
+                  host = "smtp.gmail.com";
+                  username = "admin@evinvest.ltd";
+                  password = { file = "/secrets/SMTP_PASSWORD"; };
+                };
+                mail_from = "EV Investment <admin@evinvest.ltd>";
+                mail_team = "admin@evinvest.ltd";
+                site_url = "https://evinvest.ltd";
+              };
             };
           };
           containers.frontend = {
