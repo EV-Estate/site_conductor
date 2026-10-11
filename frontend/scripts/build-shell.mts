@@ -84,6 +84,10 @@ function fragmentFor(locale: Locale): string {
         close: t("a11y.closeMenu", "Close menu"),
         menu: t("a11y.siteMenu", "Site menu"),
         signOut: t("header.signOut", "Sign out"),
+        signOutFailed: t(
+          "header.signOutFailed",
+          "Couldn't sign you out. Please try again."
+        ),
       },
       cta: createElement(
         Fragment,

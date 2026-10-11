@@ -299,6 +299,10 @@
     "en": "Sign out",
     "t": "Abmelden"
   },
+  "header.signOutFailed": {
+    "en": "Couldn't sign you out. Please try again.",
+    "t": "Abmelden fehlgeschlagen. Bitte versuchen Sie es erneut."
+  },
   "hiring.board.allRoles": {
     "en": "All roles",
     "t": "Alle Stellen"

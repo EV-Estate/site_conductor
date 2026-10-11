@@ -6,12 +6,25 @@
 export function HeaderSignOut({
   enterDelayMs,
   label,
+  failedLabel,
 }: {
   enterDelayMs: number;
   label: string;
+  /** Shown by header-behavior.ts when /api/auth/logout answers non-2xx. */
+  failedLabel: string;
 }) {
   return (
-    <div className="px-6 pb-10">
+    <div className="flex flex-col items-start gap-2 px-6 pb-10">
+      {/* Text is static so it is translated per locale with the rest of the
+          stringified markup; only `hidden` is toggled at runtime. */}
+      <p
+        data-slot="signout-error"
+        role="alert"
+        hidden
+        className="text-sm text-accent-error"
+      >
+        {failedLabel}
+      </p>
       <button
         type="button"
         data-action="signout"

@@ -118,6 +118,7 @@ export function HeaderMobileMenu({
         <HeaderSignOut
           enterDelayMs={MENU_ENTER_DELAY + (nav.length - 1) * MENU_STEP}
           label={menuLabels.signOut}
+          failedLabel={menuLabels.signOutFailed}
         />
       </aside>
     </>

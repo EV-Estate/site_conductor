@@ -42,7 +42,15 @@
     const found = document.cookie
       .split("; ")
       .find(entry => entry.startsWith(prefix));
-    return found ? decodeURIComponent(found.slice(prefix.length)) : null;
+    if (!found) return null;
+    try {
+      return decodeURIComponent(found.slice(prefix.length));
+    } catch {
+      // A malformed `%` escape throws, and the caller has already disabled
+      // the sign-out button — a throw here would leave it stuck. Treat it as
+      // no token: the request goes out bare and the server answers 403.
+      return null;
+    }
   };
 
   const header = document.querySelector<HTMLElement>(
@@ -134,8 +142,14 @@
     );
     if (signout) {
       if (signout.disabled) return;
+      const failed = header.querySelector<HTMLElement>(
+        '[data-slot="signout-error"]'
+      );
       signout.disabled = true;
       signout.setAttribute("aria-busy", "true");
+      // Cleared per attempt, so a retry that fails again re-reveals it and the
+      // alert role announces it again.
+      if (failed) failed.hidden = true;
       const csrf = readCookie("__Host-ev_csrf") ?? readCookie("ev_csrf");
       fetch("/api/auth/logout", {
         method: "POST",
@@ -153,6 +167,9 @@
         .catch(() => {
           signout.disabled = false;
           signout.removeAttribute("aria-busy");
+          // Without it a failed sign-out looks like a button that did nothing,
+          // and the reader may walk away believing the session is closed.
+          if (failed) failed.hidden = false;
         });
       return;
     }

@@ -299,6 +299,10 @@
     "en": "Sign out",
     "t": "Se déconnecter"
   },
+  "header.signOutFailed": {
+    "en": "Couldn't sign you out. Please try again.",
+    "t": "Impossible de vous déconnecter. Veuillez réessayer."
+  },
   "hiring.board.allRoles": {
     "en": "All roles",
     "t": "Tous les postes"

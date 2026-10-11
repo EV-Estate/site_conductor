@@ -15,6 +15,8 @@ export interface HeaderMenuLabels {
   menu: string;
   /** The drawer's sign-out control — visible text, not just an accessible name. */
   signOut: string;
+  /** Shown in the drawer when sign-out is refused; the session is still live. */
+  signOutFailed: string;
 }
 
 export const DEFAULT_MENU_LABELS: HeaderMenuLabels = {
@@ -22,6 +24,7 @@ export const DEFAULT_MENU_LABELS: HeaderMenuLabels = {
   close: "Close menu",
   menu: "Site menu",
   signOut: "Sign out",
+  signOutFailed: "Couldn't sign you out. Please try again.",
 };
 
 /** One signed-out entry into the cabinet: a hard cross-zone href and its label. */

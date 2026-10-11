@@ -299,6 +299,10 @@
     "en": "Sign out",
     "t": "Đăng xuất"
   },
+  "header.signOutFailed": {
+    "en": "Couldn't sign you out. Please try again.",
+    "t": "Không thể đăng xuất. Vui lòng thử lại."
+  },
   "hiring.board.allRoles": {
     "en": "All roles",
     "t": "Tất cả vị trí"
