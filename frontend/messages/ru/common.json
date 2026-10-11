@@ -299,6 +299,10 @@
     "en": "Sign out",
     "t": "Выйти"
   },
+  "header.signOutFailed": {
+    "en": "Couldn't sign you out. Please try again.",
+    "t": "Не удалось выйти. Попробуйте ещё раз."
+  },
   "hiring.board.allRoles": {
     "en": "All roles",
     "t": "Все вакансии"

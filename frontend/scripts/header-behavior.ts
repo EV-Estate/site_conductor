@@ -17,6 +17,41 @@
       // See above.
     }
   };
+  // The account chip's cached identity (banking,
+  // entities/user/model/identity-cache.ts): v2 in localStorage, v1 in
+  // sessionStorage. Copies of its keys, not an import — this script has none.
+  // Left behind after a sign-out here, the next signed-in paint on this device
+  // would show the previous account's name and initials until the profile read
+  // corrects it, and a different person may be the one signing in.
+  const forgetIdentity = () => {
+    // Separately: one storage throwing must not spare the other.
+    try {
+      localStorage.removeItem("ev.cabinet.account-chip.v2");
+    } catch {
+      // Same private-mode caveat as `remember`.
+    }
+    try {
+      sessionStorage.removeItem("ev.cabinet.account-chip");
+    } catch {
+      // Ditto.
+    }
+  };
+
+  const readCookie = (name: string): string | null => {
+    const prefix = `${name}=`;
+    const found = document.cookie
+      .split("; ")
+      .find(entry => entry.startsWith(prefix));
+    if (!found) return null;
+    try {
+      return decodeURIComponent(found.slice(prefix.length));
+    } catch {
+      // A malformed `%` escape throws, and the caller has already disabled
+      // the sign-out button — a throw here would leave it stuck. Treat it as
+      // no token: the request goes out bare and the server answers 403.
+      return null;
+    }
+  };
 
   const header = document.querySelector<HTMLElement>(
     'header[data-slot="header"]'
@@ -86,32 +121,70 @@
     const toggle = target.closest("[data-menu-toggle]");
     if (toggle)
       return setOpen(toggle.getAttribute("data-menu-toggle") === "open");
-    // Sign-out handler: POSTs /api/auth/logout with the CSRF token from the
-    // page's meta tag (same mechanism as the AccountChip microfrontend), then
-    // navigates home. Runs before the delegated-close so the menu closes too.
-    // The remembered state flips first, so the home page this lands on does
-    // not paint the (now empty) chip slot off a stale stamp. The chip's own
-    // sign-out (banking's element) cannot do this; there the next page's read
-    // corrects the stamp one round trip later.
-    const signout = target.closest<HTMLElement>('[data-action="signout"]');
+    // Sign-out handler: POSTs /api/auth/logout (rewritten to concierge) with
+    // the double-submit CSRF token concierge checks: `x-ev-csrf` must equal the
+    // readable `ev_csrf` cookie. Prefer the `__Host-` cookie so a
+    // subdomain-planted plain `ev_csrf` cannot shadow it; the bare name is dev.
+    // Same reading as banking's cabinet/frontend/shared/lib/csrf-client.ts —
+    // this script has zero imports, so it is a copy, not a shared module.
+    //
+    // Only a 2xx means the session is gone. Flipping the remembered state or
+    // leaving the page on any other answer would show a signed-out header over
+    // a live session, so on failure the button simply becomes clickable again
+    // and the drawer stays open on it. On success the remembered state flips
+    // before navigating, so the home page does not paint the (now empty) chip
+    // slot off a stale stamp, and the chip's cached identity goes with it. The
+    // chip's own sign-out (banking's element) cannot touch `ev.session`; there
+    // the next page's read corrects the stamp later.
+    // Runs before the delegated-close, which would otherwise shut the drawer.
+    const signout = target.closest<HTMLButtonElement>(
+      'button[data-action="signout"]'
+    );
     if (signout) {
-      setOpen(false);
-      remember("anonymous");
-      const csrf =
-        document
-          .querySelector('meta[name="csrf-token"]')
-          ?.getAttribute("content") ?? "";
+      if (signout.disabled) return;
+      const failed = header.querySelector<HTMLElement>(
+        '[data-slot="signout-error"]'
+      );
+      signout.disabled = true;
+      signout.setAttribute("aria-busy", "true");
+      // Cleared per attempt, so a retry that fails again re-reveals it and the
+      // alert role announces it again.
+      if (failed) failed.hidden = true;
+      const csrf = readCookie("__Host-ev_csrf") ?? readCookie("ev_csrf");
       fetch("/api/auth/logout", {
         method: "POST",
-        headers: { "X-CSRF-Token": csrf, "Content-Type": "application/json" },
-      }).finally(() => {
-        window.location.href = "/";
-      });
+        headers: {
+          "Content-Type": "application/json",
+          ...(csrf ? { "x-ev-csrf": csrf } : {}),
+        },
+      })
+        .then(r => {
+          if (!r.ok) throw new Error(`logout answered ${r.status}`);
+          remember("anonymous");
+          forgetIdentity();
+          window.location.href = "/";
+        })
+        .catch(() => {
+          signout.disabled = false;
+          signout.removeAttribute("aria-busy");
+          // Without it a failed sign-out looks like a button that did nothing,
+          // and the reader may walk away believing the session is closed.
+          if (failed) failed.hidden = false;
+        });
       return;
     }
-    // Delegated close: any link/button inside the open overlay dismisses it.
-    if (target.closest('[data-slot="header-mobile-overlay"] :is(a, button)'))
-      setOpen(false);
+    // Delegated close: any link/button inside the open overlay dismisses it —
+    // except the account chip's own controls. Its trigger and panel buttons
+    // are in-place UI (React renders into the element's light DOM, so they
+    // match the selector): closing on them opened the panel inside a drawer
+    // already sliding away, clipped off the right edge. Only a real link out
+    // of its panel closes the drawer, as any other link would. Tag copied from
+    // mfe-registry.json — this script has no imports.
+    const inChip = target.closest("mfe-cabinet-account-chip");
+    const closer = inChip
+      ? target.closest("a[href]")
+      : target.closest('[data-slot="header-mobile-overlay"] :is(a, button)');
+    if (closer?.closest('[data-slot="header-mobile-overlay"]')) setOpen(false);
   });
 
   window.addEventListener("keydown", e => {

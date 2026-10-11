@@ -34,8 +34,9 @@ import { LOCALES, localePath, type Locale } from "@evinvest/i18n";
 import { BrandHeader } from "../application/layout/header";
 import { HeaderBarCta, HeaderMenuCta } from "../application/layout/header-cta";
 import {
-  CHIP_ATTRIBUTES,
+  CHIP_BAR_ATTRIBUTES,
   CHIP_BAR_CLASS,
+  CHIP_MENU_ATTRIBUTES,
   CHIP_MENU_CLASS,
 } from "../application/layout/header-shared";
 import {
@@ -84,18 +85,25 @@ function fragmentFor(locale: Locale): string {
         close: t("a11y.closeMenu", "Close menu"),
         menu: t("a11y.siteMenu", "Site menu"),
         signOut: t("header.signOut", "Sign out"),
+        signOutFailed: t(
+          "header.signOutFailed",
+          "Couldn't sign you out. Please try again."
+        ),
       },
       cta: createElement(
         Fragment,
         null,
         createElement(HeaderBarCta, { links }),
-        createElement(chip.tag, { class: CHIP_BAR_CLASS, ...CHIP_ATTRIBUTES })
+        createElement(chip.tag, { class: CHIP_BAR_CLASS, ...CHIP_BAR_ATTRIBUTES })
       ),
       mobileCta: createElement(
         Fragment,
         null,
         createElement(HeaderMenuCta, { links }),
-        createElement(chip.tag, { class: CHIP_MENU_CLASS, ...CHIP_ATTRIBUTES })
+        createElement(chip.tag, {
+          class: CHIP_MENU_CLASS,
+          ...CHIP_MENU_ATTRIBUTES,
+        })
       ),
       notice: createElement(
         "div",

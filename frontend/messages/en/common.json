@@ -74,6 +74,7 @@
   "header.cabinet": "Cabinet",
   "header.openAccount": "Open an account",
   "header.signOut": "Sign out",
+  "header.signOutFailed": "Couldn't sign you out. Please try again.",
   "hiring.board.allRoles": "All roles",
   "hiring.board.clear": "Clear filters",
   "hiring.board.count": "{count, plural, one {# role} other {# roles}}",
