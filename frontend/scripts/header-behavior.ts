@@ -173,9 +173,18 @@
         });
       return;
     }
-    // Delegated close: any link/button inside the open overlay dismisses it.
-    if (target.closest('[data-slot="header-mobile-overlay"] :is(a, button)'))
-      setOpen(false);
+    // Delegated close: any link/button inside the open overlay dismisses it —
+    // except the account chip's own controls. Its trigger and panel buttons
+    // are in-place UI (React renders into the element's light DOM, so they
+    // match the selector): closing on them opened the panel inside a drawer
+    // already sliding away, clipped off the right edge. Only a real link out
+    // of its panel closes the drawer, as any other link would. Tag copied from
+    // mfe-registry.json — this script has no imports.
+    const inChip = target.closest("mfe-cabinet-account-chip");
+    const closer = inChip
+      ? target.closest("a[href]")
+      : target.closest('[data-slot="header-mobile-overlay"] :is(a, button)');
+    if (closer?.closest('[data-slot="header-mobile-overlay"]')) setOpen(false);
   });
 
   window.addEventListener("keydown", e => {
