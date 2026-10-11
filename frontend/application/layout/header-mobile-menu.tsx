@@ -65,8 +65,12 @@ export function HeaderMobileMenu({
             the one thing this panel could tell you and didn't. It arrives on the
             same cascade as the rows but ahead of them — identity first, then
             destinations. `min-w-0` so a long address truncates inside the chip
-            rather than pushing the close button off the edge. */}
-        <div className="flex h-20 shrink-0 items-center justify-between gap-3 px-6">
+            rather than pushing the close button off the edge.
+            `relative z-10`: the chip's panel opens downward over the nav rows,
+            and every row is its own stacking context (its `translate` and
+            `opacity`), painted later in DOM order — without a z-index on this
+            row they drew straight through the open panel. */}
+        <div className="relative z-10 flex h-20 shrink-0 items-center justify-between gap-3 px-6">
           <div
             style={{ transitionDelay: `${MENU_ENTER_DELAY}ms` }}
             className="min-w-0 flex-1 translate-x-4 opacity-0 transition-[opacity,translate] duration-300 ease-out group-data-[menu-open]/header:translate-x-0 group-data-[menu-open]/header:opacity-100"
