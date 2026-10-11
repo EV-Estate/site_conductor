@@ -5,8 +5,9 @@ import { translate } from "@/shared/config/i18n";
 import { CabinetEntryTracker } from "./cabinet-entry-tracker";
 import { HeaderBarCta, HeaderMenuCta } from "./header-cta";
 import {
-  CHIP_ATTRIBUTES,
+  CHIP_BAR_ATTRIBUTES,
   CHIP_BAR_CLASS,
+  CHIP_MENU_ATTRIBUTES,
   CHIP_MENU_CLASS,
 } from "./header-shared";
 import { authLinks } from "./nav-items";
@@ -16,8 +17,19 @@ import { authLinks } from "./nav-items";
 // same-origin through the /cabinet/* zone mount — so its own /cabinet/api/auth/* calls stay
 // first-party and it owns account state and sign-out. `findMfe` is server-only (node:fs),
 // which is why this resolves here and is passed into the client Header as a slot —
-// mirrors views/home/ui/portfolio/ui/portfolio.tsx.
-export async function AccountChipRemote({ className }: { className?: string }) {
+// mirrors views/home/ui/portfolio/ui/portfolio.tsx. The placement picks the class and the
+// attributes together, so a slot cannot get one placement's box and the other's layout.
+const PLACEMENTS = {
+  bar: { className: CHIP_BAR_CLASS, attributes: CHIP_BAR_ATTRIBUTES },
+  menu: { className: CHIP_MENU_CLASS, attributes: CHIP_MENU_ATTRIBUTES },
+} as const;
+
+export async function AccountChipRemote({
+  placement,
+}: {
+  placement: keyof typeof PLACEMENTS;
+}) {
+  const { className, attributes } = PLACEMENTS[placement];
   const entry = await findMfe("cabinet.account");
   // The registry is in-repo static data; a missing entry is a broken build.
   if (!entry) throw new Error("cabinet.account missing from mfe-registry.json");
@@ -25,7 +37,7 @@ export async function AccountChipRemote({ className }: { className?: string }) {
     <RemoteElement
       tag={entry.tag}
       scriptUrl={entry.scriptUrl}
-      attributes={CHIP_ATTRIBUTES}
+      attributes={attributes}
       className={className}
     />
   );
@@ -38,7 +50,7 @@ export function HeaderAccountSlot({ locale }: { locale: Locale }) {
   return (
     <CabinetEntryTracker location="header">
       <HeaderBarCta links={authLinks(locale, translate(locale))} />
-      <AccountChipRemote className={CHIP_BAR_CLASS} />
+      <AccountChipRemote placement="bar" />
     </CabinetEntryTracker>
   );
 }
@@ -47,7 +59,7 @@ export function MenuAccountSlot({ locale }: { locale: Locale }) {
   return (
     <CabinetEntryTracker location="menu">
       <HeaderMenuCta links={authLinks(locale, translate(locale))} />
-      <AccountChipRemote className={CHIP_MENU_CLASS} />
+      <AccountChipRemote placement="menu" />
     </CabinetEntryTracker>
   );
 }

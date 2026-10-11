@@ -85,4 +85,12 @@ export const CHIP_MENU_CLASS =
 // sign-in state, never the signup one the pair's primary uses. No
 // `data-return-to` on the marketing site — there is no in-cabinet page the
 // reader was headed to. Applies to both hosts and both placements.
-export const CHIP_ATTRIBUTES = { "data-intent": "login" } as const;
+export const CHIP_BAR_ATTRIBUTES = { "data-intent": "login" } as const;
+// The drawer gives the chip a full-width row, so it keeps its name there below
+// `sm` instead of folding to avatar + chevron (`data-layout="menu"`, part of
+// the chip's frozen v2 attribute set; CSS only on the chip's side). The bar
+// does not set it: there the 72px fold is what fits beside the burger.
+export const CHIP_MENU_ATTRIBUTES = {
+  ...CHIP_BAR_ATTRIBUTES,
+  "data-layout": "menu",
+} as const;
