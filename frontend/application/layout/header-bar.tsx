@@ -66,9 +66,14 @@ export function HeaderBar({
           ))}
         </nav>
 
+        {/* Spans the rest of the row (flex-1 below `lg`, the whole third
+            column above it) and packs its content to the end, so its own box
+            never moves: the signed-out pair leaving on sign-in used to drag
+            the box's left edge 150px right, which counts as a layout shift
+            even though the burger stayed where it was. */}
         <div
           data-slot="header-actions"
-          className="flex items-center gap-3 lg:justify-self-end"
+          className="flex flex-1 items-center justify-end gap-3 lg:justify-self-stretch"
         >
           {cta}
           <button

@@ -55,10 +55,27 @@ export const MENU_STEP = 45;
 // session is known, and the pair alone before that. Shared by the conductor's
 // slots (account-chip-remote.tsx) and the zone fragment
 // (scripts/build-shell.mts) so the two hosts cannot drift.
+//
+// Both slots hold the chip's box before it mounts, because the element arrives
+// late (a module script, then its CSS) and grows 178 → ~228px once the name
+// lands. The reserve sits beside `hidden` rather than behind the session
+// variant: a `display: none` box takes no space, so signed-out readers get no
+// empty gap either way, and one variant per class would only triple the string.
+//
+// Bar: `justify-end` so the chip grows leftwards, away from the burger, which
+// stays put. Below `sm` the chip is avatar + chevron (72 × 42, banking's B2)
+// and is shown here too: the signed-out pair leaves the bar on sign-in, and an
+// empty bar with only a burger hides the one thing that changed. A fixed `w-18`
+// rather than a minimum there: the element holds an invisible 178px reserve of
+// its own until its CSS applies, which a minimum would let push the slot out.
+// The drawer's chip sits under the drawer itself whenever both are on screen.
 export const CHIP_BAR_CLASS =
-  "hidden items-center group-data-[session=authenticated]/header:sm:flex";
+  "hidden min-h-10.5 w-18 items-center justify-end group-data-[session=authenticated]/header:flex sm:w-auto sm:min-w-44.5";
+// Drawer: full row width already; only the height is reserved. The row is
+// vertically centred, so a slot growing 24 → 42px under a half-styled chip
+// moved the whole identity block by 9px (measured on slow 4G).
 export const CHIP_MENU_CLASS =
-  "hidden w-full group-data-[session=authenticated]/header:flex";
+  "hidden min-h-10.5 w-full items-center group-data-[session=authenticated]/header:flex";
 
 // What the host tells the chip (banking #392): its signed-out CTA is the
 // secondary "Cabinet" affordance, so it opens the login page in its plain

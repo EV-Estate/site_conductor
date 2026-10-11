@@ -17,6 +17,25 @@
       // See above.
     }
   };
+  // The account chip's cached identity (banking,
+  // entities/user/model/identity-cache.ts): v2 in localStorage, v1 in
+  // sessionStorage. Copies of its keys, not an import — this script has none.
+  // Left behind after a sign-out here, the next signed-in paint on this device
+  // would show the previous account's name and initials until the profile read
+  // corrects it, and a different person may be the one signing in.
+  const forgetIdentity = () => {
+    // Separately: one storage throwing must not spare the other.
+    try {
+      localStorage.removeItem("ev.cabinet.account-chip.v2");
+    } catch {
+      // Same private-mode caveat as `remember`.
+    }
+    try {
+      sessionStorage.removeItem("ev.cabinet.account-chip");
+    } catch {
+      // Ditto.
+    }
+  };
 
   const readCookie = (name: string): string | null => {
     const prefix = `${name}=`;
@@ -106,8 +125,9 @@
     // a live session, so on failure the button simply becomes clickable again
     // and the drawer stays open on it. On success the remembered state flips
     // before navigating, so the home page does not paint the (now empty) chip
-    // slot off a stale stamp. The chip's own sign-out (banking's element)
-    // cannot do this; there the next page's read corrects the stamp later.
+    // slot off a stale stamp, and the chip's cached identity goes with it. The
+    // chip's own sign-out (banking's element) cannot touch `ev.session`; there
+    // the next page's read corrects the stamp later.
     // Runs before the delegated-close, which would otherwise shut the drawer.
     const signout = target.closest<HTMLButtonElement>(
       'button[data-action="signout"]'
@@ -127,6 +147,7 @@
         .then(r => {
           if (!r.ok) throw new Error(`logout answered ${r.status}`);
           remember("anonymous");
+          forgetIdentity();
           window.location.href = "/";
         })
         .catch(() => {
