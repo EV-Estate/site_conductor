@@ -18,6 +18,14 @@
     }
   };
 
+  const readCookie = (name: string): string | null => {
+    const prefix = `${name}=`;
+    const found = document.cookie
+      .split("; ")
+      .find(entry => entry.startsWith(prefix));
+    return found ? decodeURIComponent(found.slice(prefix.length)) : null;
+  };
+
   const header = document.querySelector<HTMLElement>(
     'header[data-slot="header"]'
   );
@@ -86,27 +94,45 @@
     const toggle = target.closest("[data-menu-toggle]");
     if (toggle)
       return setOpen(toggle.getAttribute("data-menu-toggle") === "open");
-    // Sign-out handler: POSTs /api/auth/logout with the CSRF token from the
-    // page's meta tag (same mechanism as the AccountChip microfrontend), then
-    // navigates home. Runs before the delegated-close so the menu closes too.
-    // The remembered state flips first, so the home page this lands on does
-    // not paint the (now empty) chip slot off a stale stamp. The chip's own
-    // sign-out (banking's element) cannot do this; there the next page's read
-    // corrects the stamp one round trip later.
-    const signout = target.closest<HTMLElement>('[data-action="signout"]');
+    // Sign-out handler: POSTs /api/auth/logout (rewritten to concierge) with
+    // the double-submit CSRF token concierge checks: `x-ev-csrf` must equal the
+    // readable `ev_csrf` cookie. Prefer the `__Host-` cookie so a
+    // subdomain-planted plain `ev_csrf` cannot shadow it; the bare name is dev.
+    // Same reading as banking's cabinet/frontend/shared/lib/csrf-client.ts —
+    // this script has zero imports, so it is a copy, not a shared module.
+    //
+    // Only a 2xx means the session is gone. Flipping the remembered state or
+    // leaving the page on any other answer would show a signed-out header over
+    // a live session, so on failure the button simply becomes clickable again
+    // and the drawer stays open on it. On success the remembered state flips
+    // before navigating, so the home page does not paint the (now empty) chip
+    // slot off a stale stamp. The chip's own sign-out (banking's element)
+    // cannot do this; there the next page's read corrects the stamp later.
+    // Runs before the delegated-close, which would otherwise shut the drawer.
+    const signout = target.closest<HTMLButtonElement>(
+      'button[data-action="signout"]'
+    );
     if (signout) {
-      setOpen(false);
-      remember("anonymous");
-      const csrf =
-        document
-          .querySelector('meta[name="csrf-token"]')
-          ?.getAttribute("content") ?? "";
+      if (signout.disabled) return;
+      signout.disabled = true;
+      signout.setAttribute("aria-busy", "true");
+      const csrf = readCookie("__Host-ev_csrf") ?? readCookie("ev_csrf");
       fetch("/api/auth/logout", {
         method: "POST",
-        headers: { "X-CSRF-Token": csrf, "Content-Type": "application/json" },
-      }).finally(() => {
-        window.location.href = "/";
-      });
+        headers: {
+          "Content-Type": "application/json",
+          ...(csrf ? { "x-ev-csrf": csrf } : {}),
+        },
+      })
+        .then(r => {
+          if (!r.ok) throw new Error(`logout answered ${r.status}`);
+          remember("anonymous");
+          window.location.href = "/";
+        })
+        .catch(() => {
+          signout.disabled = false;
+          signout.removeAttribute("aria-busy");
+        });
       return;
     }
     // Delegated close: any link/button inside the open overlay dismisses it.
