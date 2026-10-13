@@ -95,7 +95,7 @@ export function Footer() {
         linkComponent={FooterLink}
         newsletter={<NewsletterForm />}
         version={version}
-        commitHref={`https://github.com/ev-invest/site_conductor/commit/${commit}`}
+        commitHref={`https://github.com/ev-main/site_conductor/commit/${commit}`}
       >
         <BuildVersionLog />
       </BrandFooter>
