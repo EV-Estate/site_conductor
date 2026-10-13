@@ -310,7 +310,11 @@
             port = 58843;
             healthPath = "/";
             criticality = "high";
-            entrypoint = [ "${pkgs.nodejs}/bin/node" "${frontendApp}/server.js" ];
+            # V8 sizes its heap without regard to the pod's 256Mi limit, so at low
+            # traffic it defers major GC until the cgroup OOM-kills the pod (#236).
+            # Retained heap plateaus at ~80 MB under load; 128 leaves the rest of
+            # the limit to Node's off-heap memory.
+            entrypoint = [ "${pkgs.nodejs}/bin/node" "--max-old-space-size=128" "${frontendApp}/server.js" ];
             contents = [ pkgs.nodejs frontendApp ];
             workingDir = "${frontendApp}";
             imageEnv = [ "PORT=58843" "HOSTNAME=0.0.0.0" "NODE_ENV=production" ];
