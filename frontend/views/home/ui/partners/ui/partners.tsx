@@ -20,7 +20,7 @@ import { PartnerRow } from "./partner-row";
 // (application/styles/globals.css): that fraction is 1 / COPIES.
 const COPIES = 5;
 
-const GITHUB_ORG = "https://github.com/EV-invest";
+const GITHUB_ORG = "https://github.com/EV-Main";
 
 // A trust bar right under the cabinet tour: the tour shows the screens the
 // reader will live in, this says who holds, verifies and moves the money

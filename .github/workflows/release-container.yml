@@ -32,32 +32,31 @@ jobs:
       run: "install -d -m 700 ~/.ssh\nssh-keyscan -t rsa,ed25519 github.com >> ~/.ssh/known_hosts\
         \ 2>/dev/null\nkey=\"${{ secrets.DEPLOY_KEY_REAL_ESTATE_ALLOCATION }}\"\n\
         if [ -z \"$key\" ]; then\n  echo \"::error::DEPLOY_KEY_REAL_ESTATE_ALLOCATION\
-        \ unset — build fetches private input 'ev-invest/real_estate_allocation'.\
-        \ Provision: git_ops init-deploy-key ev-invest/real_estate_allocation\" >&2\n\
-        \  exit 1\nfi\nprintf '%s\\n' \"$key\" > ~/.ssh/real_estate_allocation\nchmod\
-        \ 600 ~/.ssh/real_estate_allocation\nprintf 'Host gh-real_estate_allocation\\\
-        n  HostName github.com\\n  User git\\n  IdentityFile ~/.ssh/real_estate_allocation\\\
-        n  IdentitiesOnly yes\\n' >> ~/.ssh/config\ngit config --global url.\"ssh://git@gh-real_estate_allocation/ev-invest/real_estate_allocation\"\
-        .insteadOf \"ssh://git@github.com/ev-invest/real_estate_allocation\"\ngit\
-        \ config --global url.\"git@gh-real_estate_allocation:ev-invest/real_estate_allocation\"\
-        .insteadOf \"git@github.com:ev-invest/real_estate_allocation\"\nkey=\"${{\
-        \ secrets.DEPLOY_KEY_BLOG }}\"\nif [ -z \"$key\" ]; then\n  echo \"::error::DEPLOY_KEY_BLOG\
-        \ unset — build fetches private input 'ev-invest/blog'. Provision: git_ops\
-        \ init-deploy-key ev-invest/blog\" >&2\n  exit 1\nfi\nprintf '%s\\n' \"$key\"\
-        \ > ~/.ssh/blog\nchmod 600 ~/.ssh/blog\nprintf 'Host gh-blog\\n  HostName\
-        \ github.com\\n  User git\\n  IdentityFile ~/.ssh/blog\\n  IdentitiesOnly\
-        \ yes\\n' >> ~/.ssh/config\ngit config --global url.\"ssh://git@gh-blog/ev-invest/blog\"\
-        .insteadOf \"ssh://git@github.com/ev-invest/blog\"\ngit config --global url.\"\
-        git@gh-blog:ev-invest/blog\".insteadOf \"git@github.com:ev-invest/blog\"\n\
-        key=\"${{ secrets.DEPLOY_KEY_WHITEPAPER }}\"\nif [ -z \"$key\" ]; then\n \
-        \ echo \"::error::DEPLOY_KEY_WHITEPAPER unset — build fetches private input\
-        \ 'ev-invest/whitepaper'. Provision: git_ops init-deploy-key ev-invest/whitepaper\"\
+        \ unset — build fetches private input 'ev-main/real_estate_allocation'. Provision:\
+        \ git_ops init-deploy-key ev-main/real_estate_allocation\" >&2\n  exit 1\n\
+        fi\nprintf '%s\\n' \"$key\" > ~/.ssh/real_estate_allocation\nchmod 600 ~/.ssh/real_estate_allocation\n\
+        printf 'Host gh-real_estate_allocation\\n  HostName github.com\\n  User git\\\
+        n  IdentityFile ~/.ssh/real_estate_allocation\\n  IdentitiesOnly yes\\n' >>\
+        \ ~/.ssh/config\ngit config --global url.\"ssh://git@gh-real_estate_allocation/ev-main/real_estate_allocation\"\
+        .insteadOf \"ssh://git@github.com/ev-main/real_estate_allocation\"\ngit config\
+        \ --global url.\"git@gh-real_estate_allocation:ev-main/real_estate_allocation\"\
+        .insteadOf \"git@github.com:ev-main/real_estate_allocation\"\nkey=\"${{ secrets.DEPLOY_KEY_BLOG\
+        \ }}\"\nif [ -z \"$key\" ]; then\n  echo \"::error::DEPLOY_KEY_BLOG unset\
+        \ — build fetches private input 'ev-main/blog'. Provision: git_ops init-deploy-key\
+        \ ev-main/blog\" >&2\n  exit 1\nfi\nprintf '%s\\n' \"$key\" > ~/.ssh/blog\n\
+        chmod 600 ~/.ssh/blog\nprintf 'Host gh-blog\\n  HostName github.com\\n  User\
+        \ git\\n  IdentityFile ~/.ssh/blog\\n  IdentitiesOnly yes\\n' >> ~/.ssh/config\n\
+        git config --global url.\"ssh://git@gh-blog/ev-main/blog\".insteadOf \"ssh://git@github.com/ev-main/blog\"\
+        \ngit config --global url.\"git@gh-blog:ev-main/blog\".insteadOf \"git@github.com:ev-main/blog\"\
+        \nkey=\"${{ secrets.DEPLOY_KEY_WHITEPAPER }}\"\nif [ -z \"$key\" ]; then\n\
+        \  echo \"::error::DEPLOY_KEY_WHITEPAPER unset — build fetches private input\
+        \ 'ev-main/whitepaper'. Provision: git_ops init-deploy-key ev-main/whitepaper\"\
         \ >&2\n  exit 1\nfi\nprintf '%s\\n' \"$key\" > ~/.ssh/whitepaper\nchmod 600\
         \ ~/.ssh/whitepaper\nprintf 'Host gh-whitepaper\\n  HostName github.com\\\
         n  User git\\n  IdentityFile ~/.ssh/whitepaper\\n  IdentitiesOnly yes\\n'\
-        \ >> ~/.ssh/config\ngit config --global url.\"ssh://git@gh-whitepaper/ev-invest/whitepaper\"\
-        .insteadOf \"ssh://git@github.com/ev-invest/whitepaper\"\ngit config --global\
-        \ url.\"git@gh-whitepaper:ev-invest/whitepaper\".insteadOf \"git@github.com:ev-invest/whitepaper\"\
+        \ >> ~/.ssh/config\ngit config --global url.\"ssh://git@gh-whitepaper/ev-main/whitepaper\"\
+        .insteadOf \"ssh://git@github.com/ev-main/whitepaper\"\ngit config --global\
+        \ url.\"git@gh-whitepaper:ev-main/whitepaper\".insteadOf \"git@github.com:ev-main/whitepaper\"\
         \n"
       shell: bash
     - name: Build + push containers

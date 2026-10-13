@@ -61,7 +61,7 @@ jobs:
           install -d -m 700 ~/.ssh
           ssh-keyscan -t rsa,ed25519 github.com >> ~/.ssh/known_hosts 2>/dev/null
           if [ -z "$DEPLOY_KEY" ]; then
-            echo "::error::DEPLOY_KEY_REAL_ESTATE_ALLOCATION unset — the home page needs REA's portfolio snapshots. Provision: git_ops init-deploy-key ev-invest/real_estate_allocation" >&2
+            echo "::error::DEPLOY_KEY_REAL_ESTATE_ALLOCATION unset — the home page needs REA's portfolio snapshots. Provision: git_ops init-deploy-key ev-main/real_estate_allocation" >&2
             exit 1
           fi
           printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/real_estate_allocation
@@ -72,7 +72,7 @@ jobs:
         run: |
           set -euo pipefail
           # Same ref flake.nix bakes into the image (`real_estate_allocation`).
-          out="$(nix build --no-link --print-out-paths -L 'git+ssh://git@github.com/ev-invest/real_estate_allocation?ref=refs/heads/main#embeds')"
+          out="$(nix build --no-link --print-out-paths -L 'git+ssh://git@github.com/ev-main/real_estate_allocation?ref=refs/heads/main#embeds')"
           mkdir -p frontend/public/mfe
           cp -rL --no-preserve=mode "$out"/. frontend/public/mfe/
           for locale in en ru vi fr de; do test -f "frontend/public/mfe/portfolio.$locale.html"; done
