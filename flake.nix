@@ -30,7 +30,14 @@
         # derivation (typecheck + Playwright visual regression). Kept on pre-push,
         # not pre-commit — a full visual run per commit is too slow; flip `stages`
         # to ["pre-commit"] if you want it on every commit.
-        preCommitBase = v_flakes.files.preCommit { inherit pkgs; };
+        preCommitBase = v_flakes.files.preCommit {
+          inherit pkgs;
+          # next/image decodes the source on every cache miss on the weak pod (#236)
+          webAssets = {
+            root = "frontend";
+            allow = [ "frontend/app/apple-icon.png" "frontend/app/favicon.ico" "frontend/public/opengraph-image.png" "frontend/tests/__screenshots__/" ];
+          };
+        };
         pre-commit-check = pre-commit-hooks.lib.${system}.run (preCommitBase // {
           hooks = preCommitBase.hooks // {
             test = {
@@ -51,15 +58,6 @@
             # no type checker), which is what makes that affordable. `nix run
             # .#test` and `prebuild` run it too; this is the one that cannot be
             # bypassed, since the container build calls `next build` directly.
-            # Raster sources are webp: next/image decodes the source on every cache miss on the weak
-            # pod (#236). The exceptions are formats their consumers require.
-            webp-only = {
-              enable = true;
-              name = "frontend images are webp or svg";
-              entry = "${pkgs.writeShellScript "webp-only" ''printf 'not webp/svg: %s\n' "$@"; exit 1''}";
-              files = "(?i)^frontend/.*\\.(png|jpe?g|gif|bmp|tiff?|avif|ico|heic)$";
-              excludes = [ "^frontend/app/apple-icon\\.png$" "^frontend/app/favicon\\.ico$" "^frontend/public/opengraph-image\\.png$" "^frontend/tests/__screenshots__/" ];
-            };
             i18n = {
               enable = true;
               name = "i18n catalogue matches code (translation policy 1.1/1.2)";
