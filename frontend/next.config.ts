@@ -57,24 +57,64 @@ const nextConfig: NextConfig = {
     // without it the only way to learn the locale is `useParams()` in a Client
     // Component — which would ship all five message catalogues (~176 KB).
   },
-  // /blogs and /whitepaper were separate shelves for the same thing: documents
-  // the fund publishes. They are now one route, so the old paths keep working
-  // forever as 308s — inbound links, the old sitemap and anything already
-  // bookmarked must not break. 308 (not 307) so the method and the SEO signal
-  // both transfer.
+  // The public landing moved to its own host (config.investOrigin); this
+  // origin keeps only the coming-soon page, sign-in and the zones. Every
+  // retired landing URL 301s there with its path — and its locale prefix —
+  // kept, so inbound links, bookmarks and the indexed URLs carry over. 301
+  // rather than `permanent` (308), as the migration plan specifies: every
+  // source here is a page read with GET, so 308's method guarantee buys
+  // nothing and 301 is the code every crawler and client handles the same.
+  //
+  // They precede the /en/* collapse so `/en/team` lands in one hop, not two.
+  // The page code under app/[locale] stays in the tree and is simply never
+  // reached; removing it is a separate change.
   async redirects() {
+    const invest = config.investOrigin;
+    // Restates LOCALES from @evinvest/i18n — same CJS boundary as `unprefixed`
+    // in rewrites() below.
+    const locale = "en|ru|vi|fr|de";
+    const moved = [
+      "publications",
+      "team",
+      "hiring",
+      "contact",
+      "privacy",
+      "terms",
+      "risk",
+      "apps",
+    ];
+    const toInvest = (source: string, destination: string) => ({
+      source,
+      destination: `${invest}${destination}`,
+      statusCode: 301 as const,
+    });
     return [
-      { source: "/blogs", destination: "/publications", permanent: true },
-      {
-        source: "/blogs/:path*",
-        destination: "/publications/:path*",
-        permanent: true,
-      },
-      {
-        source: "/whitepaper",
-        destination: "/publications/whitepaper",
-        permanent: true,
-      },
+      ...moved.flatMap(root => [
+        toInvest(`/${root}/:path*`, `/${root}/:path*`),
+        toInvest(
+          `/:locale(${locale})/${root}/:path*`,
+          `/:locale/${root}/:path*`
+        ),
+      ]),
+      // The cabinet's pages move; its asset, API and MFE paths do not. The
+      // account chip other surfaces mount (mfe-registry.json) and any open
+      // cabinet tab keep loading through the beforeFiles rewrites until the
+      // zone itself is retired from this host.
+      toInvest("/cabinet", "/cabinet"),
+      toInvest(
+        "/cabinet/:path((?!(?:_next|api|mfe)(?:/|$)).*)",
+        "/cabinet/:path*"
+      ),
+      toInvest(`/:locale(${locale})/cabinet/:path*`, "/:locale/cabinet/:path*"),
+      // The two old shelves of /publications, and the raw whitepaper builds
+      // the flake stages into public/.
+      toInvest("/blogs/:path*", "/publications/:path*"),
+      toInvest("/whitepaper", "/publications/whitepaper"),
+      toInvest(
+        "/:file(whitepaper\\.(?:pdf|dark\\.html|light\\.html))",
+        "/:file"
+      ),
+      toInvest("/llms.txt", "/llms.txt"),
       // Collapse the explicit /en/* form onto the unprefixed one so each page has
       // exactly one canonical URL. Cannot loop with the locale rewrite below:
       // this is external and matched against the incoming request, while the
