@@ -18,8 +18,8 @@ export them, so nothing here hardcodes a number.
 
 Frontend runs pull docs and the REA bundle from checkouts next to
 `site_conductor/` — `_estate/whitepaper/`, `blog/`, `_estate/real_estate_allocation/`,
-all optional. A missing checkout just warns: docs degrade to a PDF link, the
-portfolio section falls back to the in-repo render. For a live REA remote
+all optional. A missing checkout just warns: docs degrade to a PDF link. For a
+live REA remote
 instead of the baked bundle: run `nix run .#dev` in the
 `_estate/real_estate_allocation` checkout (→ :59079, verify with
 `nix run .#healthcheck` there).
@@ -29,6 +29,11 @@ instead of the baked bundle: run `nix run .#dev` in the
 Other EV surfaces compose at runtime through `frontend/shared/mfe`, never via
 `<iframe>`. Full reference: [`frontend/PATTERNS.md` §8](../../frontend/PATTERNS.md)
 and [`frontend/README.md`](../../frontend/README.md).
+
+> Since the move `/` is a coming-soon page and `/whitepaper`, `/blogs/*` and
+> `/publications/*` 301 to `invest.evinvest.ltd` (EV-Fund/landing); the remotes
+> below are still in the code under `frontend/app/[locale]` but not reachable
+> on this origin.
 
 - **Element remotes (`RemoteElement`)** — the home "Premium Asset Portfolio"
   section is `real_estate_allocation`'s self-registering custom element

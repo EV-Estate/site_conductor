@@ -56,8 +56,9 @@ export function ComingSoonView({
             second="arriving soon..."
           />
           <div>
-            {/* A plain <a>, not next/link: /admin is another service behind
-                the same host, so the hop is a full document load. The rule
+            {/* A plain <a>, not next/link: /admin is served by the admin
+                service through a Traefik route on the same host (devops), not
+                by this app, so the hop is a full document load. The rule
                 below reads `/admin` as one of our pages only because
                 app/[locale] matches any first segment. */}
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- /admin is routed to a separate service, not this app */}

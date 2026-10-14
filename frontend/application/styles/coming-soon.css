@@ -4,8 +4,9 @@
    page, so nothing else on the site picks them up. Colours and families are
    NOT here: those come from the uikit through the page's Tailwind classes.
 
-   Unlayered, which outranks every Tailwind layer: only rules that must beat a
-   uikit utility on the same element belong in this file. */
+   Unlayered, which outranks every Tailwind layer: beyond the properties, only
+   rules that must beat a uikit or base-layer rule on the same element belong
+   in this file. */
 
 [data-surface="coming-soon"] {
   --cs-gutter: 20px;

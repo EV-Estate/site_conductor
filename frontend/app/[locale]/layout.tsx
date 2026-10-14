@@ -54,7 +54,7 @@ export const generateStaticParams = () => localeStaticParams();
 // is ambiguous with this layout's own page — with `dynamicParams = false` the
 // segment is *declined* and the request falls through to the `fallback` rewrite
 // that resolves it as English. Without it, `/team` renders the homepage with
-// locale === "team". See docs/i18n-routing-spike.md.
+// locale === "team".
 //
 // It is also why a catch-all `[locale]/[...rest]` cannot be the 404: to serve
 // one, that route needs `dynamicParams = true`, which is resolved per *route*

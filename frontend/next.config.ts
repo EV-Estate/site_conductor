@@ -121,15 +121,13 @@ const nextConfig: NextConfig = {
       // rewrite is internal and never re-enters the redirect pipeline. Every
       // source here is itself /en-prefixed, so an unprefixed path never matches.
       //
-      // The cabinet is the one exception, and has to be: that zone owns
-      // `/{locale}/cabinet/*` as real routes and bounces an unprefixed
-      // `/cabinet/*` to the reader's locale itself. Collapsing `/en/cabinet/*`
-      // back answers that bounce with the path it just left —
+      // The cabinet is the one exception. The cabinet zone bounced an
+      // unprefixed `/cabinet/*` to the reader's locale itself, so collapsing
+      // `/en/cabinet/*` back answered that bounce with the path it just left —
       // `/cabinet/x` -> zone 307 -> `/en/cabinet/x` -> this 308 -> `/cabinet/x`
-      // — an endless loop for every English reader, which is most of them.
-      // `redirects()` runs before dynamic routes (the pipeline note below spells
-      // the order out), so app/[locale]/cabinet stays unreachable for English
-      // while this rule still matches it.
+      // — an endless loop for every English reader. On this origin the
+      // carve-out no longer fires: the `/:locale/cabinet/*` redirect to the
+      // invest host above matches first.
       { source: "/en", destination: "/", permanent: true },
       {
         // The carve-out is a negative lookahead on the source only; the
@@ -222,7 +220,8 @@ const nextConfig: NextConfig = {
   // proxy route handlers (app/cabinet/…, app/rea/…) instead, which is
   // why these must be beforeFiles — a bare array is afterFiles, which would
   // shadow the catch-all handlers. Env unset ⇒ no rewrites and the handler
-  // 404s, a deliberate "zone disabled" state.
+  // 404s, a deliberate "zone disabled" state. Cabinet *pages* never reach
+  // app/cabinet any more: redirects() sends them to the invest host first.
   async rewrites() {
     const beforeFiles = [];
     const cabinet = config.cabinetZoneUrl?.replace(/\/+$/, "");
@@ -291,10 +290,10 @@ const nextConfig: NextConfig = {
     // tried, rewriting /ru/team to /en/ru/team (404) while /team still resolves
     // and hides the bug. `fallback` runs last, after dynamic routes have had
     // their chance, which is the semantics actually wanted. Verified on 16.2.9 in
-    // dev and a production build — see docs/i18n-routing-spike.md.
+    // dev and a production build.
     //
     // Inlined rather than `localeRewrites()` from @evinvest/i18n/next — same
-    // reason as the Sentry exception above: this file is loaded as CJS, and the
+    // reason as the Sentry exception below: this file is loaded as CJS, and the
     // package is ESM-only, so requiring the subpath dies with
     // ERR_PACKAGE_PATH_NOT_EXPORTED. The helper is still the source of truth for
     // app-side code (localeStaticParams in app/[locale]/layout.tsx); only the
