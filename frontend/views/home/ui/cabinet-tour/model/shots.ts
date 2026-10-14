@@ -18,7 +18,7 @@ export const shots = (t: Translate) => {
   );
   return {
     home: {
-      src: "/assets/cabinet/home-desktop.png",
+      src: "/assets/cabinet/home-desktop.webp",
       width: 1440,
       height: 900,
       alt: homeAlt,
@@ -26,13 +26,13 @@ export const shots = (t: Translate) => {
     // Same screen at phone width; art-directed in via <picture> rather than
     // shrinking the desktop frame to 390px, where nothing would be legible.
     homeMobile: {
-      src: "/assets/cabinet/home-mobile.png",
+      src: "/assets/cabinet/home-mobile.webp",
       width: 390,
       height: 844,
       alt: homeAlt,
     },
     invest: {
-      src: "/assets/cabinet/invest-desktop.png",
+      src: "/assets/cabinet/invest-desktop.webp",
       width: 1440,
       height: 900,
       alt: t(
@@ -41,7 +41,7 @@ export const shots = (t: Translate) => {
       ),
     },
     profile: {
-      src: "/assets/cabinet/profile-desktop.png",
+      src: "/assets/cabinet/profile-desktop.webp",
       width: 1440,
       height: 900,
       alt: t(
