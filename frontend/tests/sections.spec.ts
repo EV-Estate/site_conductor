@@ -63,10 +63,13 @@ test(
     await expect(page.locator(DRAWN_LABEL)).toBeVisible({ timeout: 15_000 });
     await waitForMotionToSettle(page);
 
-    // Next's dev indicator is fixed to a viewport corner that falls inside the
-    // surface; it is the dev server's, not the page's.
+    // Dev-only chrome fixed over the surface: Next's dev indicator and the A/B
+    // dev panel (@evinvest/experiments, the only node at max z-index). Neither
+    // ships to production. Hidden rather than masked: a mask still records
+    // where they were.
     await page.addStyleTag({
-      content: "nextjs-portal { visibility: hidden !important; }",
+      content:
+        "nextjs-portal, div[style*='2147483647'] { visibility: hidden !important; }",
     });
     await expect(surface).toHaveScreenshot("coming-soon.png");
   }
