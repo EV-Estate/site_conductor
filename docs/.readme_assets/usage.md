@@ -16,12 +16,11 @@ export them, so nothing here hardcodes a number.
 | `nix run .#accept-test` | accept new screenshots (all, or `-- <names>`) |
 | `nix run .#publish` | bump latest remote `vX.Y.Z` tag (`-- major\|minor\|patch`) + push |
 
-Frontend runs pull docs and the REA bundle from checkouts next to
-`site_conductor/` — `_estate/whitepaper/`, `blog/`, `_estate/real_estate_allocation/`,
-all optional. A missing checkout just warns: docs degrade to a PDF link, the
-portfolio section falls back to the in-repo render. For a live REA remote
-instead of the baked bundle: run `nix run .#dev` in the
-`_estate/real_estate_allocation` checkout (→ :59079, verify with
+Frontend runs build docs and the REA bundle from `main` of the private
+`ev-main/{whitepaper,blog,real_estate_allocation}` repos (over ssh). A failed
+build just warns: docs degrade to a PDF link, the portfolio section falls back
+to the in-repo render. For a live REA remote instead of the baked bundle: run
+`nix run .#dev` in a `real_estate_allocation` checkout (→ :59079, verify with
 `nix run .#healthcheck` there).
 
 ## Microfrontends — no iframes

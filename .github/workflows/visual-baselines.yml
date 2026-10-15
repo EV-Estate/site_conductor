@@ -20,10 +20,8 @@
 #
 # The home page cannot render without REA's per-locale portfolio snapshots
 # (`public/mfe/portfolio.<locale>.html`, asserted at render by
-# views/home/ui/portfolio); locally `populate-docs` builds them from a sibling
-# clone, which the runner has not got, so the job builds the same `embeds`
-# package straight from the private flake ref that flake.nix bakes into the
-# image — hence the deploy key, as in release-container.yml.
+# views/home/ui/portfolio); `populate-docs` (run by `.#test`) builds them from
+# the private REA flake — hence the deploy key, as in release-container.yml.
 name: Visual baselines
 'on':
   pull_request:
@@ -67,15 +65,6 @@ jobs:
           printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/real_estate_allocation
           chmod 600 ~/.ssh/real_estate_allocation
           printf 'Host github.com\n  User git\n  IdentityFile ~/.ssh/real_estate_allocation\n  IdentitiesOnly yes\n' >> ~/.ssh/config
-      - name: Stage REA portfolio snapshots + bundle
-        shell: bash
-        run: |
-          set -euo pipefail
-          # Same ref flake.nix bakes into the image (`real_estate_allocation`).
-          out="$(nix build --no-link --print-out-paths -L 'git+ssh://git@github.com/ev-main/real_estate_allocation?ref=refs/heads/main#embeds')"
-          mkdir -p frontend/public/mfe
-          cp -rL --no-preserve=mode "$out"/. frontend/public/mfe/
-          for locale in en ru vi fr de; do test -f "frontend/public/mfe/portfolio.$locale.html"; done
       - name: Gate (typecheck, i18n, css, visual regression)
         # `run-test` also populates public/ and builds the zone shell manifest,
         # which the render step below relies on — keep this first.
