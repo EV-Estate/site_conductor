@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { DEFAULT_LOCALE, isLocale } from "@evinvest/i18n";
-import { metadata as baseMetadata } from "@/application/metadata";
 import { fontSourceSerif } from "@/application/styles/fonts/source-serif";
 import { translate } from "@/shared/config/i18n";
 import { SITE } from "@/shared/config/site";
@@ -16,6 +15,12 @@ import "@/application/styles/coming-soon.css";
 //
 // `title: { absolute }` bypasses the `%s | EV Investment` template, which
 // would otherwise stamp the brand twice.
+//
+// The social card is spelled out whole rather than spread from the base:
+// Next replaces `openGraph`/`twitter` as a unit, and the base carries the old
+// landing's preview image and fund pitch, which must not describe a page that
+// no longer makes that pitch. No image until a neutral one exists, hence the
+// plain `summary` card.
 export async function generateMetadata({
   params,
 }: {
@@ -32,8 +37,15 @@ export async function generateMetadata({
     title: { absolute: title },
     description,
     alternates: { canonical: "/" },
-    openGraph: { ...baseMetadata.openGraph, title, description, url: "/" },
-    twitter: { ...baseMetadata.twitter, title, description },
+    openGraph: {
+      type: "website",
+      siteName: SITE.name,
+      locale: "en_US",
+      title,
+      description,
+      url: "/",
+    },
+    twitter: { card: "summary", title, description },
   };
 }
 
