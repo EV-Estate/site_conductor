@@ -33,7 +33,6 @@
           inherit pkgs;
           # next/image decodes the source on every cache miss on the weak pod (#236)
           webAssets = {
-            root = "frontend";
             allow = [ "frontend/app/apple-icon.png" "frontend/app/favicon.ico" "frontend/public/opengraph-image.png" "frontend/tests/__screenshots__/" ];
           };
         };
