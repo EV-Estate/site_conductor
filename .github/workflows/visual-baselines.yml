@@ -99,7 +99,14 @@ jobs:
           retention-days: 14
       - name: Render baselines
         if: always()
-        run: nix run .#accept-test
+        shell: bash
+        # Drop the committed PNGs first: otherwise a render that fails before
+        # capturing anything still ships them as `visual-snapshots`, and the
+        # refresh above would commit stale images as fresh.
+        run: |
+          set -euo pipefail
+          rm -rf frontend/tests/__screenshots__
+          nix run .#accept-test
       - name: Upload baselines
         if: always()
         uses: actions/upload-artifact@v4

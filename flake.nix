@@ -5,7 +5,7 @@
   };
   outputs = { self, v_flakes, ev_assets }:
     let
-      inherit (v_flakes) flake-utils pre-commit-hooks rust-overlay;
+      inherit (v_flakes) flake-utils pre-commit-hooks;
       # Private canonical sources baked into the frontend image. Deliberately NOT
       # flake inputs: as impure getFlake refs they carry no flake.lock entry and no
       # narHash, so they can never drift or fail a hash check — every build just
@@ -20,22 +20,24 @@
       let
         pkgs = import v_flakes.default_nixpkgs {
           inherit system;
-          overlays = [ (import rust-overlay) ];
           config.allowUnfree = true;
         };
         # Canonical toolchain pinned in v_flakes — byte-identical across repos, so
         # the nix store dedups it and sccache cross-references compilations.
         rust = v_flakes.rs.default_nightly system;
-        # Lean toolchain for the production backend image: rustc + cargo + std only.
-        # Drops ~1.2 GB of dev tooling (rust-analyzer/docs/clippy/rustfmt/src) the
-        # container build never touches. CI builds only the containers, so this keeps
-        # the fat `rust` above out of the release closure entirely.
-        rustBuild = pkgs.rust-bin.selectLatestNightlyWith (toolchain: toolchain.minimal);
+        rustBuild = v_flakes.rs.build_nightly system;
         # v_flakes ships the treefmt hook; we extend it with the same `.#test`
         # derivation (typecheck + Playwright visual regression). Kept on pre-push,
         # not pre-commit — a full visual run per commit is too slow; flip `stages`
         # to ["pre-commit"] if you want it on every commit.
-        preCommitBase = v_flakes.files.preCommit { inherit pkgs; };
+        preCommitBase = v_flakes.files.preCommit {
+          inherit pkgs;
+          # next/image decodes the source on every cache miss on the weak pod (#236)
+          webAssets = {
+            root = "frontend";
+            allow = [ "frontend/app/apple-icon.png" "frontend/app/favicon.ico" "frontend/public/opengraph-image.png" "frontend/tests/__screenshots__/" ];
+          };
+        };
         pre-commit-check = pre-commit-hooks.lib.${system}.run (preCommitBase // {
           hooks = preCommitBase.hooks // {
             test = {
@@ -276,6 +278,11 @@
             # so `cp -r public $out/public` landed a second one at $out/public/public.
             mkdir -p $out/public
             cp -rf --no-preserve=mode public/. $out/public/
+            # Next writes its image and ISR caches under the (read-only) store path. `/tmp` is the
+            # pod's emptyDir: a cache is scoped to the release, since Next's image cache key ignores
+            # the source file's content. Not a subdir: Next's recursive mkdir fails through a dangling link.
+            ln -sT /tmp $out/.next/cache
+            ln -sT /tmp $out/.next/server/route-cache
             runHook postInstall
           '';
           dontNpmInstall = true;
@@ -317,7 +324,9 @@
             entrypoint = [ "${pkgs.nodejs}/bin/node" "--max-old-space-size=128" "${frontendApp}/server.js" ];
             contents = [ pkgs.nodejs frontendApp ];
             workingDir = "${frontendApp}";
-            imageEnv = [ "PORT=58843" "HOSTNAME=0.0.0.0" "NODE_ENV=production" ];
+            # glibc's per-thread arenas keep sharp/libvips' freed decode buffers resident, so each
+            # image optimization ratchets RSS until the OOM kill (#236).
+            imageEnv = [ "PORT=58843" "HOSTNAME=0.0.0.0" "NODE_ENV=production" "MALLOC_ARENA_MAX=2" ];
             # Runtime halves of the zone mounts (the HTML proxy handlers read these
             # per request); the build-time copies above own the baked rewrites.
             env = {
