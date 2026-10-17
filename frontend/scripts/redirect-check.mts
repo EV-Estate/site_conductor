@@ -193,3 +193,36 @@ if (rewriteFailures.length > 0) {
 }
 
 console.log(`English afterFiles rewrite OK — ${rewritten.length} rewritten, ${leftAlone.length} left alone.`);
+
+// Old mail links (site_conductor#270) and the wallet zone path (#271). Neither
+// may be caught by the /en/* collapse or the English rewrite above, and the
+// notifications redirect must stay permanent so a one-click POST keeps its body.
+const notif = redirects.filter(r => r.source.startsWith("/notifications/"));
+assert.equal(notif.length, 1, "expected exactly one /notifications/* redirect");
+assert.equal(notif[0]!.permanent, true, "/notifications/* must be a 308");
+const notifCases: [string, string][] = [
+  ["/notifications/unsubscribe", "/api/auth/notifications/unsubscribe"],
+  ["/notifications/confirm", "/api/auth/notifications/confirm"],
+  ["/notifications/a/b", "/api/auth/notifications/a/b"],
+];
+for (const [from, to] of notifCases) {
+  assert.equal(applyRule(notif[0]!, from), to, `${from} should redirect to ${to}`);
+}
+assert.equal(applyRule(notif[0]!, "/notificationsx/unsubscribe"), null, "sibling must not match");
+
+const walletRule = (rewrites.beforeFiles ?? []).find(r => r.source === "/wallet/:path*");
+// Env unset ⇒ zone disabled and no rewrite, so only assert when it is wired.
+if (walletRule) {
+  for (const [from, to] of [
+    ["/wallet/mfe/registry.json", "/wallet/mfe/registry.json"],
+    ["/wallet/pay", "/wallet/pay"],
+  ] as const) {
+    // The destination carries a host ("http://…"), which compile() reads as a
+    // parameter; assert on the path part, which is what the rule decides.
+    const path = new URL(walletRule.destination.replace(":path*", "x")).pathname;
+    assert.equal(path, "/wallet/x", "wallet rewrite must keep the /wallet prefix");
+    const got = applyRule({ source: walletRule.source, destination: "/wallet/:path*" }, from);
+    assert.equal(got, to, `${from} should reach the cabinet zone at ${to}`);
+  }
+}
+console.log(`Notifications redirect OK — ${notifCases.length} cases; wallet rewrite ${walletRule ? "OK" : "skipped (cabinet zone unset)"}.`);

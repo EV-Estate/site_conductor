@@ -75,6 +75,17 @@ const nextConfig: NextConfig = {
         destination: "/publications/whitepaper",
         permanent: true,
       },
+      // Mails sent before concierge#150 link to `/notifications/{unsubscribe,
+      // confirm}?token=…`; the account-less flow now lives under
+      // `/api/auth/notifications/*` (forwarded to concierge by the rewrite
+      // below). 308 keeps the method and body, so Gmail's one-click POST works;
+      // Next carries the query string over. Ships only once concierge v0.17.0
+      // (the target routes) is out.
+      {
+        source: "/notifications/:path*",
+        destination: "/api/auth/notifications/:path*",
+        permanent: true,
+      },
       // Collapse the explicit /en/* form onto the unprefixed one so each page has
       // exactly one canonical URL. Cannot loop with the locale rewrite below:
       // this is external and matched against the incoming request, while the
@@ -199,6 +210,16 @@ const nextConfig: NextConfig = {
         {
           source: "/cabinet/mfe/:path*",
           destination: `${cabinet}/cabinet/mfe/:path*`,
+        },
+        // Public contract of @evinvest/wallet: the scope hosts load
+        // `/wallet/mfe/*` and open the popups at `/wallet/{pay,withdraw,move,
+        // mandate}` on THIS origin. The cabinet serves them at its root (no
+        // /cabinet prefix, see its own `/wallet/mfe` rewrite), so the path is
+        // forwarded as-is. A rewrite keeps Origin and the CORS headers intact —
+        // banking gates its money routes on `Origin == https://evinvest.ltd`.
+        {
+          source: "/wallet/:path*",
+          destination: `${cabinet}/wallet/:path*`,
         }
       );
     }
