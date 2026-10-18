@@ -25,13 +25,20 @@ export interface LocalizedNavEntry {
   hard?: boolean;
 }
 
+// The investor cabinet lives on its own origin (invest.evinvest.ltd); evinvest.ltd
+// serves no cabinet pages of its own any more. Absolute hrefs, so `localizeNav`
+// must leave them alone. `?login` is what the cabinet reads to open its sign-in
+// dialog over whatever page carries it; it has no separate sign-up state.
+const INVEST_CABINET = "https://invest.evinvest.ltd/cabinet";
+const INVEST_SIGN_IN = `${INVEST_CABINET}?login`;
+
 // Header navigation — single source for desktop + mobile menus, on conductor
 // pages and in the zone-injected shell fragment (scripts/build-shell.mts) alike.
 // Portfolio / Research are root-relative anchors to the homepage sections (so
 // they work from any route, then scroll); Publications / Team / Hiring /
 // Contact are dedicated pages. The brand logo links home. The cabinet entries
 // are rendered separately: the static signed-out pair from `authLinks` below
-// (header-cta.tsx), the signed-in chip from account-chip-remote.tsx.
+// (header-cta.tsx), the signed-in state needs no chip here (the cabinet owns its account UI).
 export const NAV_ITEMS: readonly NavEntry[] = [
   { label: t => t("nav.portfolio", "Portfolio"), href: "/#portfolio" },
   { label: t => t("nav.research", "Research"), href: "/#research" },
@@ -81,22 +88,19 @@ export const FOOTER_NAV: readonly {
     links: [
       {
         label: t => t("footer.cabinet", "Cabinet"),
-        href: "/cabinet/login",
+        href: INVEST_SIGN_IN,
         hard: true,
       },
       {
         label: t => t("footer.openAccount", "Open an account"),
-        // `intent=signup` is what the login page reads for its first-visit
-        // state (banking #391); a bare /cabinet bounces newcomers to
-        // "Welcome back".
-        href: "/cabinet/login?intent=signup",
+        href: INVEST_SIGN_IN,
         hard: true,
       },
       {
         label: t => t("footer.finishVerification", "Finish verification"),
-        // The cabinet has no standalone KYC route: the verification row lives
-        // on the profile screen.
-        href: "/cabinet/profile",
+        // The cabinet has no standalone KYC route: verification lives on the
+        // account screen.
+        href: `${INVEST_CABINET}/account`,
         hard: true,
       },
       { label: t => t("footer.reports", "Reports"), href: "/publications" },
@@ -116,6 +120,8 @@ export const LEGAL_NAV: readonly NavEntry[] = [
   },
 ];
 
+const ABSOLUTE_URL = /^https?:\/\//;
+
 // One place that turns the nav into what a given locale renders: translated
 // label + locale-prefixed href. Without the href half, a reader on /ru/
 // clicking "Команда" would land on the English /team.
@@ -126,28 +132,27 @@ export function localizeNav(
 ): LocalizedNavEntry[] {
   return items.map(item => ({
     label: item.label(t),
-    href: localePath(locale, item.href),
+    href: ABSOLUTE_URL.test(item.href)
+      ? item.href
+      : localePath(locale, item.href),
     ...(item.hard && { hard: true }),
   }));
 }
 
 // The signed-out pair's targets, one place for both hosts (the conductor's
 // <Header> and the zone fragment in scripts/build-shell.mts). Hard cross-zone
-// hrefs (PATTERNS §9), both onto the sign-in page: a newcomer arrives with
-// `intent=signup`, which the login page reads for its first-visit state
-// (banking #391) — a bare /cabinet would bounce them to the default
-// "Welcome back" — and a returning investor without it. The cabinet's proxy
-// already sends a signed-in reader away from /login. Both labels are capped at
-// 20 characters (i18n-max) — the primary shares the bar with the burger below
-// `sm`, where a longer label overflows a 320px viewport in German.
-export function authLinks(locale: Locale, t: Translate): HeaderAuthLinks {
+// hrefs (PATTERNS §9) onto the invest cabinet's sign-in dialog; the cabinet has
+// no first-visit variant, so both entries share the target. Both labels are
+// capped at 20 characters (i18n-max) — the primary shares the bar with the
+// burger below `sm`, where a longer label overflows a 320px viewport in German.
+export function authLinks(t: Translate): HeaderAuthLinks {
   return {
     openAccount: {
-      href: localePath(locale, "/cabinet/login?intent=signup"),
+      href: INVEST_SIGN_IN,
       label: t("header.openAccount", "Open an account"),
     },
     cabinet: {
-      href: localePath(locale, "/cabinet/login"),
+      href: INVEST_SIGN_IN,
       label: t("header.cabinet", "Cabinet"),
     },
   };

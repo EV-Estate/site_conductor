@@ -40,9 +40,7 @@ export function CabinetEntryTracker({
   // pagehide flush — see the report on send_instantly in the lib.
   const onClickCapture = (e: MouseEvent<HTMLDivElement>) => {
     const target = e.target instanceof Element ? e.target : null;
-    const link = target?.closest<HTMLAnchorElement>(
-      'a[data-cta], a[href*="/cabinet/login"]'
-    );
+    const link = target?.closest<HTMLAnchorElement>("a[data-cta]");
     if (!link) return;
     capture("cta_clicked", {
       cta: link.dataset.cta ?? "cabinet",
