@@ -87,14 +87,6 @@
     "en": "Which of these describe you?",
     "t": "Что из этого про вас?"
   },
-  "comingSoon.admin": {
-    "en": "Admin",
-    "t": "Админка"
-  },
-  "comingSoon.caption": {
-    "en": "Illustrative — a simulated probability surface, not fund performance.",
-    "t": "Иллюстрация — смоделированная поверхность вероятностей, а не результаты фонда."
-  },
   "comingSoon.evNote": {
     "en": "expected value",
     "t": "ожидаемая ценность"

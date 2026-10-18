@@ -18,10 +18,6 @@
   --cs-display: clamp(50px, 7.6vw, 112px);
   --cs-display-indent: 0.6em;
   --cs-display-tracking: -0.025em;
-  --cs-link-size: 15px;
-  --cs-link-leading: 1.4;
-  --cs-caption-size: 13px;
-  --cs-caption-pb: max(1.5rem, env(safe-area-inset-bottom));
   --cs-ev-note-size: 11px;
   --cs-ev-note-tracking: 0.02em;
 }

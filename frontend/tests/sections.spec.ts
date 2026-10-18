@@ -4,7 +4,7 @@ import { expect, test, type Page } from "@playwright/test";
 // coming-soon stub at `/` (views/coming-soon). The landing moved to its own
 // host, so there are no sections, no site chrome and no A/B experiments here
 // any more — one baseline per viewport (playwright.config.ts projects, matched
-// by tag) of the whole surface, footer caption included.
+// by tag) of the whole surface.
 //
 // The terrain canvas animates on every frame; under reduced motion it paints
 // one still frame per layout and never animates (lib/terrain/scene.ts), which
@@ -54,10 +54,12 @@ test(
 
     const surface = page.locator(SURFACE);
     await expect(surface).toBeVisible();
-    await expect(page.getByRole("link", { name: "Admin" })).toHaveAttribute(
-      "href",
-      "/admin"
-    );
+    // The owner dropped the Admin link and the "Illustrative" caption
+    // (2026-10-18); a screenshot diff alone would not say which of them
+    // crept back, so pin them explicitly next to the headline.
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Admin" })).toHaveCount(0);
+    await expect(page.getByText("Illustrative")).toHaveCount(0);
     // A dead client bundle leaves the canvas blank and the label hidden — a
     // structurally valid but empty capture. Fail loud instead.
     await expect(page.locator(DRAWN_LABEL)).toBeVisible({ timeout: 15_000 });
