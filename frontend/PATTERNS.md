@@ -289,7 +289,10 @@ and the conductor is the only party that knows chrome exists — its proxy injec
 the conductor-owned AppShell (the brand header) into the zone's HTML stream.
 
 - **Cabinet pages still proxy here** until the invest host serves the cabinet;
-  `/cabinet` leaves this origin in a separate change.
+  `/cabinet` leaves this origin in a separate change. The cabinet is mounted
+  with `shell: false`: it gets **no** injected header (the shell header is the
+  old landing's, now on invest.evinvest.ltd, and its links 404) and serves its
+  own chrome. Only zones that omit the flag (REA) are wrapped.
 - **Traffic splits by content, not path.** Asset/API traffic (`/cabinet/_next`,
   `/cabinet/api`, `/cabinet/mfe`, `/rea/assets`, `/rea/api`)
   goes straight to the zone over native `beforeFiles` rewrites (`next.config.ts`

@@ -41,6 +41,13 @@ assert.ok(/<head[^>]*><link rel="preload" as="font"[^>]*><link rel="stylesheet" 
 assert.ok(/<body[^>]*><header data-slot="header"/.test(body), "body insert after split tag");
 assert.ok(body.endsWith("</html>"), "tail passes through");
 
+const bare = await proxyZone(new Request("http://conductor.test/set-cookies"), up, { shell: false });
+assert.equal(
+  await bare.text(),
+  "<!DOCTYPE html><html><head><title>t</title></head><body><main>hello</main></body></html>",
+  "shell: false leaves HTML byte-identical"
+);
+
 const redir = await proxyZone(new Request("http://conductor.test/redir"), up);
 assert.equal(redir.status, 302);
 assert.equal(redir.headers.get("location"), "/cabinet/login");
