@@ -3,11 +3,12 @@
 // Three things here cannot be caught by a type or a lint — the config compiles
 // either way — so each is asserted against Next's own matcher, substituting
 // the way Next substitutes:
-//   1. The retired landing and cabinet pages answer 404: no redirect (Next
+//   1. The retired landing pages answer 404: no redirect (Next
 //      consults redirects() first, so one stray match would beat the 404) and
 //      a beforeFiles rewrite to a route nobody owns. Nothing else may be
-//      caught — the zones' asset/API/MFE paths, auth, KYC, /wallet, /rea and
-//      the old mail links keep working. No rule may point at another host.
+//      caught — the cabinet (still the working investor cabinet here until the
+//      invest host serves it), auth, KYC, /wallet, /rea and the old mail
+//      links keep working. No rule may point at another host.
 //   2. The /en/* collapse (one canonical URL per page) stays off the retired
 //      paths, which must 404 as themselves rather than 308 first.
 //   3. The English afterFiles rewrite (site_conductor#229): an unprefixed
@@ -65,12 +66,16 @@ const collapses: [string, string][] = [
   ["/en/teams", "/teams"],
 ];
 
-// Retired: must reach the 404 rewrite as themselves, not be collapsed first.
+// Retired pages must reach the 404 rewrite as themselves, not be collapsed
+// first. The cabinet must not be collapsed either: its zone bounces an
+// unprefixed `/cabinet/*` to the locale itself, so collapsing `/en/cabinet/*`
+// back is an endless loop for English readers.
 const passesThrough = [
   "/en/team",
   "/en/publications/whitepaper",
   "/en/cabinet",
   "/en/cabinet/wallet",
+  "/en/cabinet/admin/revenue",
   "/en/cabinet/login",
   "/en/whitepaper.pdf",
   "/en/llms.txt",
@@ -98,7 +103,7 @@ for (const from of passesThrough) {
     got = { error: (e as Error).message };
   }
   if (got !== null) {
-    failures.push(`${from} must reach the 404 rewrite as itself, but the collapse claimed it (${JSON.stringify(got)})`);
+    failures.push(`${from} must reach the 404 rewrite or the cabinet zone as itself, but the collapse claimed it (${JSON.stringify(got)})`);
   }
 }
 
@@ -106,8 +111,9 @@ if (failures.length > 0) {
   console.error(`The /en/* collapse is wrong in ${failures.length} case(s):\n`);
   for (const f of failures) console.error(`  ${f}`);
   console.error(
-    "\nA retired path caught by the collapse answers 308 instead of 404." +
-      "\nSee RETIRED_PATH / NOT_RETIRED in next.config.ts."
+    "\nA retired path caught by the collapse answers 308 instead of 404; a collapsed" +
+      "\n/en/cabinet/* loops English readers against the zone's locale bounce." +
+      "\nSee RETIRED_PATH / NOT_COLLAPSED in next.config.ts."
   );
   process.exit(1);
 }
@@ -270,11 +276,8 @@ const retiredBases = [
   "/whitepaper.light.html",
   "/whitepaper/x",
   "/llms.txt",
-  "/cabinet",
-  "/cabinet/login",
-  "/cabinet/admin/revenue",
 ];
-// The same pages under every locale prefix, `/<locale>/cabinet/*` included.
+// The same pages under every locale prefix.
 const retired = [
   ...retiredBases,
   ...LOCALES.flatMap(locale => retiredBases.map(p => `/${locale}${p}`)),
@@ -293,6 +296,12 @@ const stays = [
   "/api/mfe-registry",
   "/wallet/mfe/registry.json",
   "/wallet/pay",
+  // The working cabinet: pages, with and without a locale prefix, plus its
+  // asset, API and MFE paths.
+  "/cabinet",
+  "/cabinet/login",
+  "/cabinet/admin/revenue",
+  ...LOCALES.flatMap(locale => [`/${locale}/cabinet`, `/${locale}/cabinet/wallet`]),
   "/cabinet/_next/static/chunks/x.js",
   "/cabinet/api/session",
   "/cabinet/mfe/account-chip.js",

@@ -288,10 +288,8 @@ standalone deployment on its own origin, emits **chromeless** full documents,
 and the conductor is the only party that knows chrome exists — its proxy injects
 the conductor-owned AppShell (the brand header) into the zone's HTML stream.
 
-- **Cabinet pages no longer proxy here:** `/cabinet` and every
-  non-`_next`/`api`/`mfe` path under it answer 404 (`next.config.ts`
-  `rewrites()`, no redirect); only the asset/API/MFE rewrites remain (account chip, open
-  tabs).
+- **Cabinet pages still proxy here** until the invest host serves the cabinet;
+  `/cabinet` leaves this origin in a separate change.
 - **Traffic splits by content, not path.** Asset/API traffic (`/cabinet/_next`,
   `/cabinet/api`, `/cabinet/mfe`, `/rea/assets`, `/rea/api`)
   goes straight to the zone over native `beforeFiles` rewrites (`next.config.ts`

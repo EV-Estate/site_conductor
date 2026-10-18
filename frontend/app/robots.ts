@@ -37,7 +37,7 @@ const AI_CRAWLERS = [
 // everywhere the default crawler is" is what those groups mean; it is not
 // "allowed more than it".
 //
-// The retired landing and cabinet paths are not disallowed: they answer 404,
+// The retired landing paths are not disallowed: they answer 404,
 // and a crawler barred from a URL never sees its status — the old entries
 // would linger in the index instead of dropping out.
 const DISALLOW = ["/api/"];

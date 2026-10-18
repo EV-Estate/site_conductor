@@ -3,9 +3,9 @@
 Conductor shell of `evinvest.ltd` — Next.js 16 (App Router) + React 19, FSD,
 Tailwind v4. The public landing moved to its own host (repo EV-Fund/landing); this origin
 links nowhere near it. It serves the coming-soon page at `/`
-(`views/coming-soon`), answers 404 for every retired landing and cabinet page,
+(`views/coming-soon`), answers 404 for every retired landing page,
 with or without a locale prefix (`next.config.ts` `rewrites()`), and keeps the
-auth/KYC rewrites, the REA zone and the cabinet's asset/API/MFE rewrites.
+auth/KYC rewrites, the REA zone and the working cabinet (until the invest host serves it).
 The dev port comes from the `ports` attrset in the repo's `flake.nix`.
 
 ## Layout
