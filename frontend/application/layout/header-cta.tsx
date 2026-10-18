@@ -33,10 +33,7 @@ const HEADER_BUTTON =
 // still shows one way in without a tap on the menu.
 export function HeaderBarCta({ links }: { links: HeaderAuthLinks }) {
   return (
-    <div
-      data-slot="header-cta"
-      className="flex items-center gap-3 group-data-[session=authenticated]/header:hidden"
-    >
+    <div data-slot="header-cta" className="flex items-center gap-3">
       <Button
         href={links.cabinet.href}
         variant="ghost"
@@ -51,7 +48,7 @@ export function HeaderBarCta({ links }: { links: HeaderAuthLinks }) {
         variant="primary"
         size="md"
         data-cta="open_account"
-        className={HEADER_BUTTON}
+        className={`group-data-[session=authenticated]/header:hidden ${HEADER_BUTTON}`}
       >
         {links.openAccount.label}
       </Button>
@@ -70,7 +67,7 @@ export function HeaderMenuCta({ links }: { links: HeaderAuthLinks }) {
       variant="outline"
       size="md"
       data-cta="cabinet"
-      className={`w-full group-data-[session=authenticated]/header:hidden ${HEADER_BUTTON}`}
+      className={`w-full ${HEADER_BUTTON}`}
     >
       {links.cabinet.label}
     </Button>

@@ -24,7 +24,7 @@ import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { Fragment, createElement } from "react";
+import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { transformSync } from "esbuild";
 import postcss, { AtRule, type ChildNode } from "postcss";
@@ -34,31 +34,19 @@ import { LOCALES, localePath, type Locale } from "@evinvest/i18n";
 import { BrandHeader } from "../application/layout/header";
 import { HeaderBarCta, HeaderMenuCta } from "../application/layout/header-cta";
 import {
-  CHIP_BAR_ATTRIBUTES,
-  CHIP_BAR_CLASS,
-  CHIP_MENU_ATTRIBUTES,
-  CHIP_MENU_CLASS,
-} from "../application/layout/header-shared";
-import {
   NAV_ITEMS,
   authLinks,
   localizeNav,
 } from "../application/layout/nav-items";
 import { translate } from "../shared/config/i18n";
-import registry from "../mfe-registry.json";
 import { spanEnterScript } from "./span-enter";
 
 const frontend = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = path.join(frontend, "public/shell");
 
-const chip = registry.find(entry => entry.name === "cabinet.account");
-if (!chip) throw new Error("cabinet.account missing from mfe-registry.json");
-
 // Mirrors the conductor's own CTA wiring in account-chip-remote.tsx: the static
-// signed-out pair beside the chip in the bar, the secondary beside it in the
-// overlay; the chip is hidden until the session is known to be signed in. The
-// raw tag is self-registering — the fragment appends its module script after
-// the markup.
+// signed-out pair in the bar, the secondary in the overlay. There is no account
+// chip: the cabinet is invest.evinvest.ltd's now, and the pair points there.
 //
 // One fragment PER LOCALE, and that is load-bearing rather than a nicety. This
 // header is the only chrome a zone has, so its links are how a reader leaves the
@@ -74,7 +62,7 @@ if (!chip) throw new Error("cabinet.account missing from mfe-registry.json");
 // only the markup differs, and only in link targets and text.
 function fragmentFor(locale: Locale): string {
   const t = translate(locale);
-  const links = authLinks(locale, t);
+  const links = authLinks(t);
   return renderToStaticMarkup(
     createElement(BrandHeader, {
       nav: localizeNav(NAV_ITEMS, locale, t),
@@ -90,21 +78,8 @@ function fragmentFor(locale: Locale): string {
           "Couldn't sign you out. Please try again."
         ),
       },
-      cta: createElement(
-        Fragment,
-        null,
-        createElement(HeaderBarCta, { links }),
-        createElement(chip.tag, { class: CHIP_BAR_CLASS, ...CHIP_BAR_ATTRIBUTES })
-      ),
-      mobileCta: createElement(
-        Fragment,
-        null,
-        createElement(HeaderMenuCta, { links }),
-        createElement(chip.tag, {
-          class: CHIP_MENU_CLASS,
-          ...CHIP_MENU_ATTRIBUTES,
-        })
-      ),
+      cta: createElement(HeaderBarCta, { links }),
+      mobileCta: createElement(HeaderMenuCta, { links }),
       notice: createElement(
         "div",
         {
@@ -195,15 +170,8 @@ writeFileSync(
       sessionInline: sessionJs,
       font: `/shell/${displayFontName}`,
       // Keyed by locale; `shared/zone-proxy.ts` picks the one matching the URL it
-      // is proxying. The chip's module script is appended to each — it is
-      // self-registering and idempotent, and only one fragment is ever injected
-      // into a given document.
-      fragments: Object.fromEntries(
-        LOCALES.map(locale => [
-          locale,
-          `${fragments[locale]}<script type="module" src="${chip.scriptUrl}"></script>`,
-        ])
-      ),
+      // is proxying.
+      fragments,
     },
     null,
     2
