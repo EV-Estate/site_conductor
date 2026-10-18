@@ -1,4 +1,4 @@
-// Shell-injecting HTML proxy for zone mounts (PATTERNS.md §9). Only zone HTML
+// Shell-injecting (opt-out via `shell: false`) HTML proxy for zone mounts (PATTERNS.md §9). Only zone HTML
 // flows through here — asset/API traffic stays on native beforeFiles rewrites
 // (next.config.ts). The zone emits a chromeless full document; this hop inserts
 // the conductor-owned AppShell into the initial HTML stream: header assets
@@ -72,22 +72,8 @@ const HEAD_INSERT =
 // them — see the fragment comment in build-shell.
 const FRAGMENTS = shell.fragments as Record<Locale, string>;
 
-// A zone whose header wants a zone-specific treatment (e.g. the cabinet's
-// full-bleed bordered bar) is tagged at inject time: the server already knows
-// which zone it is proxying, so the `data-zone` lands in the very first painted
-// frame — the styling variants key off it with no client round-trip and no
-// reflow. Only the header root's exact `data-slot="header"` is patched (not the
-// `data-slot="header-mobile-overlay"` sibling, whose value differs).
-function bodyInsertFor(
-  headerZone: string | undefined,
-  locale: Locale
-): string {
-  const fragment = FRAGMENTS[locale] ?? FRAGMENTS[DEFAULT_LOCALE];
-  if (!headerZone) return fragment;
-  return fragment.replace(
-    'data-slot="header"',
-    `data-slot="header" data-zone="${headerZone}"`
-  );
+function bodyInsertFor(pathname: string): string {
+  return FRAGMENTS[localeOf(pathname)] ?? FRAGMENTS[DEFAULT_LOCALE];
 }
 
 /**
@@ -110,7 +96,7 @@ function localeOf(pathname: string): Locale {
 export async function proxyZone(
   request: Request,
   zoneUrl: string | undefined,
-  opts?: { headerZone?: string; noindex?: boolean }
+  opts?: { shell?: boolean; noindex?: boolean }
 ): Promise<Response> {
   // Env unset ⇒ zone disabled: 404 rather than half-proxying, preserving the
   // old rewrite-less semantics.
@@ -176,16 +162,19 @@ export async function proxyZone(
   // stays indexable by default unless it explicitly opts out like the cabinet.
   if (opts?.noindex) resHeaders.set("x-robots-tag", "noindex");
 
+  // `shell: false` opts a zone out of injection: its HTML streams through
+  // byte-identical. The cabinet does this — it renders its own chrome (and none
+  // on the wallet popups), and the injected header was the old landing's, whose
+  // links now 404 (that landing moved to invest.evinvest.ltd).
   // Anything that isn't an HTML document (RSC payloads, files) streams through
   // byte-identical. Error HTML keeps its chrome — inject on 4xx/5xx too.
+  const injectShell = opts?.shell !== false;
   const isHtml = (upstream.headers.get("content-type") ?? "").includes(
     "text/html"
   );
   const body =
-    isHtml && upstream.body
-      ? upstream.body.pipeThrough(
-          shellInjector(bodyInsertFor(opts?.headerZone, localeOf(url.pathname)))
-        )
+    injectShell && isHtml && upstream.body
+      ? upstream.body.pipeThrough(shellInjector(bodyInsertFor(url.pathname)))
       : upstream.body;
   return new Response(body, {
     status: upstream.status,
