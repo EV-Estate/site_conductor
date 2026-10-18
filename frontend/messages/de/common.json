@@ -87,14 +87,6 @@
     "en": "Which of these describe you?",
     "t": "Was davon trifft auf Sie zu?"
   },
-  "comingSoon.admin": {
-    "en": "Admin",
-    "t": "Admin"
-  },
-  "comingSoon.caption": {
-    "en": "Illustrative — a simulated probability surface, not fund performance.",
-    "t": "Illustration — eine simulierte Wahrscheinlichkeitsfläche, keine Fondsperformance."
-  },
   "comingSoon.evNote": {
     "en": "expected value",
     "t": "Erwartungswert"

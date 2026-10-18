@@ -8,8 +8,7 @@ const CONTAINER = "mx-auto w-full max-w-(--page-max) px-(--cs-gutter)";
 
 /**
  * evinvest.ltd while the landing lives on its own host: the terrain, one line
- * of display copy and the way into the admin. No site chrome — the page is the
- * whole document.
+ * of display copy. No site chrome — the page is the whole document.
  *
  * `fontClassName` carries the display face's CSS variable: the font is
  * declared by the route (app/), which is the only layer allowed to reach the
@@ -55,31 +54,8 @@ export function ComingSoonView({
             }
             second="arriving soon..."
           />
-          <div>
-            {/* A plain <a>, not next/link: /admin is served by the admin
-                service through a Traefik route on the same host (devops), not
-                by this app, so the hop is a full document load. The rule
-                below reads `/admin` as one of our pages only because
-                app/[locale] matches any first segment. */}
-            {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- /admin is routed to a separate service, not this app */}
-            <a
-              href="/admin"
-              className="inline-flex items-center gap-2.5 border-b border-primary-ink pb-1.5 font-sans text-(length:--cs-link-size) leading-(--cs-link-leading) font-normal text-ink transition-colors hover:border-ink focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-ring"
-            >
-              {t("comingSoon.admin", "Admin")}
-              <span aria-hidden="true">→</span>
-            </a>
-          </div>
         </main>
       </TerrainHero>
-      <footer className={CONTAINER}>
-        <p className="m-0 border-t border-border pt-4 pb-(--cs-caption-pb) font-sans text-(length:--cs-caption-size) leading-normal text-ink-soft">
-          {t(
-            "comingSoon.caption",
-            "Illustrative — a simulated probability surface, not fund performance."
-          )}
-        </p>
-      </footer>
     </div>
   );
 }
