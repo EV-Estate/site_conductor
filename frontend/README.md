@@ -1,10 +1,10 @@
 # site_conductor
 
 Conductor shell of `evinvest.ltd` — Next.js 16 (App Router) + React 19, FSD,
-Tailwind v4. The public landing moved to its own host (`INVEST_ORIGIN`, default
-`https://invest.evinvest.ltd`, repo EV-Fund/landing). This origin serves the
-coming-soon page at `/` (`views/coming-soon`), 301s every retired landing path
-there with path and locale kept (`next.config.ts` `redirects()`), and keeps the
+Tailwind v4. The public landing moved to its own host (repo EV-Fund/landing); this origin
+links nowhere near it. It serves the coming-soon page at `/`
+(`views/coming-soon`), answers 404 for every retired landing and cabinet page,
+with or without a locale prefix (`next.config.ts` `rewrites()`), and keeps the
 auth/KYC rewrites, the REA zone and the cabinet's asset/API/MFE rewrites.
 The dev port comes from the `ports` attrset in the repo's `flake.nix`.
 
@@ -55,8 +55,8 @@ npm run check                # tsc --noEmit
 ## Visual-regression tests
 
 > Not served on this origin since the move: `/publications`, `/whitepaper` and
-> `/apps/*` 301 to the invest host (`next.config.ts` `redirects()`); the code
-> under `app/[locale]` stays until removed.
+> `/apps/*` answer 404 (`next.config.ts` `rewrites()`); the code under
+> `app/[locale]` stays until removed.
 
 Per-section Playwright screenshots in [`tests/`](./tests) — one baseline per
 addressable section (`#hero`, `#portfolio`, `#calculator`, `#research`, `#team`,
@@ -123,8 +123,8 @@ shadow roots, and the global uikit tokens must cascade in.
   catch-all) so it never shadows the marketing routes or the real 404.
 
   > Not served on this origin since the move: `/publications`, `/whitepaper` and
-  > `/apps/*` 301 to the invest host (`next.config.ts` `redirects()`); the code
-  > under `app/[locale]` stays until removed.
+  > `/apps/*` answer 404 (`next.config.ts` `rewrites()`); the code under
+  > `app/[locale]` stays until removed.
 
 **Producing a microfrontend** (other repos — site_conductor ships no producer SDK). The
 canonical, fuller recipe lives in the hub's
@@ -145,8 +145,8 @@ contract is shared with `cabinet`, so keep this in sync with it.
 ### Document remotes — `RemoteDocument`
 
 > Not served on this origin since the move: `/publications`, `/whitepaper` and
-> `/apps/*` 301 to the invest host (`next.config.ts` `redirects()`); the code
-> under `app/[locale]` stays until removed.
+> `/apps/*` answer 404 (`next.config.ts` `rewrites()`); the code under
+> `app/[locale]` stays until removed.
 
 For remotes that are a self-contained **static HTML document** (the typst-built
 [whitepaper](<./app/[locale]/publications/whitepaper>) and

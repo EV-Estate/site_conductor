@@ -3,11 +3,11 @@
 
 `site_conductor` is the conductor shell of `evinvest.ltd` for **EV Investment** — a
 real-estate advisory and investment fund specializing in premium coastal
-developments in Quy Nhon, Vietnam. The public landing moved to its own host,
-`invest.evinvest.ltd` (repo EV-Fund/landing); this origin now serves a
-"coming soon" page at `/` and 301s every retired landing path — `/whitepaper`,
-`/blogs/*`, `/publications/*`, `/team`, `/hiring`, … — there with path and locale
-kept. It still carries sign-in and KYC (rewrites to the concierge plane), the
+developments in Quy Nhon, Vietnam. The public landing moved to its own host
+(repo EV-Fund/landing); this origin now serves a "coming soon" page at `/` and
+answers 404 for every retired landing and cabinet page — `/whitepaper`,
+`/blogs/*`, `/publications/*`, `/team`, `/hiring`, `/cabinet`, … — with or
+without a locale prefix, and never redirects to the new host. It still carries sign-in and KYC (rewrites to the concierge plane), the
 REA zone and the cabinet's asset/API/MFE rewrites. A Next.js 16 (App Router)
 front end in [`frontend/`](frontend) lives alongside an axum API in
 [`backend/`](backend). The shared design system ships as the published
@@ -23,8 +23,8 @@ front end in [`frontend/`](frontend) lives alongside an axum API in
 Production runs on k3s, rolled out by Flux from the `gitops` repo; hosts,
 failover and cluster setup live in
 [EV-Main/devops](https://github.com/EV-Main/devops). On `evinvest.ltd` this app
-serves the coming-soon page, the 301s to `invest.evinvest.ltd` and the
-auth/KYC/zone rewrites; the landing itself is EV-Fund/landing.
+serves the coming-soon page, 404s for the retired landing and cabinet pages
+and the auth/KYC/zone rewrites; the landing itself is EV-Fund/landing.
 
 ### Deploy
 

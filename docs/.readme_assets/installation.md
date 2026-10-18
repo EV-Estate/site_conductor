@@ -3,8 +3,8 @@
 Production runs on k3s, rolled out by Flux from the `gitops` repo; hosts,
 failover and cluster setup live in
 [EV-Main/devops](https://github.com/EV-Main/devops). On `evinvest.ltd` this app
-serves the coming-soon page, the 301s to `invest.evinvest.ltd` and the
-auth/KYC/zone rewrites; the landing itself is EV-Fund/landing.
+serves the coming-soon page, 404s for the retired landing and cabinet pages
+and the auth/KYC/zone rewrites; the landing itself is EV-Fund/landing.
 
 ## Deploy
 

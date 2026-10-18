@@ -289,8 +289,8 @@ and the conductor is the only party that knows chrome exists — its proxy injec
 the conductor-owned AppShell (the brand header) into the zone's HTML stream.
 
 - **Cabinet pages no longer proxy here:** `/cabinet` and every
-  non-`_next`/`api`/`mfe` path under it 301 to the invest host (`next.config.ts`
-  `redirects()`); only the asset/API/MFE rewrites remain (account chip, open
+  non-`_next`/`api`/`mfe` path under it answer 404 (`next.config.ts`
+  `rewrites()`, no redirect); only the asset/API/MFE rewrites remain (account chip, open
   tabs).
 - **Traffic splits by content, not path.** Asset/API traffic (`/cabinet/_next`,
   `/cabinet/api`, `/cabinet/mfe`, `/rea/assets`, `/rea/api`)

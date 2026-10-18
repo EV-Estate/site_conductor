@@ -8,8 +8,8 @@ import { ComingSoonView } from "@/views/coming-soon";
 // its `data-surface` (see the file's header).
 import "@/application/styles/coming-soon.css";
 
-// The landing moved to its own host (next.config.ts `redirects()`); this origin
-// keeps one page. Every locale renders it — the brand line stays English in
+// The retired landing pages answer 404 (next.config.ts `rewrites()`); this
+// origin keeps one page. Every locale renders it — the brand line stays English in
 // all of them — so every locale canonicalises to `/` and the sitemap lists `/`
 // alone. Per-locale hreflang would announce five URLs for one page.
 //

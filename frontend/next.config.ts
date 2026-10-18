@@ -21,6 +21,31 @@ const buildVersion =
 // Full SHA the footer link resolves to, kept separate from the display version.
 const buildCommit = config.public.buildCommit || git("git rev-parse HEAD", "");
 
+// Restates LOCALES from @evinvest/i18n — this file loads as CJS and the
+// package is ESM-only (same boundary as `unprefixed` in rewrites()).
+const LOCALE_ALT = "en|ru|vi|fr|de";
+
+// The public landing and the cabinet's pages are gone from this origin and
+// answer 404 — no redirect to the new landing host, by decision (2026-10-18):
+// whoever wants it knows the address. The match is the whole path, written as
+// a regex fragment so the same text serves three rules:
+//   - the 404 rewrites in rewrites() (bare and locale-prefixed),
+//   - the lookahead that keeps the /en/* collapse off these paths in
+//     redirects() — a 308 there would answer `/en/team` with a redirect
+//     before the 404 rewrite is ever consulted,
+//   - scripts/redirect-check.mts, through the rules' output.
+// Segment-wise: `cabinet` etc. match the root and anything below it; the dotted
+// whitepaper builds (pdf, dark/light html) and llms.txt are single files.
+const RETIRED_ROOTS =
+  "publications|team|hiring|contact|privacy|terms|risk|apps|blogs|whitepaper|cabinet";
+const RETIRED_PATH = `(?:(?:${RETIRED_ROOTS})(?:/.*)?|whitepaper\\..*|llms\\.txt)`;
+// Same set as a lookahead, for sources that must leave these paths alone.
+const NOT_RETIRED = `(?!(?:(?:${RETIRED_ROOTS})(?:/|$)|whitepaper\\.|llms\\.txt$))`;
+// A destination no route owns, two segments deep so the `[locale]` dynamic
+// route cannot claim it (that path 404s via NoFallbackError and re-renders,
+// the shape behind the #229 loop). Next answers a real 404.
+const GONE = "/_retired/gone";
+
 const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_BUILD_VERSION: buildVersion,
@@ -57,37 +82,10 @@ const nextConfig: NextConfig = {
     // without it the only way to learn the locale is `useParams()` in a Client
     // Component — which would ship all five message catalogues (~176 KB).
   },
-  // The public landing moved to its own host (config.investOrigin); this
-  // origin keeps only the coming-soon page, sign-in and the zones. Every
-  // retired landing URL 301s there with its path — and its locale prefix —
-  // kept, so inbound links, bookmarks and the indexed URLs carry over. 301
-  // rather than `permanent` (308), as the migration plan specifies: every
-  // source here is a page read with GET, so 308's method guarantee buys
-  // nothing and 301 is the code every crawler and client handles the same.
-  //
-  // They precede the /en/* collapse so `/en/team` lands in one hop, not two.
-  // The page code under app/[locale] stays in the tree and is simply never
-  // reached; removing it is a separate change.
+  // The retired landing and cabinet pages answer 404 from the beforeFiles
+  // rewrites in rewrites(); redirects() keeps only the mail-link forward and
+  // the /en/* collapse.
   async redirects() {
-    const invest = config.investOrigin;
-    // Restates LOCALES from @evinvest/i18n — same CJS boundary as `unprefixed`
-    // in rewrites() below.
-    const locale = "en|ru|vi|fr|de";
-    const moved = [
-      "publications",
-      "team",
-      "hiring",
-      "contact",
-      "privacy",
-      "terms",
-      "risk",
-      "apps",
-    ];
-    const toInvest = (source: string, destination: string) => ({
-      source,
-      destination: `${invest}${destination}`,
-      statusCode: 301 as const,
-    });
     return [
       // Mails sent before concierge#150 link to `/notifications/{unsubscribe,
       // confirm}?token=…`; the account-less flow now lives under
@@ -100,53 +98,22 @@ const nextConfig: NextConfig = {
         destination: "/api/auth/notifications/:path*",
         permanent: true,
       },
-      ...moved.flatMap(root => [
-        toInvest(`/${root}/:path*`, `/${root}/:path*`),
-        toInvest(
-          `/:locale(${locale})/${root}/:path*`,
-          `/:locale/${root}/:path*`
-        ),
-      ]),
-      // The cabinet's pages move; its asset, API and MFE paths do not. The
-      // account chip other surfaces mount (mfe-registry.json) and any open
-      // cabinet tab keep loading through the beforeFiles rewrites until the
-      // zone itself is retired from this host.
-      toInvest("/cabinet", "/cabinet"),
-      toInvest(
-        "/cabinet/:path((?!(?:_next|api|mfe)(?:/|$)).*)",
-        "/cabinet/:path*"
-      ),
-      toInvest(`/:locale(${locale})/cabinet/:path*`, "/:locale/cabinet/:path*"),
-      // The two old shelves of /publications, and the raw whitepaper builds
-      // the flake stages into public/.
-      toInvest("/blogs/:path*", "/publications/:path*"),
-      toInvest("/whitepaper", "/publications/whitepaper"),
-      toInvest(
-        "/:file(whitepaper\\.(?:pdf|dark\\.html|light\\.html))",
-        "/:file"
-      ),
-      toInvest("/llms.txt", "/llms.txt"),
       // Collapse the explicit /en/* form onto the unprefixed one so each page has
       // exactly one canonical URL. Cannot loop with the locale rewrite below:
       // this is external and matched against the incoming request, while the
       // rewrite is internal and never re-enters the redirect pipeline. Every
       // source here is itself /en-prefixed, so an unprefixed path never matches.
       //
-      // The cabinet is the one exception. The cabinet zone bounced an
-      // unprefixed `/cabinet/*` to the reader's locale itself, so collapsing
-      // `/en/cabinet/*` back answered that bounce with the path it just left —
-      // `/cabinet/x` -> zone 307 -> `/en/cabinet/x` -> this 308 -> `/cabinet/x`
-      // — an endless loop for every English reader. On this origin the
-      // carve-out no longer fires: the `/:locale/cabinet/*` redirect to the
-      // invest host above matches first.
+      // The retired paths are the exception (see RETIRED_PATH): `/en/team` must
+      // answer 404 itself, not 308 to `/team` and 404 there. This also covers
+      // the old cabinet carve-out — the cabinet zone's own locale bounce is
+      // gone with its pages, so `/en/cabinet/*` is simply retired.
       { source: "/en", destination: "/", permanent: true },
       {
-        // The carve-out is a negative lookahead on the source only; the
-        // destination is untouched. `(?:/|$)` keeps it to the whole segment, so
-        // `/en/cabinets` — a different page — still collapses.
+        // The lookahead is on the source only; the destination is untouched.
         // `npm run redirects:check` asserts both halves against Next's own
         // matcher.
-        source: "/en/:path((?!cabinet(?:/|$)).*)",
+        source: `/en/:path(${NOT_RETIRED}.*)`,
         destination: "/:path*",
         permanent: true,
       },
@@ -232,9 +199,23 @@ const nextConfig: NextConfig = {
   // why these must be beforeFiles — a bare array is afterFiles, which would
   // shadow the catch-all handlers. Env unset ⇒ no rewrites and the handler
   // 404s, a deliberate "zone disabled" state. Cabinet *pages* never reach
-  // app/cabinet any more: redirects() sends them to the invest host first.
+  // app/cabinet any more: the 404 rewrites below catch them first.
   async rewrites() {
-    const beforeFiles = [];
+    // The 404s go first. The cabinet carve-out keeps its asset, API and MFE
+    // paths out of the unprefixed rule: the account chip other surfaces mount
+    // (mfe-registry.json) and any open tab keep loading through the zone
+    // rewrites below. Under a locale prefix there is no carve-out — those
+    // paths never existed there.
+    const beforeFiles = [
+      {
+        source: `/:path((?!cabinet/(?:_next|api|mfe)(?:/|$))${RETIRED_PATH})`,
+        destination: GONE,
+      },
+      {
+        source: `/:locale(${LOCALE_ALT})/:path(${RETIRED_PATH})`,
+        destination: GONE,
+      },
+    ];
     const cabinet = config.cabinetZoneUrl?.replace(/\/+$/, "");
     if (cabinet) {
       beforeFiles.push(

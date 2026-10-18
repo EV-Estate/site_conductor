@@ -37,9 +37,9 @@ const AI_CRAWLERS = [
 // everywhere the default crawler is" is what those groups mean; it is not
 // "allowed more than it".
 //
-// The cabinet paths are no longer disallowed: they 301 to the landing's own
-// host now, and a crawler barred from a URL never sees its redirect — the
-// moved pages would keep their old entries instead of passing them on.
+// The retired landing and cabinet paths are not disallowed: they answer 404,
+// and a crawler barred from a URL never sees its status — the old entries
+// would linger in the index instead of dropping out.
 const DISALLOW = ["/api/"];
 
 export default function robots(): MetadataRoute.Robots {
