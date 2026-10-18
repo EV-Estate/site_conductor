@@ -1,18 +1,19 @@
-// CI gate for the /en/* collapse (next.config.ts `redirects()`).
+// CI gate for the redirect and rewrite rules in next.config.ts.
 //
-// The rule exists to give each page exactly one canonical URL, and it has one
-// carve-out: the cabinet zone owns `/{locale}/cabinet/*` and bounces an
-// unprefixed `/cabinet/*` into the reader's locale itself. Collapsing
-// `/en/cabinet/*` back answers that bounce with the path it just left, so the
-// two rules chase each other forever and the whole cabinet becomes unreachable
-// for English readers — most of them.
-//
-// That failure cannot be caught by a type or a lint: the config compiles either
-// way, and the loop only closes once both deployments are live. Nor is one URL
-// enough to eyeball, because the carve-out has to be narrow in two directions —
-// `/en/cabinets` is a different page and must still collapse, and the paths that
-// do collapse must keep working at every depth. So the rule is asserted here
-// against Next's own matcher, substituting the way Next substitutes.
+// Three things here cannot be caught by a type or a lint — the config compiles
+// either way — so each is asserted against Next's own matcher, substituting
+// the way Next substitutes:
+//   1. The retired landing pages answer 404: no redirect (Next
+//      consults redirects() first, so one stray match would beat the 404) and
+//      a beforeFiles rewrite to a route nobody owns. Nothing else may be
+//      caught — the cabinet (still the working investor cabinet here until the
+//      invest host serves it), auth, KYC, /wallet, /rea and the old mail
+//      links keep working. No rule may point at another host.
+//   2. The /en/* collapse (one canonical URL per page) stays off the retired
+//      paths, which must 404 as themselves rather than 308 first.
+//   3. The English afterFiles rewrite (site_conductor#229): an unprefixed
+//      English page must reach app/[locale] in one pass, and a locale-prefixed
+//      path must never be claimed by it.
 import assert from "node:assert/strict";
 
 // Next vendors this as CommonJS, so it has no named ESM exports.
@@ -31,8 +32,11 @@ import { LOCALES } from "@evinvest/i18n";
 import nextConfig from "../next.config.ts";
 
 type Redirect = { source: string; destination: string; permanent?: boolean };
+type Rewrite = { source: string; destination: string };
+type Rewrites = { beforeFiles?: Rewrite[]; afterFiles?: Rewrite[]; fallback?: Rewrite[] };
 
 const redirects = (await nextConfig.redirects!()) as Redirect[];
+const rewrites = (await nextConfig.rewrites!()) as Rewrites;
 const collapse = redirects.filter(r => r.source.startsWith("/en/"));
 
 assert.equal(collapse.length, 1, "expected exactly one /en/* collapse rule");
@@ -54,21 +58,27 @@ function applyRule(r: { source: string; destination: string }, pathname: string)
 const apply = (pathname: string) => applyRule(rule, pathname);
 
 const collapses: [string, string][] = [
-  ["/en/team", "/team"],
-  ["/en/contact", "/contact"],
-  // Multi-segment: `:path*` binds one segment and throws here instead.
-  ["/en/publications/whitepaper", "/publications/whitepaper"],
-  ["/en/apps/rea/listings", "/apps/rea/listings"],
-  // A sibling that merely starts with the carve-out's name is not the cabinet.
+  ["/en/status", "/status"],
+  ["/en/rea/listings", "/rea/listings"],
+  // Siblings that merely start with a retired root's name are other pages.
   ["/en/cabinets", "/cabinets"],
   ["/en/cabinets/list", "/cabinets/list"],
+  ["/en/teams", "/teams"],
 ];
 
+// Retired pages must reach the 404 rewrite as themselves, not be collapsed
+// first. The cabinet must not be collapsed either: its zone bounces an
+// unprefixed `/cabinet/*` to the locale itself, so collapsing `/en/cabinet/*`
+// back is an endless loop for English readers.
 const passesThrough = [
+  "/en/team",
+  "/en/publications/whitepaper",
   "/en/cabinet",
   "/en/cabinet/wallet",
   "/en/cabinet/admin/revenue",
   "/en/cabinet/login",
+  "/en/whitepaper.pdf",
+  "/en/llms.txt",
 ];
 
 const failures: string[] = [];
@@ -93,7 +103,7 @@ for (const from of passesThrough) {
     got = { error: (e as Error).message };
   }
   if (got !== null) {
-    failures.push(`${from} must reach app/[locale]/cabinet, but the collapse claimed it (${JSON.stringify(got)})`);
+    failures.push(`${from} must reach the 404 rewrite or the cabinet zone as itself, but the collapse claimed it (${JSON.stringify(got)})`);
   }
 }
 
@@ -101,13 +111,14 @@ if (failures.length > 0) {
   console.error(`The /en/* collapse is wrong in ${failures.length} case(s):\n`);
   for (const f of failures) console.error(`  ${f}`);
   console.error(
-    "\nIf the cabinet carve-out was removed, every English reader will loop between" +
-      "\nthis redirect and the zone's own locale bounce. See the comment on the rule."
+    "\nA retired path caught by the collapse answers 308 instead of 404; a collapsed" +
+      "\n/en/cabinet/* loops English readers against the zone's locale bounce." +
+      "\nSee RETIRED_PATH / NOT_COLLAPSED in next.config.ts."
   );
   process.exit(1);
 }
 
-console.log(`/en/* collapse OK — ${collapses.length} collapsed, ${passesThrough.length} passed through to the cabinet.`);
+console.log(`/en/* collapse OK — ${collapses.length} collapsed, ${passesThrough.length} left to the 404 rewrite.`);
 
 // The English afterFiles rewrite (next.config.ts `rewrites()`, site_conductor#229).
 //
@@ -120,10 +131,6 @@ console.log(`/en/* collapse OK — ${collapses.length} collapsed, ${passesThroug
 // (404). So it has to be narrow in both directions: every unprefixed page, and
 // nothing that already names a locale, a zone, API space or Next's own files.
 // Like the collapse, a wrong lookahead still compiles; only the matcher shows it.
-type Rewrite = { source: string; destination: string };
-type Rewrites = { beforeFiles?: Rewrite[]; afterFiles?: Rewrite[]; fallback?: Rewrite[] };
-
-const rewrites = (await nextConfig.rewrites!()) as Rewrites;
 const english = (rewrites.afterFiles ?? []).filter(r => r.destination.startsWith("/en/"));
 
 /** The first English afterFiles rewrite that claims the path, or null. */
@@ -140,10 +147,8 @@ function rewrite(pathname: string): string | null | { error: string } {
 }
 
 const rewritten: [string, string][] = [
-  ["/team", "/en/team"],
-  ["/contact", "/en/contact"],
-  ["/hiring/x", "/en/hiring/x"],
-  ["/publications/whitepaper", "/en/publications/whitepaper"],
+  ["/status", "/en/status"],
+  ["/foo/x", "/en/foo/x"],
   // Siblings that merely start with an excluded root are ordinary pages.
   ["/cabinets", "/en/cabinets"],
   ["/english", "/en/english"],
@@ -226,3 +231,113 @@ if (walletRule) {
   }
 }
 console.log(`Notifications redirect OK — ${notifCases.length} cases; wallet rewrite ${walletRule ? "OK" : "skipped (cabinet zone unset)"}.`);
+
+// Retired pages answer 404 (decision 2026-10-18: no redirect to the landing's
+// host). Next consults redirects() first, then beforeFiles rewrites; a request
+// is a 404 here when no redirect claims it and a beforeFiles rule sends it to
+// the unowned GONE route.
+const GONE = "/_retired/gone";
+const gone = (rewrites.beforeFiles ?? []).filter(r => r.destination === GONE);
+assert.ok(gone.length > 0, "expected beforeFiles rules rewriting to the unowned 404 route");
+
+const redirectedTo = (pathname: string): string | null => {
+  for (const r of redirects) {
+    const got = applyRule(r, pathname);
+    if (got !== null) return got;
+  }
+  return null;
+};
+const answers404 = (pathname: string): boolean => gone.some(r => applyRule(r, pathname) !== null);
+
+assert.ok(
+  redirects.every(r => !/^[a-z][a-z0-9+.-]*:/i.test(r.destination)),
+  "no redirect may leave this origin (no invest-host redirect, by decision)"
+);
+
+const retiredBases = [
+  "/publications",
+  "/publications/whitepaper",
+  "/publications/some-slug/cover.jpg",
+  "/publications/some-slug.pdf",
+  "/team",
+  "/hiring",
+  "/hiring/some-role",
+  "/contact",
+  "/privacy",
+  "/terms",
+  "/risk",
+  "/apps",
+  "/apps/rea/listings",
+  "/blogs",
+  "/blogs/some-post",
+  "/whitepaper",
+  "/whitepaper.pdf",
+  "/whitepaper.dark.html",
+  "/whitepaper.light.html",
+  "/whitepaper/x",
+  "/llms.txt",
+];
+// The same pages under every locale prefix.
+const retired = [
+  ...retiredBases,
+  ...LOCALES.flatMap(locale => retiredBases.map(p => `/${locale}${p}`)),
+];
+
+const stays = [
+  "/",
+  ...LOCALES.map(locale => `/${locale}`),
+  "/admin",
+  "/api/auth/login",
+  "/api/auth/session",
+  "/api/callback/auth/google",
+  "/api/kyc/start",
+  "/api/kyc/callback/didit",
+  "/api/zone-error",
+  "/api/mfe-registry",
+  "/wallet/mfe/registry.json",
+  "/wallet/pay",
+  // The working cabinet: pages, with and without a locale prefix, plus its
+  // asset, API and MFE paths.
+  "/cabinet",
+  "/cabinet/login",
+  "/cabinet/admin/revenue",
+  ...LOCALES.flatMap(locale => [`/${locale}/cabinet`, `/${locale}/cabinet/wallet`]),
+  "/cabinet/_next/static/chunks/x.js",
+  "/cabinet/api/session",
+  "/cabinet/mfe/account-chip.js",
+  "/rea",
+  "/rea/",
+  "/rea/assets/app.js",
+  "/rea/api/x",
+  "/notifications/unsubscribe",
+  "/robots.txt",
+  "/sitemap.xml",
+  "/shell/manifest.json",
+  // Siblings that merely start with a retired name are not retired.
+  "/cabinets",
+  "/teams",
+  "/termsheet",
+  "/whitepapers",
+];
+
+const retiredFailures: string[] = [];
+for (const path of retired) {
+  const redirect = redirectedTo(path);
+  if (redirect !== null) retiredFailures.push(`${path} must answer 404 but a redirect claims it (-> ${redirect})`);
+  if (!answers404(path)) retiredFailures.push(`${path} must answer 404 but no rewrite sends it to the unowned route`);
+}
+for (const path of stays) {
+  if (answers404(path)) retiredFailures.push(`${path} must keep working but the 404 rewrite claims it`);
+  const redirect = redirectedTo(path);
+  // /notifications/* (asserted below) and the bare /en -> / are the only
+  // redirects a path outside the retired set may get, both on this origin.
+  if (redirect !== null && !path.startsWith("/notifications/") && path !== "/en") {
+    retiredFailures.push(`${path} must not redirect, got ${redirect}`);
+  }
+}
+if (retiredFailures.length > 0) {
+  console.error(`The 404 rules are wrong in ${retiredFailures.length} case(s):\n`);
+  for (const f of retiredFailures) console.error(`  ${f}`);
+  process.exit(1);
+}
+console.log(`404 rules OK — ${retired.length} retired paths answer 404, ${stays.length} others untouched.`);

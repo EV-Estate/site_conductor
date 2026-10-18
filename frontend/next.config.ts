@@ -21,6 +21,37 @@ const buildVersion =
 // Full SHA the footer link resolves to, kept separate from the display version.
 const buildCommit = config.public.buildCommit || git("git rev-parse HEAD", "");
 
+// Restates LOCALES from @evinvest/i18n — this file loads as CJS and the
+// package is ESM-only (same boundary as `unprefixed` in rewrites()).
+const LOCALE_ALT = "en|ru|vi|fr|de";
+
+// The public landing is gone from this origin and its pages answer 404 — no redirect to the new landing host, by decision (2026-10-18):
+// whoever wants it knows the address. The match is the whole path, written as
+// a regex fragment so the same text serves three rules:
+//   - the 404 rewrites in rewrites() (bare and locale-prefixed),
+//   - the lookahead that keeps the /en/* collapse off these paths in
+//     redirects() — a 308 there would answer `/en/team` with a redirect
+//     before the 404 rewrite is ever consulted,
+//   - scripts/redirect-check.mts, through the rules' output.
+// Segment-wise: each root matches itself and anything below it; the dotted
+// whitepaper builds (pdf, dark/light html) and llms.txt are single files.
+const RETIRED_ROOTS =
+  "publications|team|hiring|contact|privacy|terms|risk|apps|blogs|whitepaper";
+const RETIRED_PATH = `(?:(?:${RETIRED_ROOTS})(?:/.*)?|whitepaper\\..*|llms\\.txt)`;
+// Same set as a lookahead, for sources that must leave these paths alone.
+// `cabinet` is NOT retired (the working investor cabinet stays here until the
+// invest host serves it), but the collapse must still skip it: the cabinet zone
+// bounces an unprefixed `/cabinet/*` to the reader's locale itself, so
+// collapsing `/en/cabinet/*` back answers that bounce with the path it just
+// left — `/cabinet/x` -> zone 307 -> `/en/cabinet/x` -> 308 -> `/cabinet/x`, an
+// endless loop for every English reader. `(?:/|$)` keeps it to the whole
+// segment: `/en/cabinets` is another page and still collapses.
+const NOT_COLLAPSED = `(?!(?:(?:${RETIRED_ROOTS}|cabinet)(?:/|$)|whitepaper\\.|llms\\.txt$))`;
+// A destination no route owns, two segments deep so the `[locale]` dynamic
+// route cannot claim it (that path 404s via NoFallbackError and re-renders,
+// the shape behind the #229 loop). Next answers a real 404.
+const GONE = "/_retired/gone";
+
 const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_BUILD_VERSION: buildVersion,
@@ -57,24 +88,11 @@ const nextConfig: NextConfig = {
     // without it the only way to learn the locale is `useParams()` in a Client
     // Component — which would ship all five message catalogues (~176 KB).
   },
-  // /blogs and /whitepaper were separate shelves for the same thing: documents
-  // the fund publishes. They are now one route, so the old paths keep working
-  // forever as 308s — inbound links, the old sitemap and anything already
-  // bookmarked must not break. 308 (not 307) so the method and the SEO signal
-  // both transfer.
+  // The retired landing pages answer 404 from the beforeFiles
+  // rewrites in rewrites(); redirects() keeps only the mail-link forward and
+  // the /en/* collapse.
   async redirects() {
     return [
-      { source: "/blogs", destination: "/publications", permanent: true },
-      {
-        source: "/blogs/:path*",
-        destination: "/publications/:path*",
-        permanent: true,
-      },
-      {
-        source: "/whitepaper",
-        destination: "/publications/whitepaper",
-        permanent: true,
-      },
       // Mails sent before concierge#150 link to `/notifications/{unsubscribe,
       // confirm}?token=…`; the account-less flow now lives under
       // `/api/auth/notifications/*` (forwarded to concierge by the rewrite
@@ -92,23 +110,15 @@ const nextConfig: NextConfig = {
       // rewrite is internal and never re-enters the redirect pipeline. Every
       // source here is itself /en-prefixed, so an unprefixed path never matches.
       //
-      // The cabinet is the one exception, and has to be: that zone owns
-      // `/{locale}/cabinet/*` as real routes and bounces an unprefixed
-      // `/cabinet/*` to the reader's locale itself. Collapsing `/en/cabinet/*`
-      // back answers that bounce with the path it just left —
-      // `/cabinet/x` -> zone 307 -> `/en/cabinet/x` -> this 308 -> `/cabinet/x`
-      // — an endless loop for every English reader, which is most of them.
-      // `redirects()` runs before dynamic routes (the pipeline note below spells
-      // the order out), so app/[locale]/cabinet stays unreachable for English
-      // while this rule still matches it.
+      // Two exceptions: the retired paths (see RETIRED_PATH) — `/en/team` must
+      // answer 404 itself, not 308 to `/team` and 404 there — and the cabinet
+      // (see NOT_COLLAPSED).
       { source: "/en", destination: "/", permanent: true },
       {
-        // The carve-out is a negative lookahead on the source only; the
-        // destination is untouched. `(?:/|$)` keeps it to the whole segment, so
-        // `/en/cabinets` — a different page — still collapses.
+        // The lookahead is on the source only; the destination is untouched.
         // `npm run redirects:check` asserts both halves against Next's own
         // matcher.
-        source: "/en/:path((?!cabinet(?:/|$)).*)",
+        source: `/en/:path(${NOT_COLLAPSED}.*)`,
         destination: "/:path*",
         permanent: true,
       },
@@ -193,9 +203,18 @@ const nextConfig: NextConfig = {
   // proxy route handlers (app/cabinet/…, app/rea/…) instead, which is
   // why these must be beforeFiles — a bare array is afterFiles, which would
   // shadow the catch-all handlers. Env unset ⇒ no rewrites and the handler
-  // 404s, a deliberate "zone disabled" state.
+  // 404s, a deliberate "zone disabled" state. Cabinet pages still
+  // reach app/cabinet until the invest host serves the cabinet.
   async rewrites() {
-    const beforeFiles = [];
+    // The 404s go first. They never touch the cabinet, auth, KYC, wallet or REA
+    // paths. Under a locale prefix the same pages 404 too.
+    const beforeFiles = [
+      { source: `/:path(${RETIRED_PATH})`, destination: GONE },
+      {
+        source: `/:locale(${LOCALE_ALT})/:path(${RETIRED_PATH})`,
+        destination: GONE,
+      },
+    ];
     const cabinet = config.cabinetZoneUrl?.replace(/\/+$/, "");
     if (cabinet) {
       beforeFiles.push(
@@ -272,10 +291,10 @@ const nextConfig: NextConfig = {
     // tried, rewriting /ru/team to /en/ru/team (404) while /team still resolves
     // and hides the bug. `fallback` runs last, after dynamic routes have had
     // their chance, which is the semantics actually wanted. Verified on 16.2.9 in
-    // dev and a production build — see docs/i18n-routing-spike.md.
+    // dev and a production build.
     //
     // Inlined rather than `localeRewrites()` from @evinvest/i18n/next — same
-    // reason as the Sentry exception above: this file is loaded as CJS, and the
+    // reason as the Sentry exception below: this file is loaded as CJS, and the
     // package is ESM-only, so requiring the subpath dies with
     // ERR_PACKAGE_PATH_NOT_EXPORTED. The helper is still the source of truth for
     // app-side code (localeStaticParams in app/[locale]/layout.tsx); only the
