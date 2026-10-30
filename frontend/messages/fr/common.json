@@ -15,6 +15,14 @@
     "en": "Site menu",
     "t": "Menu du site"
   },
+  "account.title": {
+    "en": "Account",
+    "t": "Compte"
+  },
+  "account.unavailable": {
+    "en": "Your account could not be loaded",
+    "t": "Impossible de charger votre compte"
+  },
   "apply.form.email.placeholder": {
     "en": "jane@fund.com",
     "t": "jean@fund.com"

@@ -15,6 +15,14 @@
     "en": "Site menu",
     "t": "Menu trang web"
   },
+  "account.title": {
+    "en": "Account",
+    "t": "Tài khoản"
+  },
+  "account.unavailable": {
+    "en": "Your account could not be loaded",
+    "t": "Không thể tải tài khoản của bạn"
+  },
   "apply.form.email.placeholder": {
     "en": "jane@fund.com",
     "t": "an@fund.com"

@@ -15,6 +15,14 @@
     "en": "Site menu",
     "t": "Меню сайта"
   },
+  "account.title": {
+    "en": "Account",
+    "t": "Аккаунт"
+  },
+  "account.unavailable": {
+    "en": "Your account could not be loaded",
+    "t": "Не удалось загрузить ваш аккаунт"
+  },
   "apply.form.email.placeholder": {
     "en": "jane@fund.com",
     "t": "ivan@fund.com"
