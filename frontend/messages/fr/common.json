@@ -1,28 +1,4 @@
 {
-  "a11y.closeMenu": {
-    "en": "Close menu",
-    "t": "Fermer le menu"
-  },
-  "a11y.homeLink": {
-    "en": "EV Investment — home",
-    "t": "EV Investment — accueil"
-  },
-  "a11y.openMenu": {
-    "en": "Open menu",
-    "t": "Ouvrir le menu"
-  },
-  "a11y.siteMenu": {
-    "en": "Site menu",
-    "t": "Menu du site"
-  },
-  "account.title": {
-    "en": "Account",
-    "t": "Compte"
-  },
-  "account.unavailable": {
-    "en": "Your account could not be loaded",
-    "t": "Impossible de charger votre compte"
-  },
   "apply.form.email.placeholder": {
     "en": "jane@fund.com",
     "t": "jean@fund.com"
@@ -163,118 +139,6 @@
     "en": "Download {title} as PDF",
     "t": "Télécharger {title} en PDF"
   },
-  "footer.cabinet": {
-    "en": "Cabinet",
-    "t": "Mon espace"
-  },
-  "footer.calculator": {
-    "en": "Investment Calculator",
-    "t": "Simulateur d'investissement"
-  },
-  "footer.company": {
-    "en": "Company",
-    "t": "Société"
-  },
-  "footer.description": {
-    "en": "EV Investment is a registered real estate advisory and investment management fund specializing in premium coastal developments in Quy Nhon, Binh Dinh province, Vietnam.",
-    "t": "EV Investment est un fonds agréé de conseil immobilier et de gestion d'investissements, spécialisé dans les programmes côtiers haut de gamme à Quy Nhon, province de Binh Dinh, au Vietnam."
-  },
-  "footer.explore": {
-    "en": "Explore",
-    "t": "Explorer"
-  },
-  "footer.fieldNotes": {
-    "en": "Field Notes & Research",
-    "t": "Notes de terrain & Recherche"
-  },
-  "footer.finishVerification": {
-    "en": "Finish verification",
-    "t": "Vérifier l'identité"
-  },
-  "footer.investors": {
-    "en": "Investors",
-    "t": "Investisseurs"
-  },
-  "footer.legal.privacy": {
-    "en": "Privacy",
-    "t": "Confidentialité"
-  },
-  "footer.legal.risk": {
-    "en": "Risk disclosure",
-    "t": "Information sur les risques"
-  },
-  "footer.legal.terms": {
-    "en": "Terms",
-    "t": "Conditions"
-  },
-  "footer.newsletter.blurb": {
-    "en": "Subscribe, to receive our macro reports",
-    "t": "Abonnez-vous pour recevoir nos rapports macroéconomiques"
-  },
-  "footer.newsletter.duplicate": {
-    "en": "You're already on the list.",
-    "t": "Vous êtes déjà inscrit."
-  },
-  "footer.newsletter.error": {
-    "en": "Something went wrong — please try again.",
-    "t": "Une erreur est survenue — veuillez réessayer."
-  },
-  "footer.newsletter.invalidEmail": {
-    "en": "Enter a valid email address.",
-    "t": "Saisissez une adresse e-mail valide."
-  },
-  "footer.newsletter.join": {
-    "en": "Join",
-    "t": "S'abonner"
-  },
-  "footer.newsletter.networkError": {
-    "en": "Network error — please try again.",
-    "t": "Erreur réseau — veuillez réessayer."
-  },
-  "footer.newsletter.placeholder": {
-    "en": "Institutional Email",
-    "t": "E-mail institutionnel"
-  },
-  "footer.newsletter.success": {
-    "en": "You're on the list — welcome.",
-    "t": "Vous êtes inscrit — bienvenue."
-  },
-  "footer.office.hcmc.address": {
-    "en": "Deutsches Haus, 33 Le Duan Blvd, District 1, Ho Chi Minh City, Vietnam",
-    "t": "Deutsches Haus, 33 boulevard Le Duan, District 1, Hô Chi Minh-Ville, Vietnam"
-  },
-  "footer.office.hcmc.name": {
-    "en": "Ho Chi Minh Representative",
-    "t": "Bureau de représentation de Hô Chi Minh"
-  },
-  "footer.office.hq.address": {
-    "en": "102 An Duong Vuong St, Nguyen Van Cu Ward, Quy Nhon City, Vietnam",
-    "t": "102 rue An Duong Vuong, quartier Nguyen Van Cu, Quy Nhon, Vietnam"
-  },
-  "footer.office.hq.name": {
-    "en": "Quy Nhon Head Office",
-    "t": "Siège de Quy Nhon"
-  },
-  "footer.openAccount": {
-    "en": "Open an account",
-    "t": "Ouvrir un compte"
-  },
-  "footer.reports": {
-    "en": "Reports",
-    "t": "Rapports"
-  },
-  "footer.rights": {
-    "en": "All rights reserved.",
-    "t": "Tous droits réservés."
-  },
-  "footer.tagline": {
-    "en": "Quy Nhon Fund",
-    "t": "Fonds de Quy Nhon"
-  },
-  "footer.whitepaper": {
-    "en": "Whitepaper",
-    "t": "Livre blanc"
-  },
   "form.email.label": {
     "en": "Email",
     "t": "E-mail"
@@ -298,22 +162,6 @@
   "form.submitError": {
     "en": "Something went wrong. Please try again.",
     "t": "Une erreur est survenue. Veuillez réessayer."
-  },
-  "header.cabinet": {
-    "en": "Cabinet",
-    "t": "Mon espace"
-  },
-  "header.openAccount": {
-    "en": "Open an account",
-    "t": "Ouvrir un compte"
-  },
-  "header.signOut": {
-    "en": "Sign out",
-    "t": "Se déconnecter"
-  },
-  "header.signOutFailed": {
-    "en": "Couldn't sign you out. Please try again.",
-    "t": "Impossible de vous déconnecter. Veuillez réessayer."
   },
   "hiring.board.allRoles": {
     "en": "All roles",
@@ -975,33 +823,9 @@
     "en": "Whitepaper",
     "t": "Livre blanc"
   },
-  "nav.contact": {
-    "en": "Contact",
-    "t": "Contact"
-  },
-  "nav.hiring": {
-    "en": "Hiring",
-    "t": "Carrières"
-  },
-  "nav.home": {
-    "en": "Home",
-    "t": "Accueil"
-  },
-  "nav.portfolio": {
-    "en": "Portfolio",
-    "t": "Portefeuille"
-  },
   "nav.publications": {
     "en": "Publications",
     "t": "Publications"
-  },
-  "nav.research": {
-    "en": "Research",
-    "t": "Recherche"
-  },
-  "nav.team": {
-    "en": "Team",
-    "t": "Équipe"
   },
   "publications.allPublications": {
     "en": "All publications",
@@ -1534,13 +1358,5 @@
   "whitepaper.title": {
     "en": "EV Investment Whitepaper",
     "t": "Livre blanc EV Investment"
-  },
-  "zone.failed": {
-    "en": "This page did not finish loading.",
-    "t": "Cette page ne s'est pas chargée entièrement."
-  },
-  "zone.reload": {
-    "en": "Reload",
-    "t": "Recharger"
   }
 }

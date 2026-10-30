@@ -4,5 +4,11 @@
     "tag": "mfe-real-estate-overview",
     "scriptUrl": "/mfe/mfe-real-estate-overview.js",
     "kind": "component"
+  },
+  {
+    "name": "real-estate.data",
+    "tag": "mfe-real-estate-data",
+    "scriptUrl": "/mfe/data/mfe-real-estate-data.js",
+    "kind": "page"
   }
 ]

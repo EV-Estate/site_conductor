@@ -1,25 +1,7 @@
-import { execSync } from "node:child_process";
 import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 import { config } from "./config";
-
-// The Nix/CI build injects NEXT_PUBLIC_BUILD_VERSION (the release tag). A bare
-// `npm run dev` has no such env, so fall back to git so the footer still shows a
-// version; "unknown" only when git is absent too (e.g. the hermetic sandbox,
-// where the env var is always set anyway).
-const git = (cmd: string, fallback: string) => {
-  try {
-    return execSync(cmd, { encoding: "utf8" }).trim();
-  } catch {
-    return fallback;
-  }
-};
-
-const buildVersion =
-  config.public.buildVersion ?? git("git describe --tags --always", "unknown");
-// Full SHA the footer link resolves to, kept separate from the display version.
-const buildCommit = config.public.buildCommit || git("git rev-parse HEAD", "");
 
 // Restates LOCALES from @evinvest/i18n — this file loads as CJS and the
 // package is ESM-only (same boundary as `unprefixed` in rewrites()).
@@ -39,31 +21,16 @@ const RETIRED_ROOTS =
   "publications|team|hiring|contact|privacy|terms|risk|apps|blogs|whitepaper";
 const RETIRED_PATH = `(?:(?:${RETIRED_ROOTS})(?:/.*)?|whitepaper\\..*|llms\\.txt)`;
 // Same set as a lookahead, for sources that must leave these paths alone.
-// `cabinet` is NOT retired (the working investor cabinet stays here until the
-// invest host serves it), but the collapse must still skip it: the cabinet zone
-// bounces an unprefixed `/cabinet/*` to the reader's locale itself, so
-// collapsing `/en/cabinet/*` back answers that bounce with the path it just
-// left — `/cabinet/x` -> zone 307 -> `/en/cabinet/x` -> 308 -> `/cabinet/x`, an
-// endless loop for every English reader. `(?:/|$)` keeps it to the whole
-// segment: `/en/cabinets` is another page and still collapses.
-const NOT_COLLAPSED = `(?!(?:(?:${RETIRED_ROOTS}|cabinet)(?:/|$)|whitepaper\\.|llms\\.txt$))`;
+// `(?:/|$)` keeps it to the whole segment: `/en/teams` is another page and
+// still collapses.
+const NOT_COLLAPSED = `(?!(?:(?:${RETIRED_ROOTS})(?:/|$)|whitepaper\\.|llms\\.txt$))`;
 // A destination no route owns, two segments deep so the `[locale]` dynamic
 // route cannot claim it (that path 404s via NoFallbackError and re-renders,
 // the shape behind the #229 loop). Next answers a real 404.
 const GONE = "/_retired/gone";
 
 const nextConfig: NextConfig = {
-  env: {
-    NEXT_PUBLIC_BUILD_VERSION: buildVersion,
-    NEXT_PUBLIC_BUILD_COMMIT: buildCommit,
-  },
   reactStrictMode: true,
-  // The /rea zone is a Dioxus app under base_path "rea": its WebHistory strips
-  // the "/rea" prefix, so `/rea/?q` → `/?q` (matches) but `/rea?q` → `?q` (route
-  // parse fails). Next's default trailing-slash redirect turns `/rea/?q` into
-  // `/rea?q`, breaking every deep link. Serve URLs as-is so the trailing slash
-  // survives to the proxy — our own links never rely on the redirect.
-  skipTrailingSlashRedirect: true,
   // Dev-only: Next 16 blocks its dev resources (incl. the HMR socket) for any
   // origin but `localhost`, and a dead HMR socket means the client runtime
   // never boots — pages hydrate on localhost but are inert on 127.0.0.1.
@@ -88,31 +55,21 @@ const nextConfig: NextConfig = {
     // without it the only way to learn the locale is `useParams()` in a Client
     // Component — which would ship all five message catalogues (~176 KB).
   },
-  // The retired landing pages answer 404 from the beforeFiles
-  // rewrites in rewrites(); redirects() keeps only the mail-link forward and
-  // the /en/* collapse.
+  // The retired landing pages answer 404 from the beforeFiles rewrites in
+  // rewrites().
   async redirects() {
     return [
-      // Mails sent before concierge#150 link to `/notifications/{unsubscribe,
-      // confirm}?token=…`; the account-less flow now lives under
-      // `/api/auth/notifications/*` (forwarded to concierge by the rewrite
-      // below). 308 keeps the method and body, so Gmail's one-click POST works;
-      // Next carries the query string over. Ships only once concierge v0.17.0
-      // (the target routes) is out.
-      {
-        source: "/notifications/:path*",
-        destination: "/api/auth/notifications/:path*",
-        permanent: true,
-      },
+      // The REA dashboard used to be the /rea zone. `:path*` also matches bare
+      // `/rea`, and Next carries the query: `/rea/?building=x` → `/data?building=x`.
+      { source: "/rea/:path*", destination: "/data", permanent: true },
       // Collapse the explicit /en/* form onto the unprefixed one so each page has
       // exactly one canonical URL. Cannot loop with the locale rewrite below:
       // this is external and matched against the incoming request, while the
       // rewrite is internal and never re-enters the redirect pipeline. Every
       // source here is itself /en-prefixed, so an unprefixed path never matches.
       //
-      // Two exceptions: the retired paths (see RETIRED_PATH) — `/en/team` must
-      // answer 404 itself, not 308 to `/team` and 404 there — and the cabinet
-      // (see NOT_COLLAPSED).
+      // Except the retired paths (see RETIRED_PATH): `/en/team` must answer 404
+      // itself, not 308 to `/team` and 404 there.
       { source: "/en", destination: "/", permanent: true },
       {
         // The lookahead is on the source only; the destination is untouched.
@@ -139,17 +96,6 @@ const nextConfig: NextConfig = {
       },
       { source: "/whitepaper.pdf", headers: noindex },
       { source: "/publications/:slug.pdf", headers: noindex },
-      // AppShell assets are content-hashed by scripts/build-shell.mts — one
-      // fetch, then cached across conductor pages and every zone.
-      {
-        source: "/shell/:path*",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
-          },
-        ],
-      },
       // Section art under public/assets is served raw (the hero paints
       // quynhon_future as a CSS background, outside the next/image pipeline),
       // and Next's default for public/ is max-age=0 — a revalidation round trip
@@ -198,16 +144,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "i.ytimg.com", pathname: "/vi/**" },
     ],
   },
-  // Multi-zone mounts (PATTERNS.md §9): asset/API traffic goes straight to the
-  // zone over native rewrites; zone *HTML* goes through the shell-injecting
-  // proxy route handlers (app/cabinet/…, app/rea/…) instead, which is
-  // why these must be beforeFiles — a bare array is afterFiles, which would
-  // shadow the catch-all handlers. Env unset ⇒ no rewrites and the handler
-  // 404s, a deliberate "zone disabled" state. Cabinet pages still
-  // reach app/cabinet until the invest host serves the cabinet.
   async rewrites() {
-    // The 404s go first. They never touch the cabinet, auth, KYC, wallet or REA
-    // paths. Under a locale prefix the same pages 404 too.
+    // Under a locale prefix the retired pages 404 too.
     const beforeFiles = [
       { source: `/:path(${RETIRED_PATH})`, destination: GONE },
       {
@@ -215,71 +153,12 @@ const nextConfig: NextConfig = {
         destination: GONE,
       },
     ];
-    const cabinet = config.cabinetZoneUrl?.replace(/\/+$/, "");
-    if (cabinet) {
-      beforeFiles.push(
-        {
-          source: "/cabinet/_next/:path*",
-          destination: `${cabinet}/cabinet/_next/:path*`,
-        },
-        {
-          source: "/cabinet/api/:path*",
-          destination: `${cabinet}/cabinet/api/:path*`,
-        },
-        {
-          source: "/cabinet/mfe/:path*",
-          destination: `${cabinet}/cabinet/mfe/:path*`,
-        },
-        // Public contract of @evinvest/wallet: the scope hosts load
-        // `/wallet/mfe/*` and open the popups at `/wallet/{pay,withdraw,move,
-        // mandate}` on THIS origin. The cabinet serves them at its root (no
-        // /cabinet prefix, see its own `/wallet/mfe` rewrite), so the path is
-        // forwarded as-is. A rewrite keeps Origin and the CORS headers intact —
-        // banking gates its money routes on `Origin == https://evinvest.ltd`.
-        {
-          source: "/wallet/:path*",
-          destination: `${cabinet}/wallet/:path*`,
-        }
-      );
-    }
-    const rea = config.reaZoneUrl?.replace(/\/+$/, "");
-    if (rea) {
-      beforeFiles.push(
-        {
-          source: "/rea/assets/:path*",
-          destination: `${rea}/rea/assets/:path*`,
-        },
-        {
-          source: "/rea/api/:path*",
-          destination: `${rea}/rea/api/:path*`,
-        }
-      );
-    }
-    // Auth is shell-owned but concierge-implemented: login/callback/session live
-    // on THIS origin (cookies land first-party for every zone) and rewrite to the
-    // concierge plane's auth web surface. Zones never run OAuth — they link to
-    // /api/auth/login and verify the shared access-JWT cookie.
-    //
-    // KYC rides the SAME concierge web surface, so it reuses this one URL rather
-    // than introducing a second env var for the same service. Two unlike shapes
-    // pass through here:
-    //   /api/kyc/start            — the browser's, carrying the shared session cookie
-    //   /api/kyc/callback/:vendor — the provider's, server-to-server
-    // The callback is what makes this rewrite load-bearing: the verification
-    // vendor POSTs it from its own infrastructure, so it must be reachable on the
-    // PUBLIC origin. Concierge authenticates that request by HMAC over the raw
-    // body, never by a cookie — the absent session there is by design, not a hole.
-    const auth = config.authWebUrl?.replace(/\/+$/, "");
-    if (auth) {
-      beforeFiles.push(
-        { source: "/api/auth/:path*", destination: `${auth}/auth/:path*` },
-        {
-          source: "/api/callback/auth/:path*",
-          destination: `${auth}/callback/auth/:path*`,
-        },
-        { source: "/api/kyc/:path*", destination: `${auth}/kyc/:path*` }
-      );
-    }
+    // Prod routes /mfe/data at the edge; dev has no edge.
+    if (config.reaDevUrl)
+      beforeFiles.push({
+        source: "/mfe/data/:path*",
+        destination: `${config.reaDevUrl}/mfe/data/:path*`,
+      });
     // Serves the default locale at unprefixed paths, so no indexed English URL
     // moves and the site still ships no proxy.ts.
     //
@@ -315,9 +194,8 @@ const nextConfig: NextConfig = {
     //
     // The lookahead is what keeps this from being the broken afterFiles rule
     // described above: a locale-prefixed path never matches, so `/ru/team`
-    // still reaches [locale] as itself. The other excluded roots are the
-    // dynamic routes outside [locale] (app/cabinet, app/rea), API space and
-    // Next's own — they keep exactly the pre-16.4 path through the fallback,
+    // still reaches [locale] as itself. The other excluded roots are API space
+    // and Next's own — they keep exactly the pre-16.4 path through the fallback,
     // which stays for them and for `/`. `.+` leaves `/` to the fallback too.
     // The locale list restates LOCALES from @evinvest/i18n (CJS boundary,
     // as above): a new locale must be added here or its pages 404.
@@ -327,8 +205,6 @@ const nextConfig: NextConfig = {
       "vi",
       "fr",
       "de",
-      "cabinet",
-      "rea",
       "api",
       "_next",
     ].join("|");

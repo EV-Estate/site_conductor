@@ -1,11 +1,11 @@
 # site_conductor
 
-Conductor shell of `evinvest.ltd` — Next.js 16 (App Router) + React 19, FSD,
-Tailwind v4. The public landing moved to its own host (repo EV-Fund/landing); this origin
+Conductor shell of `estate.evinvest.ltd` — Next.js 16 (App Router) + React 19, FSD,
+Tailwind v4. The public landing moved to its own host (repo EV-Estate/landing); this origin
 links nowhere near it. It serves the coming-soon page at `/`
 (`views/coming-soon`), answers 404 for every retired landing page,
-with or without a locale prefix (`next.config.ts` `rewrites()`), and keeps the
-auth/KYC rewrites, the REA zone and the working cabinet (until the invest host serves it).
+with or without a locale prefix (`next.config.ts` `rewrites()`), and mounts the
+REA dashboard at `/data`.
 The dev port comes from the `ports` attrset in the repo's `flake.nix`.
 
 ## Layout
@@ -54,13 +54,12 @@ npm run check                # tsc --noEmit
 
 ## Visual-regression tests
 
-> Not served on this origin since the move: `/publications`, `/whitepaper` and
-> `/apps/*` answer 404 (`next.config.ts` `rewrites()`); the code under
+> Not served on this origin since the move: `/publications` and `/whitepaper`
+> answer 404 (`next.config.ts` `rewrites()`); the code under
 > `app/[locale]` stays until removed.
 
 Per-section Playwright screenshots in [`tests/`](./tests) — one baseline per
-addressable section (`#hero`, `#portfolio`, `#calculator`, `#research`, `#team`,
-plus header/footer). Browsers come from nixpkgs, pinned to the `@playwright/test`
+addressable section (`#hero`, `#portfolio`, `#calculator`, `#research`, `#team`). Browsers come from nixpkgs, pinned to the `@playwright/test`
 revision via the flake, so screenshots are reproducible.
 ```sh
 npm run test:visual          # compare against committed baselines
@@ -78,7 +77,7 @@ site_conductor composes other EV surfaces at runtime — **never via `<iframe>`*
 
 | Remote ships… | Use | Mount |
 | --- | --- | --- |
-| a self-registering custom-element ESM bundle (React, Rust/WASM) | `RemoteElement` | light DOM; inline or `/apps/<name>` |
+| a self-registering custom-element ESM bundle (React, Rust/WASM) | `RemoteElement` | light DOM; inline or a whole page (`/data`) |
 | a self-contained static HTML document (typst whitepaper/blog) | `RemoteDocument` | light DOM (`prose`) or, if self-styled, a shadow root |
 
 ### Element remotes — `RemoteElement`
@@ -117,14 +116,9 @@ shadow roots, and the global uikit tokens must cascade in.
     fallback={<p>loading…</p>} />
   ```
 
-- **Whole page** — register an entry with `"kind": "page"`; it mounts at
-  `/apps/<name>/…` ([`app/[locale]/apps/[service]/[[...slug]]`](<./app/[locale]/apps>)) and owns the
-  content region while site_conductor keeps its chrome. Scoped under `/apps` (not a root
-  catch-all) so it never shadows the marketing routes or the real 404.
-
-  > Not served on this origin since the move: `/publications`, `/whitepaper` and
-  > `/apps/*` answer 404 (`next.config.ts` `rewrites()`); the code under
-  > `app/[locale]` stays until removed.
+- **Whole page** — register an entry with `"kind": "page"` and give it a route that
+  looks it up by name: `real-estate.data` mounts at `/data`
+  ([`app/[locale]/data`](<./app/[locale]/data/page.tsx>)) and owns the whole page.
 
 **Producing a microfrontend** (other repos — site_conductor ships no producer SDK). The
 canonical, fuller recipe lives in the hub's
@@ -144,8 +138,8 @@ contract is shared with `cabinet`, so keep this in sync with it.
 
 ### Document remotes — `RemoteDocument`
 
-> Not served on this origin since the move: `/publications`, `/whitepaper` and
-> `/apps/*` answer 404 (`next.config.ts` `rewrites()`); the code under
+> Not served on this origin since the move: `/publications` and `/whitepaper`
+> answer 404 (`next.config.ts` `rewrites()`); the code under
 > `app/[locale]` stays until removed.
 
 For remotes that are a self-contained **static HTML document** (the typst-built

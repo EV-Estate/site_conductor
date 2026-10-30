@@ -4,9 +4,8 @@
 export type MfeKind = "component" | "page";
 
 export interface MfeEntry {
-  /** Logical name, e.g. "calculator.yield". A `kind: "page"` entry's name becomes
-   *  the `/apps/<name>` URL segment, so page names must be a single segment (no
-   *  dots/slashes); dotted names are for `kind: "component"`. */
+  /** Logical name, e.g. "calculator.yield". A `kind: "page"` entry is mounted by
+   *  the route that looks it up by name (`real-estate.data` → `/data`). */
   name: string;
   /** Globally-unique, versioned custom-element tag, e.g. "mfe-calculator-yield". */
   tag: string;

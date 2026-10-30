@@ -90,7 +90,7 @@ export const OFFICES: Office[] = [
 // subpage here makes it sitemap-listed and sitelink-eligible with no other
 // change. The homepage in-page sections (#portfolio, #research…) are NOT separate
 // URLs and intentionally not listed; neither are noindexed surfaces
-// (/apps/*). /hiring/[slug] and /publications/[slug] detail entries
+// (/data). /hiring/[slug] and /publications/[slug] detail entries
 // are added in app/sitemap.ts.
 export type ChangeFrequency =
   | "always"

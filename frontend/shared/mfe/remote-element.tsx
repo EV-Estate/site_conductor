@@ -10,6 +10,7 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 
+import type { MfeKind } from "./types";
 import { useRemoteBundle } from "./use-remote-bundle";
 
 export interface RemoteElementProps {
@@ -17,6 +18,8 @@ export interface RemoteElementProps {
   tag: string;
   /** URL of the remote's self-registering ESM bundle. */
   scriptUrl: string;
+  /** The registry entry's kind; a `component` shares the page, so its styles are contained. */
+  kind: MfeKind;
   /** Attributes passed down to the element (objects are JSON-encoded). */
   attributes?: Record<string, string | number | boolean | object>;
   /** CustomEvent name → handler, e.g. { select: (detail) => ... }. Handler
@@ -43,6 +46,7 @@ function applyAttributes(
 export function RemoteElement({
   tag,
   scriptUrl,
+  kind,
   attributes = NO_ATTRS,
   events = NO_EVENTS,
   className,
@@ -53,7 +57,7 @@ export function RemoteElement({
   const appliedAttrs = useRef<string[]>([]);
   const eventsRef = useRef(events);
   const attributesRef = useRef(attributes);
-  const ready = useRemoteBundle(tag, scriptUrl);
+  const ready = useRemoteBundle(tag, scriptUrl, kind);
 
   // Keep the latest handlers/attributes reachable by the effects below, so
   // changing their identity updates the live element instead of remounting it.

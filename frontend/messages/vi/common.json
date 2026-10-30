@@ -1,28 +1,4 @@
 {
-  "a11y.closeMenu": {
-    "en": "Close menu",
-    "t": "Đóng menu"
-  },
-  "a11y.homeLink": {
-    "en": "EV Investment — home",
-    "t": "EV Investment — trang chủ"
-  },
-  "a11y.openMenu": {
-    "en": "Open menu",
-    "t": "Mở menu"
-  },
-  "a11y.siteMenu": {
-    "en": "Site menu",
-    "t": "Menu trang web"
-  },
-  "account.title": {
-    "en": "Account",
-    "t": "Tài khoản"
-  },
-  "account.unavailable": {
-    "en": "Your account could not be loaded",
-    "t": "Không thể tải tài khoản của bạn"
-  },
   "apply.form.email.placeholder": {
     "en": "jane@fund.com",
     "t": "an@fund.com"
@@ -163,118 +139,6 @@
     "en": "Download {title} as PDF",
     "t": "Tải {title} dưới dạng PDF"
   },
-  "footer.cabinet": {
-    "en": "Cabinet",
-    "t": "Cabinet"
-  },
-  "footer.calculator": {
-    "en": "Investment Calculator",
-    "t": "Công cụ tính đầu tư"
-  },
-  "footer.company": {
-    "en": "Company",
-    "t": "Công ty"
-  },
-  "footer.description": {
-    "en": "EV Investment is a registered real estate advisory and investment management fund specializing in premium coastal developments in Quy Nhon, Binh Dinh province, Vietnam.",
-    "t": "EV Investment là quỹ tư vấn bất động sản và quản lý đầu tư đã đăng ký, chuyên về các dự án ven biển cao cấp tại Quy Nhơn, tỉnh Bình Định, Việt Nam."
-  },
-  "footer.explore": {
-    "en": "Explore",
-    "t": "Khám phá"
-  },
-  "footer.fieldNotes": {
-    "en": "Field Notes & Research",
-    "t": "Ghi chép & Nghiên cứu"
-  },
-  "footer.finishVerification": {
-    "en": "Finish verification",
-    "t": "Hoàn tất xác minh"
-  },
-  "footer.investors": {
-    "en": "Investors",
-    "t": "Nhà đầu tư"
-  },
-  "footer.legal.privacy": {
-    "en": "Privacy",
-    "t": "Quyền riêng tư"
-  },
-  "footer.legal.risk": {
-    "en": "Risk disclosure",
-    "t": "Công bố rủi ro"
-  },
-  "footer.legal.terms": {
-    "en": "Terms",
-    "t": "Điều khoản"
-  },
-  "footer.newsletter.blurb": {
-    "en": "Subscribe, to receive our macro reports",
-    "t": "Đăng ký để nhận các báo cáo vĩ mô của chúng tôi"
-  },
-  "footer.newsletter.duplicate": {
-    "en": "You're already on the list.",
-    "t": "Bạn đã có trong danh sách rồi."
-  },
-  "footer.newsletter.error": {
-    "en": "Something went wrong — please try again.",
-    "t": "Đã có lỗi xảy ra — vui lòng thử lại."
-  },
-  "footer.newsletter.invalidEmail": {
-    "en": "Enter a valid email address.",
-    "t": "Vui lòng nhập địa chỉ email hợp lệ."
-  },
-  "footer.newsletter.join": {
-    "en": "Join",
-    "t": "Đăng ký"
-  },
-  "footer.newsletter.networkError": {
-    "en": "Network error — please try again.",
-    "t": "Lỗi kết nối — vui lòng thử lại."
-  },
-  "footer.newsletter.placeholder": {
-    "en": "Institutional Email",
-    "t": "Email tổ chức"
-  },
-  "footer.newsletter.success": {
-    "en": "You're on the list — welcome.",
-    "t": "Bạn đã có trong danh sách — chào mừng."
-  },
-  "footer.office.hcmc.address": {
-    "en": "Deutsches Haus, 33 Le Duan Blvd, District 1, Ho Chi Minh City, Vietnam",
-    "t": "Deutsches Haus, 33 đại lộ Lê Duẩn, Quận 1, Thành phố Hồ Chí Minh, Việt Nam"
-  },
-  "footer.office.hcmc.name": {
-    "en": "Ho Chi Minh Representative",
-    "t": "Văn phòng đại diện TP. Hồ Chí Minh"
-  },
-  "footer.office.hq.address": {
-    "en": "102 An Duong Vuong St, Nguyen Van Cu Ward, Quy Nhon City, Vietnam",
-    "t": "102 đường An Dương Vương, phường Nguyễn Văn Cừ, thành phố Quy Nhơn, Việt Nam"
-  },
-  "footer.office.hq.name": {
-    "en": "Quy Nhon Head Office",
-    "t": "Trụ sở chính Quy Nhơn"
-  },
-  "footer.openAccount": {
-    "en": "Open an account",
-    "t": "Mở tài khoản"
-  },
-  "footer.reports": {
-    "en": "Reports",
-    "t": "Báo cáo"
-  },
-  "footer.rights": {
-    "en": "All rights reserved.",
-    "t": "Bảo lưu mọi quyền."
-  },
-  "footer.tagline": {
-    "en": "Quy Nhon Fund",
-    "t": "Quỹ Quy Nhơn"
-  },
-  "footer.whitepaper": {
-    "en": "Whitepaper",
-    "t": "Sách trắng"
-  },
   "form.email.label": {
     "en": "Email",
     "t": "Email"
@@ -298,22 +162,6 @@
   "form.submitError": {
     "en": "Something went wrong. Please try again.",
     "t": "Đã có lỗi xảy ra. Vui lòng thử lại."
-  },
-  "header.cabinet": {
-    "en": "Cabinet",
-    "t": "Cabinet"
-  },
-  "header.openAccount": {
-    "en": "Open an account",
-    "t": "Mở tài khoản"
-  },
-  "header.signOut": {
-    "en": "Sign out",
-    "t": "Đăng xuất"
-  },
-  "header.signOutFailed": {
-    "en": "Couldn't sign you out. Please try again.",
-    "t": "Không thể đăng xuất. Vui lòng thử lại."
   },
   "hiring.board.allRoles": {
     "en": "All roles",
@@ -975,33 +823,9 @@
     "en": "Whitepaper",
     "t": "Sách trắng"
   },
-  "nav.contact": {
-    "en": "Contact",
-    "t": "Liên hệ"
-  },
-  "nav.hiring": {
-    "en": "Hiring",
-    "t": "Tuyển dụng"
-  },
-  "nav.home": {
-    "en": "Home",
-    "t": "Trang chủ"
-  },
-  "nav.portfolio": {
-    "en": "Portfolio",
-    "t": "Danh mục đầu tư"
-  },
   "nav.publications": {
     "en": "Publications",
     "t": "Ấn phẩm"
-  },
-  "nav.research": {
-    "en": "Research",
-    "t": "Nghiên cứu"
-  },
-  "nav.team": {
-    "en": "Team",
-    "t": "Đội ngũ"
   },
   "publications.allPublications": {
     "en": "All publications",
@@ -1534,13 +1358,5 @@
   "whitepaper.title": {
     "en": "EV Investment Whitepaper",
     "t": "Whitepaper của EV Investment"
-  },
-  "zone.failed": {
-    "en": "This page did not finish loading.",
-    "t": "Trang này chưa tải xong."
-  },
-  "zone.reload": {
-    "en": "Reload",
-    "t": "Tải lại"
   }
 }

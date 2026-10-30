@@ -37,6 +37,7 @@ export async function Portfolio({ locale }: { locale: Locale }) {
         <RemoteElement
           tag={entry.tag}
           scriptUrl={entry.scriptUrl}
+          kind={entry.kind}
           fallback={<ShadowDocument src={SNAPSHOT} />}
         />
       </Reveal>

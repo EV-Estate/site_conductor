@@ -11,7 +11,7 @@ const eslintConfig = [
   {
     // shared/api/generated is an auto-generated artifact (npm run gen:api);
     // it's already prettier-formatted by codegen, so keep it out of lint churn.
-    ignores: [".next/**", "node_modules/**", "dist/**", "shared/api/generated/**"],
+    ignores: [".next/**", "node_modules/**", "dist/**", "public/**", "shared/api/generated/**"],
   },
   {
     rules: {

@@ -21,8 +21,7 @@ import { SiteDocument } from "@/application/layout";
 //
 // Copy is English-only because the uikit status pages bake their copy in, and
 // an unrouted URL carries no reliable locale to read (the `fallback` rewrite
-// resolves them as English). Chromeless for the same reason as
-// app/[locale]/layout.tsx: this origin no longer has a landing to navigate.
+// resolves them as English).
 export const metadata: Metadata = {
   title: "Page not found",
   robots: { index: false },
@@ -30,7 +29,7 @@ export const metadata: Metadata = {
 
 export default function GlobalNotFound() {
   return (
-    <SiteDocument locale={DEFAULT_LOCALE} chrome={false}>
+    <SiteDocument locale={DEFAULT_LOCALE}>
       <NotFound />
     </SiteDocument>
   );

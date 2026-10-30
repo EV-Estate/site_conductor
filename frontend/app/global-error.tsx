@@ -8,8 +8,8 @@ import "@/application/styles/globals.css";
 
 // The last resort: `app/[locale]/error.tsx` catches anything thrown *inside* the
 // document, so this only runs when the document itself failed — the root layout,
-// a provider, the header. It therefore replaces the whole `<html>` and must
-// stand alone: no SiteDocument, no I18nProvider, no Header/Footer, nothing that
+// a provider. It therefore replaces the whole `<html>` and must
+// stand alone: no SiteDocument, no I18nProvider, nothing that
 // could be the very thing that just threw. Fonts and the token sheet only, which
 // is enough for the branded status screen to paint.
 //

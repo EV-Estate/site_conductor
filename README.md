@@ -1,14 +1,14 @@
 # site_conductor
 ![Minimum Supported Rust Version](https://img.shields.io/badge/nightly-1.92+-ab6000.svg)
 
-`site_conductor` is the conductor shell of `evinvest.ltd` for **EV Investment** — a
+`site_conductor` is the conductor shell of `estate.evinvest.ltd` for **EV Investment** — a
 real-estate advisory and investment fund specializing in premium coastal
 developments in Quy Nhon, Vietnam. The public landing moved to its own host
-(repo EV-Fund/landing); this origin now serves a "coming soon" page at `/` and
+(repo EV-Estate/landing); this origin now serves a "coming soon" page at `/` and
 answers 404 for every retired landing page — `/whitepaper`,
 `/blogs/*`, `/publications/*`, `/team`, `/hiring`, … — with or
-without a locale prefix, and never redirects to the new host. It still carries sign-in and KYC (rewrites to the concierge plane), the
-REA zone and the cabinet's asset/API/MFE rewrites. A Next.js 16 (App Router)
+without a locale prefix, and never redirects to the new host. It mounts the
+REA dashboard at `/data` (the `<mfe-real-estate-data>` page microfrontend). A Next.js 16 (App Router)
 front end in [`frontend/`](frontend) lives alongside an axum API in
 [`backend/`](backend). The shared design system ships as the published
 `@evinvest/uikit`.
@@ -22,9 +22,9 @@ front end in [`frontend/`](frontend) lives alongside an axum API in
 
 Production runs on k3s, rolled out by Flux from the `gitops` repo; hosts,
 failover and cluster setup live in
-[EV-Main/devops](https://github.com/EV-Main/devops). On `evinvest.ltd` this app
-serves the coming-soon page, 404s for the retired landing pages
-and the auth/KYC/zone rewrites; the landing itself is EV-Fund/landing.
+[EV-Main/devops](https://github.com/EV-Main/devops). On `estate.evinvest.ltd`
+this app serves the coming-soon page, the REA dashboard at `/data` and 404s for
+the retired landing pages; the landing itself is EV-Estate/landing.
 
 ### Deploy
 
@@ -35,7 +35,7 @@ nix run .#publish -- major|minor|patch
 That bumps the latest remote `vX.Y.Z` tag and pushes it. The tag triggers the
 release workflow (`containerRelease` in `flake.nix`): CI builds the `frontend`
 and `backend` OCI images — re-resolving the private inputs (REA embeds, blog,
-whitepaper) to fresh `main` — pushes them to `ghcr.io/ev-main`, and Flux
+whitepaper) to fresh `main` — pushes them to `ghcr.io/ev-estate`, and Flux
 rolls them out (see the `gitops` repo). Frontend and backend are separate
 images, so each rolls out independently.
 
@@ -62,7 +62,7 @@ export them, so nothing here hardcodes a number.
 | `nix run .#publish` | bump latest remote `vX.Y.Z` tag (`-- major\|minor\|patch`) + push |
 
 Frontend runs build docs and the REA bundle from `main` of the private
-`ev-main/{whitepaper,blog,real_estate_allocation}` repos (over ssh). A failed
+`EV-Estate/{whitepaper,real_estate_allocation}` and `EV-Main/blog` repos (over ssh). A failed
 build just warns: docs degrade to a PDF link, the portfolio section falls back
 to the in-repo render. For a live REA remote instead of the baked bundle: run
 `nix run .#dev` in a `real_estate_allocation` checkout (→ :59079, verify with

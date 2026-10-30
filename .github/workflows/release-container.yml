@@ -36,6 +36,26 @@ jobs:
         run: |
           install -d -m 700 ~/.ssh
           ssh-keyscan -t rsa,ed25519 github.com >> ~/.ssh/known_hosts 2>/dev/null
+          key="${{ secrets.DEPLOY_KEY_REAL_ESTATE_ALLOCATION }}"
+          if [ -z "$key" ]; then
+            echo "::error::DEPLOY_KEY_REAL_ESTATE_ALLOCATION unset — build fetches private input 'EV-Estate/real_estate_allocation'. Provision: git_ops init-deploy-key EV-Estate/real_estate_allocation" >&2
+            exit 1
+          fi
+          printf '%s\n' "$key" > ~/.ssh/real_estate_allocation
+          chmod 600 ~/.ssh/real_estate_allocation
+          printf 'Host gh-real_estate_allocation\n  HostName github.com\n  User git\n  IdentityFile ~/.ssh/real_estate_allocation\n  IdentitiesOnly yes\n' >> ~/.ssh/config
+          git config --global url."ssh://git@gh-real_estate_allocation/EV-Estate/real_estate_allocation".insteadOf "ssh://git@github.com/EV-Estate/real_estate_allocation"
+          git config --global url."git@gh-real_estate_allocation:EV-Estate/real_estate_allocation".insteadOf "git@github.com:EV-Estate/real_estate_allocation"
+          key="${{ secrets.DEPLOY_KEY_BLOG }}"
+          if [ -z "$key" ]; then
+            echo "::error::DEPLOY_KEY_BLOG unset — build fetches private input 'EV-Main/blog'. Provision: git_ops init-deploy-key EV-Main/blog" >&2
+            exit 1
+          fi
+          printf '%s\n' "$key" > ~/.ssh/blog
+          chmod 600 ~/.ssh/blog
+          printf 'Host gh-blog\n  HostName github.com\n  User git\n  IdentityFile ~/.ssh/blog\n  IdentitiesOnly yes\n' >> ~/.ssh/config
+          git config --global url."ssh://git@gh-blog/EV-Main/blog".insteadOf "ssh://git@github.com/EV-Main/blog"
+          git config --global url."git@gh-blog:EV-Main/blog".insteadOf "git@github.com:EV-Main/blog"
           key="${{ secrets.DEPLOY_KEY_BLOG }}"
           if [ -z "$key" ]; then
             echo "::error::DEPLOY_KEY_BLOG unset — build fetches private input 'ev-main/blog'. Provision: git_ops init-deploy-key ev-main/blog" >&2
@@ -46,26 +66,16 @@ jobs:
           printf 'Host gh-blog\n  HostName github.com\n  User git\n  IdentityFile ~/.ssh/blog\n  IdentitiesOnly yes\n' >> ~/.ssh/config
           git config --global url."ssh://git@gh-blog/ev-main/blog".insteadOf "ssh://git@github.com/ev-main/blog"
           git config --global url."git@gh-blog:ev-main/blog".insteadOf "git@github.com:ev-main/blog"
-          key="${{ secrets.DEPLOY_KEY_REAL_ESTATE_ALLOCATION }}"
-          if [ -z "$key" ]; then
-            echo "::error::DEPLOY_KEY_REAL_ESTATE_ALLOCATION unset — build fetches private input 'ev-main/real_estate_allocation'. Provision: git_ops init-deploy-key ev-main/real_estate_allocation" >&2
-            exit 1
-          fi
-          printf '%s\n' "$key" > ~/.ssh/real_estate_allocation
-          chmod 600 ~/.ssh/real_estate_allocation
-          printf 'Host gh-real_estate_allocation\n  HostName github.com\n  User git\n  IdentityFile ~/.ssh/real_estate_allocation\n  IdentitiesOnly yes\n' >> ~/.ssh/config
-          git config --global url."ssh://git@gh-real_estate_allocation/ev-main/real_estate_allocation".insteadOf "ssh://git@github.com/ev-main/real_estate_allocation"
-          git config --global url."git@gh-real_estate_allocation:ev-main/real_estate_allocation".insteadOf "git@github.com:ev-main/real_estate_allocation"
           key="${{ secrets.DEPLOY_KEY_WHITEPAPER }}"
           if [ -z "$key" ]; then
-            echo "::error::DEPLOY_KEY_WHITEPAPER unset — build fetches private input 'ev-main/whitepaper'. Provision: git_ops init-deploy-key ev-main/whitepaper" >&2
+            echo "::error::DEPLOY_KEY_WHITEPAPER unset — build fetches private input 'EV-Estate/whitepaper'. Provision: git_ops init-deploy-key EV-Estate/whitepaper" >&2
             exit 1
           fi
           printf '%s\n' "$key" > ~/.ssh/whitepaper
           chmod 600 ~/.ssh/whitepaper
           printf 'Host gh-whitepaper\n  HostName github.com\n  User git\n  IdentityFile ~/.ssh/whitepaper\n  IdentitiesOnly yes\n' >> ~/.ssh/config
-          git config --global url."ssh://git@gh-whitepaper/ev-main/whitepaper".insteadOf "ssh://git@github.com/ev-main/whitepaper"
-          git config --global url."git@gh-whitepaper:ev-main/whitepaper".insteadOf "git@github.com:ev-main/whitepaper"
+          git config --global url."ssh://git@gh-whitepaper/EV-Estate/whitepaper".insteadOf "ssh://git@github.com/EV-Estate/whitepaper"
+          git config --global url."git@gh-whitepaper:EV-Estate/whitepaper".insteadOf "git@github.com:EV-Estate/whitepaper"
         shell: bash
       - name: Build + push containers
         run: |
@@ -121,17 +131,17 @@ jobs:
             if [ "${{ github.ref_type }}" = "tag" ]; then
               nix run nixpkgs#skopeo -- copy \
                 "docker-archive:$RESULT" \
-                "docker://ghcr.io/ev-main/${name,,}:${{ github.ref_name }}"
+                "docker://ghcr.io/ev-estate/${name,,}:${{ github.ref_name }}"
             elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
               [ "${{ github.ref }}" = "refs/heads/main" ] || { echo "::error::dispatch publishes main's head only, not ${{ github.ref }}" >&2; exit 1; }
               nix run nixpkgs#skopeo -- copy \
                 "docker-archive:$RESULT" \
-                "docker://ghcr.io/ev-main/${name,,}:main-${GITHUB_SHA::8}"
+                "docker://ghcr.io/ev-estate/${name,,}:main-${GITHUB_SHA::8}"
             elif [ "${{ github.event_name }}" = "pull_request" ]; then
               head="${{ github.event.pull_request.head.sha }}"
               nix run nixpkgs#skopeo -- copy \
                 "docker-archive:$RESULT" \
-                "docker://ghcr.io/ev-main/${name,,}:pr-${{ github.event.pull_request.number }}-${head::8}"
+                "docker://ghcr.io/ev-estate/${name,,}:pr-${{ github.event.pull_request.number }}-${head::8}"
             else
               echo "cache-seed build ($name) on ${{ github.ref_name }} — skipping GHCR push"
             fi

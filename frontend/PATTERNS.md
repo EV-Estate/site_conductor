@@ -184,8 +184,7 @@ backend (utoipa) → backend/openapi.json → @hey-api/openapi-ts → shared/api
 Two sibling `@evinvest/uikit` `<Button asChild>` (Radix Slot → `<Link>`) **desync
 hydration** under React 19 and one silently drops from the client DOM. For nav CTAs
 (which are just links), use the uikit `<Button href>` (a plain `<a>`, no Slot), a
-plain styled `<Link className={…}>` or a plain `<button onClick>` instead — see
-`application/layout/header-cta.tsx`. A single `Button asChild`, or a non-`asChild`
+plain styled `<Link className={…}>` or a plain `<button onClick>` instead. A single `Button asChild`, or a non-`asChild`
 `<Button onClick>`, is fine.
 
 ---
@@ -204,8 +203,9 @@ transports, picked by what the remote ships:
   (Dioxus/Leptos). Mounted in **light DOM** — Tailwind v4 `@property` tokens break
   inside shadow roots and the global uikit tokens must cascade in. Resolved from
   `mfe-registry.json` (`findMfe`, server-only) so remotes deploy independently.
-  Inline anywhere, or as a whole page at `/apps/<name>` (the home portfolio/REA
-  section is the live example (now on the invest host, EV-Fund/landing)).
+  Inline anywhere, or as a whole page (`/data`, `app/[locale]/data`, mounts
+  `real-estate.data`). The home portfolio/REA section is the inline example
+  (now in EV-Estate/landing).
 - **Document remote — `RemoteDocument`.** The remote is a self-contained static
   HTML document (the typst-built whitepaper / blog). `isolate={false}` (default)
   injects its `<body>` into the **light DOM** so host typography (`prose`) styles
@@ -213,7 +213,7 @@ transports, picked by what the remote ships:
   research articles). `isolate` mounts a **self-styled** doc (its own CSS targets
   bare tags) in a **shadow root** via a small client island, so its styles can't
   reach the host (use for the whitepaper). `/publications/whitepaper` and
-  `/publications/[slug]` are the live examples (now on the invest host, EV-Fund/landing).
+  `/publications/[slug]` are the live examples (now on the invest host, EV-Estate/landing).
 
 Notes that bite:
 - **Shadow remotes are client-only.** React 19 can emit Declarative Shadow DOM
@@ -277,70 +277,12 @@ OR a missing snapshot at **build** time is a broken build (`findMfe` + `loadDocH
 both throw); the snapshot is **runtime** degradation only. The host `id` anchor stays
 on the light-DOM wrapper `<div>`; the snapshot's own inner `id` is shadow-scoped, so
 there's no `getElementById` collision. The home portfolio/REA section is the live
-example (now on the invest host, EV-Fund/landing). (One producer today — the cargo-run + css-inline + anchor-grep lives in REA's
+example (now on the invest host, EV-Estate/landing). (One producer today — the cargo-run + css-inline + anchor-grep lives in REA's
 flake; extract to `v_flakes` when a second component-MFE producer appears.)
-
-## 9. Routed zones — whole apps under conductor paths, wearing the conductor's shell
-
-§8 composes remotes **inside** a page. When another EV app owns **whole routes**
-(the cabinet, the REA dashboard), it is mounted as a **zone**: the app stays a
-standalone deployment on its own origin, emits **chromeless** full documents,
-and the conductor is the only party that knows chrome exists — its proxy injects
-the conductor-owned AppShell (the brand header) into the zone's HTML stream.
-
-- **Cabinet pages still proxy here** until the invest host serves the cabinet;
-  `/cabinet` leaves this origin in a separate change. The cabinet is mounted
-  with `shell: false`: it gets **no** injected header (the shell header is the
-  old landing's, now on invest.evinvest.ltd, and its links 404) and serves its
-  own chrome. Only zones that omit the flag (REA) are wrapped.
-- **Traffic splits by content, not path.** Asset/API traffic (`/cabinet/_next`,
-  `/cabinet/api`, `/cabinet/mfe`, `/rea/assets`, `/rea/api`)
-  goes straight to the zone over native `beforeFiles` rewrites (`next.config.ts`
-  — they must be beforeFiles, or they'd lose to the catch-all handlers). Zone
-  *HTML* goes through `shared/zone-proxy.ts` via the catch-all route handlers
-  (`app/cabinet/[[...path]]/route.ts`, `app/rea/[[...path]]/route.ts`).
-  Zone env (`CABINET_ZONE_URL` / `REA_ZONE_URL`) unset ⇒ no rewrites and the
-  handler 404s rather than half-proxying.
-- **Injection is a string insert on the initial HTML stream**: header CSS/JS
-  `<link>`/`<script src>` after `<head…>`, the static header fragment after
-  `<body…>`, everything after piped raw. Non-HTML (RSC payloads, files) streams
-  through byte-identical. Assets are content-hashed under `/shell/*`
-  (immutable-cached) and built by `scripts/build-shell.mts` from the same
-  `application/layout/header.tsx` the conductor's own pages render. The script
-  runs at predev/prebuild *and* in the flake's image buildPhase; its outputs —
-  the `public/shell/manifest.json` the proxy imports included — are gitignored
-  (all of `public/` is), so a
-  build that skips generation fails at the proxy's static import instead of
-  shipping markup that points at `/shell` assets absent from the image. The
-  header carries no React state anywhere; both hosts load the same vanilla
-  behavior script (`scripts/header-behavior.ts`, deferred) and the same
-  pre-paint session stamp (`scripts/session-stamp.ts`, blocking in `<head>`:
-  a zone loads it by URL, the conductor inlines the manifest's copy).
-- **Zones know nothing about the shell** — the single contract is the
-  `--ev-shell-offset` token (uikit tokens.css, `0px` standalone; the injected
-  header CSS overrides it to the bar's at-rest height and pads `body` by it,
-  since the fixed bar takes no layout space): zones size viewport-bound
-  surfaces with `calc(100dvh - var(--ev-shell-offset, 0px))`. Never inject
-  inline code — zone CSPs (`script-src 'self' 'nonce-…'`) must pass with zero
-  changes.
-- **Zone side** (in the zone's repo): `basePath: "/cabinet"` (Next) or
-  `base_path = "rea"` (Dioxus) — pages *and* assets all live under the
-  one prefix, so nothing collides with the conductor's own assets.
-- **Cross-zone links are hard links.** Never `next/link` into another zone — the
-  current zone's router doesn't own the route, and prefetch/soft-nav break.
-  Use `<a>` / `window.location`; navigation between zones is a full document
-  load by design.
-- **Auth composes for free**: the browser only ever talks to the conductor
-  origin, so the zone's session cookies (`__Host-*` included) arrive first-party
-  on this domain through the proxy (each `Set-Cookie` forwarded individually).
-- **Pick the transport by ownership**: inline widget or single mounted surface →
-  element remote (§8); an app owning a route subtree with its own navigation →
-  zone. A zone's own pages can still mount §8 remotes (the account chip the
-  shell injects *is* one).
 
 ---
 
-## 10. Motion — three primitives, two engines
+## 9. Motion — three primitives
 
 Motion on this site is a **design system, not a set of one-off animations**.
 Everything comes from `@/shared/ui/motion`, whose `tokens.ts` owns the curves and
@@ -373,43 +315,6 @@ Rules that are not negotiable:
 - **Never wrap a `position: fixed` descendant in a moving `Reveal`.** An animated
   transform makes the wrapper that descendant's containing block. Use
   `from="none"` (pure fade) — this is exactly why the portfolio MFE uses it.
-
-### The second engine: the header
-
-`application/layout/header.tsx` and `scripts/header-behavior.ts` may **not** use
-`motion`. That markup is also stringified by `scripts/build-shell.mts` and
-injected into zone documents, where there is no React runtime to hydrate it — so
-its motion is CSS transitions keyed off `data-*` attributes the ~40-line vanilla
-behavior script toggles. Two traps live there:
-
-- **Tailwind v4 compiles `translate-x-*` to the standalone `translate`
-  property, not `transform`.** A `transition-[transform,…]` list silently matches
-  nothing and the element teleports. Name `translate`.
-- **`visibility` belongs in the transition list.** It is discretely animated with
-  `visible` winning any intermediate value, so it shows instantly on open and
-  waits for the slide-out on close — and, being `hidden` at rest, it keeps the
-  closed drawer out of the tab order and the accessibility tree with no `inert`
-  bookkeeping and no JS.
-
-### Crossing the zone boundary
-
-> Historical: the landing is gone from this origin and `app/[locale]` renders
-> with `chrome={false}`, so the landing → cabinet crossing below no longer
-> happens on this origin.
-
-Landing → cabinet is a **full document load** (the cabinet is a route-handler
-proxy; no shared React tree), so the bar's "spanning" cannot be a transition
-between two DOMs. It is a one-shot entrance on the *arriving* document: the shell
-CSS paints the logo and actions at their offset from the first frame, and the
-behavior script flips one attribute (`data-slide-enter`) inside a rAF to
-interpolate off it.
-
-There is deliberately **no reverse animation**. The behavior script is deferred in
-both hosts, so on the landing document the header has already painted at its
-natural position before we could offset it — animating from an offset after that
-is a jump, not an entrance. That jump was the reported "lag". A hard cut is the
-correct behaviour here; do not re-add it without a mechanism that runs before
-first paint.
 
 ### Visual tests
 

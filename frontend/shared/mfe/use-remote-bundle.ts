@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 
 import { containRemoteStyles } from "./contain-remote-styles";
+import type { MfeKind } from "./types";
 
 // Loads a remote's ESM bundle once per tag and resolves true when its element
 // upgrades; stays false while loading or on failure (caller shows its fallback).
-export function useRemoteBundle(tag: string, scriptUrl: string): boolean {
+export function useRemoteBundle(tag: string, scriptUrl: string, kind: MfeKind): boolean {
   // Keyed by tag (not a boolean) so a reused instance switching remotes is
   // un-ready for the new tag immediately; a stale boolean would report the
   // previous remote's readiness and suppress the fallback.
@@ -12,10 +13,12 @@ export function useRemoteBundle(tag: string, scriptUrl: string): boolean {
 
   useEffect(() => {
     let cancelled = false;
-    // Demote any CSS the remote injects into the `reamfe` layer so it can't
-    // override host utilities (set up before the bundle runs, and on the
-    // already-loaded path too, since the remote's stylesheet may persist).
-    const stopContainment = containRemoteStyles(scriptUrl);
+    // Demote any CSS a component remote injects into the `reamfe` layer so it
+    // can't override host utilities (set up before the bundle runs, and on the
+    // already-loaded path too, since the remote's stylesheet may persist). A page
+    // remote owns the page: there is no host content to protect, and demoted
+    // below host preflight its own utilities would lose (`button` backgrounds).
+    const stopContainment = kind === "component" ? containRemoteStyles(scriptUrl) : () => {};
     const whenReady = () =>
       customElements
         .whenDefined(tag)
@@ -50,7 +53,7 @@ export function useRemoteBundle(tag: string, scriptUrl: string): boolean {
       script.removeEventListener("load", onLoad);
       stopContainment();
     };
-  }, [tag, scriptUrl]);
+  }, [tag, scriptUrl, kind]);
 
   return readyTag === tag;
 }

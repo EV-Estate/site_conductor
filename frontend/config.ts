@@ -50,24 +50,9 @@ export const config = {
   get apiUrlInternal(): string | undefined {
     return prodRequired("API_URL_INTERNAL");
   },
-  // Zone origins (multi-zone mounts; see PATTERNS.md §9). Unset ⇒ no rewrites
-  // and the HTML proxy 404s instead of half-proxying — tolerable only in dev,
-  // so prod asserts presence at boot.
-  get cabinetZoneUrl(): string | undefined {
-    return prodRequired("CABINET_ZONE_URL");
-  },
-  get reaZoneUrl(): string | undefined {
-    return prodRequired("REA_ZONE_URL");
-  },
-  // The concierge plane's web surface. Auth is shell-owned: /api/auth/* and
-  // /api/callback/auth/* on THIS origin rewrite there, so session cookies land
-  // first-party for every zone. /api/kyc/* rewrites there too — identity
-  // verification is owned by the same plane and served by the same process, so
-  // it shares this URL instead of a second env var pointing at one service.
-  // Unset ⇒ no rewrites ⇒ auth AND kyc disabled (dev-only). The name stayed
-  // AUTH_WEB_URL: it is already deployed, and renaming it buys nothing.
-  get authWebUrl(): string | undefined {
-    return prodRequired("AUTH_WEB_URL");
+  // Prod routes /mfe/data at the edge; dev has no edge.
+  get reaDevUrl(): string | undefined {
+    return optional(process.env.REA_DEV_URL);
   },
   // Server/edge Sentry environment tag (instrumentation.ts).
   get appEnv(): string | undefined {
@@ -110,12 +95,6 @@ export const config = {
       if (!process.env.NEXT_PUBLIC_REA_URL && isProdRuntime())
         throw new Error("missing required env var NEXT_PUBLIC_REA_URL");
       return optional(process.env.NEXT_PUBLIC_REA_URL);
-    },
-    get buildVersion(): string | undefined {
-      return optional(process.env.NEXT_PUBLIC_BUILD_VERSION);
-    },
-    get buildCommit(): string | undefined {
-      return optional(process.env.NEXT_PUBLIC_BUILD_COMMIT);
     },
     get analyticsEndpoint(): string | undefined {
       return optional(process.env.NEXT_PUBLIC_ANALYTICS_ENDPOINT);

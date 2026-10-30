@@ -1,28 +1,4 @@
 {
-  "a11y.closeMenu": {
-    "en": "Close menu",
-    "t": "Закрыть меню"
-  },
-  "a11y.homeLink": {
-    "en": "EV Investment — home",
-    "t": "EV Investment — на главную"
-  },
-  "a11y.openMenu": {
-    "en": "Open menu",
-    "t": "Открыть меню"
-  },
-  "a11y.siteMenu": {
-    "en": "Site menu",
-    "t": "Меню сайта"
-  },
-  "account.title": {
-    "en": "Account",
-    "t": "Аккаунт"
-  },
-  "account.unavailable": {
-    "en": "Your account could not be loaded",
-    "t": "Не удалось загрузить ваш аккаунт"
-  },
   "apply.form.email.placeholder": {
     "en": "jane@fund.com",
     "t": "ivan@fund.com"
@@ -163,118 +139,6 @@
     "en": "Download {title} as PDF",
     "t": "Скачать «{title}» в PDF"
   },
-  "footer.cabinet": {
-    "en": "Cabinet",
-    "t": "Кабинет"
-  },
-  "footer.calculator": {
-    "en": "Investment Calculator",
-    "t": "Инвестиционный калькулятор"
-  },
-  "footer.company": {
-    "en": "Company",
-    "t": "Компания"
-  },
-  "footer.description": {
-    "en": "EV Investment is a registered real estate advisory and investment management fund specializing in premium coastal developments in Quy Nhon, Binh Dinh province, Vietnam.",
-    "t": "EV Investment — зарегистрированный фонд консультирования и управления инвестициями в недвижимость, специализирующийся на премиальных прибрежных проектах в Куинёне, провинция Биньдинь, Вьетнам."
-  },
-  "footer.explore": {
-    "en": "Explore",
-    "t": "Обзор"
-  },
-  "footer.fieldNotes": {
-    "en": "Field Notes & Research",
-    "t": "Заметки и исследования"
-  },
-  "footer.finishVerification": {
-    "en": "Finish verification",
-    "t": "Пройти проверку"
-  },
-  "footer.investors": {
-    "en": "Investors",
-    "t": "Инвесторам"
-  },
-  "footer.legal.privacy": {
-    "en": "Privacy",
-    "t": "Конфиденциальность"
-  },
-  "footer.legal.risk": {
-    "en": "Risk disclosure",
-    "t": "Раскрытие рисков"
-  },
-  "footer.legal.terms": {
-    "en": "Terms",
-    "t": "Условия"
-  },
-  "footer.newsletter.blurb": {
-    "en": "Subscribe, to receive our macro reports",
-    "t": "Подпишитесь, чтобы получать наши макроотчёты"
-  },
-  "footer.newsletter.duplicate": {
-    "en": "You're already on the list.",
-    "t": "Вы уже в списке."
-  },
-  "footer.newsletter.error": {
-    "en": "Something went wrong — please try again.",
-    "t": "Что-то пошло не так — попробуйте ещё раз."
-  },
-  "footer.newsletter.invalidEmail": {
-    "en": "Enter a valid email address.",
-    "t": "Введите корректный адрес электронной почты."
-  },
-  "footer.newsletter.join": {
-    "en": "Join",
-    "t": "Подписаться"
-  },
-  "footer.newsletter.networkError": {
-    "en": "Network error — please try again.",
-    "t": "Ошибка сети — попробуйте ещё раз."
-  },
-  "footer.newsletter.placeholder": {
-    "en": "Institutional Email",
-    "t": "Институциональный e-mail"
-  },
-  "footer.newsletter.success": {
-    "en": "You're on the list — welcome.",
-    "t": "Вы в списке — добро пожаловать."
-  },
-  "footer.office.hcmc.address": {
-    "en": "Deutsches Haus, 33 Le Duan Blvd, District 1, Ho Chi Minh City, Vietnam",
-    "t": "Deutsches Haus, бул. Ле Зуан, 33, Район 1, Хошимин, Вьетнам"
-  },
-  "footer.office.hcmc.name": {
-    "en": "Ho Chi Minh Representative",
-    "t": "Представительство в Хошимине"
-  },
-  "footer.office.hq.address": {
-    "en": "102 An Duong Vuong St, Nguyen Van Cu Ward, Quy Nhon City, Vietnam",
-    "t": "ул. Ан Зыонг Выонг, 102, квартал Нгуен Ван Кы, Куинён, Вьетнам"
-  },
-  "footer.office.hq.name": {
-    "en": "Quy Nhon Head Office",
-    "t": "Головной офис в Куинёне"
-  },
-  "footer.openAccount": {
-    "en": "Open an account",
-    "t": "Открыть счёт"
-  },
-  "footer.reports": {
-    "en": "Reports",
-    "t": "Отчёты"
-  },
-  "footer.rights": {
-    "en": "All rights reserved.",
-    "t": "Все права защищены."
-  },
-  "footer.tagline": {
-    "en": "Quy Nhon Fund",
-    "t": "Фонд Куинёна"
-  },
-  "footer.whitepaper": {
-    "en": "Whitepaper",
-    "t": "Белая книга"
-  },
   "form.email.label": {
     "en": "Email",
     "t": "Электронная почта"
@@ -298,22 +162,6 @@
   "form.submitError": {
     "en": "Something went wrong. Please try again.",
     "t": "Что-то пошло не так. Попробуйте ещё раз."
-  },
-  "header.cabinet": {
-    "en": "Cabinet",
-    "t": "Кабинет"
-  },
-  "header.openAccount": {
-    "en": "Open an account",
-    "t": "Открыть счёт"
-  },
-  "header.signOut": {
-    "en": "Sign out",
-    "t": "Выйти"
-  },
-  "header.signOutFailed": {
-    "en": "Couldn't sign you out. Please try again.",
-    "t": "Не удалось выйти. Попробуйте ещё раз."
   },
   "hiring.board.allRoles": {
     "en": "All roles",
@@ -975,33 +823,9 @@
     "en": "Whitepaper",
     "t": "Whitepaper"
   },
-  "nav.contact": {
-    "en": "Contact",
-    "t": "Контакты"
-  },
-  "nav.hiring": {
-    "en": "Hiring",
-    "t": "Вакансии"
-  },
-  "nav.home": {
-    "en": "Home",
-    "t": "Главная"
-  },
-  "nav.portfolio": {
-    "en": "Portfolio",
-    "t": "Портфель"
-  },
   "nav.publications": {
     "en": "Publications",
     "t": "Публикации"
-  },
-  "nav.research": {
-    "en": "Research",
-    "t": "Исследования"
-  },
-  "nav.team": {
-    "en": "Team",
-    "t": "Команда"
   },
   "publications.allPublications": {
     "en": "All publications",
@@ -1534,13 +1358,5 @@
   "whitepaper.title": {
     "en": "EV Investment Whitepaper",
     "t": "Белая книга EV Investment"
-  },
-  "zone.failed": {
-    "en": "This page did not finish loading.",
-    "t": "Страница загрузилась не полностью."
-  },
-  "zone.reload": {
-    "en": "Reload",
-    "t": "Перезагрузить"
   }
 }

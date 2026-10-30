@@ -80,12 +80,8 @@ export default async function RootLayout({
   // The 500 boundary is a Client Component by Next's rule, so its copy is
   // resolved here — where the locale is known — and carried down as ~6 strings
   // rather than shipping the catalogues to the browser.
-  //
-  // Chromeless: every routed page left under [locale] is the coming-soon page
-  // or a status page — the landing's own pages redirect to its new host — and
-  // a landing header would only offer links that leave this origin.
   return (
-    <SiteDocument locale={locale} chrome={false}>
+    <SiteDocument locale={locale}>
       <StatusCopyProvider copy={serverErrorCopy(locale)}>
         {children}
       </StatusCopyProvider>
