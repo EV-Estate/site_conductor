@@ -9,6 +9,8 @@ import { ErrorMonitoringProvider } from "@/features/error-monitoring";
 import { PostHogProvider, PostHogPageView } from "@/features/analytics";
 import { DevAbPanel } from "@/features/ab-variant";
 import { config } from "@/config";
+import { Header } from "./header";
+import { Footer } from "./footer";
 import { DarkReaderHydrationFilter } from "./dark-reader-hydration-filter";
 import "@/application/styles/globals.css";
 
@@ -21,7 +23,7 @@ const analyticsWebsiteId = config.public.analyticsWebsiteId;
 // and which therefore has to build its own `<html>`. Two callers, one shell:
 // the reason the old bare-Next 404 existed at all is that the shell lived
 // inline in the layout, where nothing outside the `[locale]` tree could reach
-// it.
+// it. Keep it that way — a page that renders chrome renders it from here.
 export function SiteDocument({
   locale,
   children,
@@ -59,7 +61,9 @@ export function SiteDocument({
                 <Suspense fallback={null}>
                   <PostHogPageView />
                 </Suspense>
+                <Header locale={locale} />
                 {children}
+                <Footer />
               </PostHogProvider>
               <DevAbPanel />
             </Providers>

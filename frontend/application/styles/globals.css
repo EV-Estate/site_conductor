@@ -1,4 +1,4 @@
-/* Element remotes mount in light DOM so host tokens
+/* Element remotes (e.g. the analytics overview tile) mount in light DOM so host tokens
    cascade into them — but a remote's bundle injects its own full Tailwind sheet
    into <head>, whose `@layer utilities` would merge with ours and, loading last,
    win (its non-responsive `.grid-cols-1` beat our `lg:grid-cols-3`). Register a
@@ -79,4 +79,83 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary-ink);
+}
+
+/* Research-zone texture — faint dot-grid over a soft centre vignette. */
+.research-texture {
+  background-color: var(--color-secondary);
+  background-image:
+    radial-gradient(
+      circle at 50% 0%,
+      color-mix(in srgb, var(--primary-ink) 5%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(rgba(230, 225, 211, 0.05) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    22px 22px;
+  background-position:
+    center top,
+    center;
+}
+
+/* Research reading panel — near-black field with a faint cool mottle. */
+.research-panel {
+  position: relative;
+  background-color: var(--color-background);
+}
+.research-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      75% 60% at 30% 25%,
+      rgba(154, 166, 184, 0.045),
+      transparent 70%
+    ),
+    radial-gradient(60% 80% at 80% 90%, rgba(7, 13, 24, 0.6), transparent 70%);
+}
+.research-panel > * {
+  position: relative;
+}
+
+/* Partner marquee — views/home/ui/partners.
+   A pure-CSS loop, so the trust bar stays a Server Component and ships no JS.
+   The track repeats the vendor list COPIES times (6, set in partners.tsx) and
+   slides exactly one copy per lap, so -100% / 6 is 1 / COPIES — change one and
+   the other has to follow. Because each item carries its own horizontal padding
+   rather than the row using a flex `gap`, every copy is an identical box and the
+   slide lands on the seam instead of half a gap short. */
+@keyframes partners-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% / 5));
+  }
+}
+
+/* One lap moves one copy of the ~1200px row, so the duration is what sets the
+   speed: 32s is ~38px/s, the pace the bar was tuned at when the row was 900px
+   and the lap 24s. */
+.partners-marquee-track {
+  animation: partners-marquee 32s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .partners-marquee-track {
+    animation: none;
+  }
+  /* Stopping the loop would strand every logo past the right edge, so hand the
+     row back to the reader as a plain horizontal scroller — and drop the
+     duplicate copy, which only ever existed to hide the seam. Scrolling here is
+     contained by the clipped viewport and never reaches <body>. */
+  .partners-marquee {
+    overflow-x: auto;
+  }
+  .partners-marquee-clone {
+    display: none;
+  }
 }

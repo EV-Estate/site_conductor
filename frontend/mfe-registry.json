@@ -1,8 +1,0 @@
-[
-  {
-    "name": "analytics.dashboard",
-    "tag": "mfe-analytics-dashboard",
-    "scriptUrl": "/mfe/analytics/dashboard.js",
-    "kind": "page"
-  }
-]

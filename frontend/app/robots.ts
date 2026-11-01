@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { SITE } from "@/shared/config/site";
 
 // Static route — reads only build-time env, so it stays statically generated
-// (and cached) even though the page is dynamic via the layout's await cookies().
+// (and cached).
 export const dynamic = "force-static";
 
 // AI answer/citation + training crawlers the brand explicitly WANTS (owner chose
@@ -33,13 +33,8 @@ const AI_CRAWLERS = [
 // Repeated into every group rather than written once, because robots.txt has no
 // inheritance: a crawler obeys the ONE group that names it and ignores the `*`
 // group entirely. So the named AI groups below, carrying `allow: "/"` and
-// nothing else, would be exempt from the `*` group's `/api/` disallow. "Allowed
-// everywhere the default crawler is" is what those groups mean; it is not
-// "allowed more than it".
-//
-// The retired landing paths are not disallowed: they answer 404,
-// and a crawler barred from a URL never sees its status — the old entries
-// would linger in the index instead of dropping out.
+// nothing else, were exempt from the `*` group's `/api/` disallow. "Allowed everywhere the default
+// crawler is" is what those groups mean; it is not "allowed more than it".
 const DISALLOW = ["/api/"];
 
 export default function robots(): MetadataRoute.Robots {

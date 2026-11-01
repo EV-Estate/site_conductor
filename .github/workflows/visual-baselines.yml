@@ -11,7 +11,7 @@
 #           and publishes them as `visual-snapshots`, so a dev without a Linux
 #           builder can refresh honestly:
 #
-#             gh run download <run-id> -n visual-snapshots -D frontend/tests/__screenshots__
+#             gh run download <run-id> -R EV-Estate/landing -n visual-snapshots -D frontend/tests/__screenshots__
 #             git add frontend/tests/__screenshots__
 #             git commit -m 'test(visual): refresh baselines (run <run-id>)'
 #
@@ -47,8 +47,8 @@ jobs:
           name: ev-invest
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - name: Gate (typecheck, i18n, css, visual regression)
-        # `run-test` also populates public/ and builds the zone shell manifest,
-        # which the render step below relies on — keep this first.
+        # Before the render step: that one overwrites the baselines this gate
+        # compares against.
         run: nix run .#test
       - name: Keep the gate's diffs
         if: always()
@@ -72,7 +72,7 @@ jobs:
         shell: bash
         # Drop the committed PNGs first: otherwise a render that fails before
         # capturing anything still ships them as `visual-snapshots`, and the
-        # refresh above would commit stale images as fresh.
+        # README refresh would commit stale images as fresh.
         run: |
           set -euo pipefail
           rm -rf frontend/tests/__screenshots__

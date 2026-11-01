@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
 
 import { containRemoteStyles } from "./contain-remote-styles";
-import type { MfeKind } from "./types";
+import type { RemoteElementProps } from "./remote-element";
 
 // Loads a remote's ESM bundle once per tag and resolves true when its element
 // upgrades; stays false while loading or on failure (caller shows its fallback).
-export function useRemoteBundle(tag: string, scriptUrl: string, kind: MfeKind): boolean {
+export function useRemoteBundle(
+  tag: string,
+  scriptUrl: string,
+  kind: RemoteElementProps["kind"],
+): boolean {
   // Keyed by tag (not a boolean) so a reused instance switching remotes is
   // un-ready for the new tag immediately; a stale boolean would report the
   // previous remote's readiness and suppress the fallback.

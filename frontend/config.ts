@@ -90,6 +90,12 @@ export const config = {
         throw new Error("missing required env var NEXT_PUBLIC_SITE_URL");
       return optional(process.env.NEXT_PUBLIC_SITE_URL);
     },
+    get buildVersion(): string | undefined {
+      return optional(process.env.NEXT_PUBLIC_BUILD_VERSION);
+    },
+    get buildCommit(): string | undefined {
+      return optional(process.env.NEXT_PUBLIC_BUILD_COMMIT);
+    },
     get analyticsEndpoint(): string | undefined {
       return optional(process.env.NEXT_PUBLIC_ANALYTICS_ENDPOINT);
     },

@@ -2,6 +2,7 @@ import type {
   FullResult,
   Reporter,
   TestCase,
+  TestError,
   TestResult,
 } from "@playwright/test/reporter";
 
@@ -13,7 +14,12 @@ class VisualReporter implements Reporter {
   private failed: { title: string; lines: string[] }[] = [];
 
   onTestEnd(test: TestCase, result: TestResult) {
-    const mark = result.status === "passed" ? "✓" : result.status === "skipped" ? "-" : "✗";
+    const mark =
+      result.status === "passed"
+        ? "✓"
+        : result.status === "skipped"
+          ? "-"
+          : "✗";
     process.stdout.write(`  ${mark} ${test.title}\n`);
     if (result.status !== "failed" && result.status !== "timedOut") return;
 
@@ -37,15 +43,22 @@ class VisualReporter implements Reporter {
     this.failed.push({ title: test.title, lines });
   }
 
+  // Errors outside any test — a throwing globalSetup (missing browser), a
+  // webServer that never came up — reach a reporter only here. Without this the
+  // run exits 1 with no output at all, since onTestEnd never fires.
+  onError(error: TestError) {
+    process.stderr.write(`\n  ✗ ${error.message ?? error.value ?? "error"}\n`);
+  }
+
   onEnd(result: FullResult) {
     if (this.failed.length === 0) return;
     process.stdout.write(`\n  ${this.failed.length} screenshot(s) changed:\n`);
     for (const f of this.failed) {
       process.stdout.write(`\n    ${f.title}\n${f.lines.join("\n")}\n`);
     }
-    const names = this.failed.map((f) => f.title.replace(/^.*:\s*/, ""));
+    const names = this.failed.map(f => f.title.replace(/^.*:\s*/, ""));
     process.stdout.write(
-      `\n  accept some: nix run .#accept-test ${names[0]} [<name>...] — accept all: nix run .#accept-test\n\n`,
+      `\n  accept some: nix run .#accept-test ${names[0]} [<name>...] — accept all: nix run .#accept-test\n\n`
     );
     void result;
   }

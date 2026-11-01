@@ -32,6 +32,7 @@ const MIST = SITE.theme.mist;
 const ACCENT = SITE.theme.accent;
 const HAIRLINE = "rgba(230,225,211,0.09)";
 
+// Same emphasis the hero headline gives it (views/home/ui/hero/ui/a/headline.tsx).
 const ACCENTED = "China+1";
 const [lead, trail] = SITE.tagline.split(ACCENTED);
 if (trail === undefined)

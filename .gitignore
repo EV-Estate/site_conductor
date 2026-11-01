@@ -108,4 +108,6 @@ playwright-report/
 AGENTS.md
 CLAUDE.md
 .claude/
+## Nix build outputs beyond the base `result`
+result-*
 

@@ -1,0 +1,72 @@
+"use client";
+
+import Link from "next/link";
+import { ArrowRight, FileText } from "lucide-react";
+import { Button } from "@evinvest/uikit";
+import { useLocale, useT } from "@evinvest/i18n/react";
+import { useExperimentEvent } from "@/features/ab-variant";
+import { CABINET_URL } from "@/shared/config/site";
+import { PRIMARY, SECONDARY, SIZE, TEXT_LINK, type HeroCtaAlign } from "./row";
+
+// Emitted as `hero_cta_clicked`: the tracker prefixes the experiment key, so
+// the bare `clicked` keeps the event name the pre-#198 row already reported
+// under the `hero` tracker. Renaming would fork the funnel dashboard.
+const ACTION = "clicked";
+
+/**
+ * Client island — arm `a` of `hero_cta`: "Start investing" into the cabinet as
+ * the primary, "Explore Assets" demoted to secondary, the whitepaper a text
+ * link.
+ *
+ * The cabinet is another app on its own host, so the primary is a hard `<a>`
+ * — `Button href`, never `next/link`. Nothing in the row is `asChild`, so the
+ * two-sibling hydration trap (PATTERNS §7) cannot apply.
+ */
+export function CabinetFirstCta({ align }: { align: HeroCtaAlign }) {
+  const track = useExperimentEvent();
+  const t = useT();
+  const locale = useLocale();
+  const centred = align === "center";
+  const common = { location: "hero", locale };
+
+  return (
+    <div
+      className={`flex flex-wrap items-center gap-4 ${centred ? "justify-center" : ""}`}
+    >
+      <Button
+        href={CABINET_URL}
+        size={SIZE}
+        className={PRIMARY}
+        onClick={() => track(ACTION, { cta: "open_cabinet", ...common })}
+      >
+        {t("home.hero.cta.start", "Start investing")}
+        <ArrowRight />
+      </Button>
+
+      <Button
+        variant="outline"
+        size={SIZE}
+        className={SECONDARY}
+        onClick={() =>
+          track(ACTION, { cta: "explore_assets", ...common }, fire => {
+            fire();
+            document
+              .getElementById("portfolio")
+              ?.scrollIntoView({ behavior: "smooth" });
+          })
+        }
+      >
+        {t("home.hero.cta.explore", "Explore Assets")}
+      </Button>
+
+      <Link
+        href="/publications/whitepaper"
+        className={`${TEXT_LINK} max-sm:hidden`}
+        onClick={() => track(ACTION, { cta: "whitepaper", ...common })}
+      >
+        {t("home.hero.cta.whitepaper", "Whitepaper")}
+        <FileText />
+      </Link>
+    </div>
+  );
+}

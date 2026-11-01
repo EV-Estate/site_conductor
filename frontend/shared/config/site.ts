@@ -14,6 +14,11 @@ export const SITE_URL = (
   config.public.siteUrl ?? "https://evinvest.example"
 ).replace(/\/+$/, "");
 
+// The investor cabinet: a separate app (EV-Estate/invest) on its own host, so
+// every link to it is a hard `<a>`. Never locale-prefixed: only `/cabinet` is
+// routed to it.
+export const CABINET_URL = "https://invest.evinvest.ltd/cabinet";
+
 export const SITE = {
   url: SITE_URL,
   name: "EV Investment",
@@ -90,7 +95,7 @@ export const OFFICES: Office[] = [
 // subpage here makes it sitemap-listed and sitelink-eligible with no other
 // change. The homepage in-page sections (#portfolio, #research…) are NOT separate
 // URLs and intentionally not listed; neither are noindexed surfaces
-// (/data). /hiring/[slug] and /publications/[slug] detail entries
+// (/apps/*). /hiring/[slug] and /publications/[slug] detail entries
 // are added in app/sitemap.ts.
 export type ChangeFrequency =
   | "always"

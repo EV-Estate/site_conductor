@@ -19,7 +19,7 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 
-interface ShadowDocumentProps {
+export interface ShadowDocumentProps {
   /** URL of the document to mount (site-relative or absolute). */
   src: string;
   className?: string;
@@ -44,7 +44,8 @@ export function ShadowDocument({ src, className, fallback = null }: ShadowDocume
         // the body. A shadow root's innerHTML fragment-parses and drops
         // <html>/<head>/<body>, taking the doc's inlined stylesheet with it
         // (the unstyled-dump bug). DOMParser never executes scripts and
-        // parser-created scripts don't run on adoption.
+        // parser-created scripts don't run on adoption — safe for the trusted,
+        // script-free doc.
         const root = host.shadowRoot ?? host.attachShadow({ mode: "open" });
         const doc = new DOMParser().parseFromString(html, "text/html");
         root.replaceChildren(doc.documentElement);

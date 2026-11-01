@@ -102,7 +102,7 @@ pub fn candidate_application_received(application: &JobApplication, vacancy: Opt
 	let html = shell(
 		&format!("We received your application, {first_name}."),
 		&body,
-		"You're receiving this because you applied via evinvest.ltd/careers.",
+		"You're receiving this because you applied via estate.evinvest.ltd/hiring.",
 		site_url,
 	);
 	let text = application_received_text(vacancy, &reference, &submitted, &first_name);
@@ -184,7 +184,7 @@ pub fn candidate_contact_received(message: &ContactMessage, site_url: &str) -> R
 	let html = shell(
 		&format!("We received your message, {first_name}."),
 		&body,
-		"You're receiving this because you contacted us via evinvest.ltd.",
+		"You're receiving this because you contacted us via estate.evinvest.ltd.",
 		site_url,
 	);
 	let text = format!(
@@ -247,7 +247,7 @@ pub fn candidate_newsletter_subscribed(subscription: &NewsletterSubscription, si
 	let html = shell(
 		"Welcome to the EV Investment newsletter.",
 		&body,
-		"You're receiving this because you subscribed via evinvest.ltd.",
+		"You're receiving this because you subscribed via estate.evinvest.ltd.",
 		site_url,
 	);
 	let text = format!(
@@ -456,7 +456,7 @@ mod render_preview {
 			email: EmailAddress::parse("admin+newsletter@evinvest.ltd").unwrap(),
 			created_at: "2026-07-27T16:31:07Z".parse().unwrap(),
 		};
-		let mail = candidate_newsletter_subscribed(&sub, "https://evinvest.ltd");
+		let mail = candidate_newsletter_subscribed(&sub, "https://estate.evinvest.ltd");
 		std::fs::write(std::env::var("PREVIEW_OUT").unwrap_or_else(|_| "/tmp/mail.html".into()), &mail.html).unwrap();
 	}
 
@@ -475,7 +475,7 @@ mod render_preview {
 			message: "I'd like to learn more about the Quy Nhơn fund.\nCould we set up a call next week?".to_string(),
 			created_at: "2026-07-27T16:31:07Z".parse().unwrap(),
 		};
-		let mail = candidate_contact_received(&msg, "https://evinvest.ltd");
+		let mail = candidate_contact_received(&msg, "https://estate.evinvest.ltd");
 		std::fs::write(std::env::var("PREVIEW_OUT").unwrap_or_else(|_| "/tmp/mail-contact.html".into()), &mail.html).unwrap();
 	}
 }

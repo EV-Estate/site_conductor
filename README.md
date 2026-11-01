@@ -1,17 +1,16 @@
-# site_conductor
+# landing
 ![Minimum Supported Rust Version](https://img.shields.io/badge/nightly-1.92+-ab6000.svg)
 
-`site_conductor` is the conductor shell of `estate.evinvest.ltd` for **EV Investment** — a
-real-estate advisory and investment fund specializing in premium coastal
-developments in Quy Nhon, Vietnam. The public landing moved to its own host
-(repo EV-Estate/landing); this origin now serves a "coming soon" page at `/` and
-answers 404 for every retired landing page — `/whitepaper`,
-`/blogs/*`, `/publications/*`, `/team`, `/hiring`, … — with or
-without a locale prefix, and never redirects to the new host. It mounts the
-analytics dashboard at `/analytics` (the `<mfe-analytics-dashboard>` page microfrontend). A Next.js 16 (App Router)
-front end in [`frontend/`](frontend) lives alongside an axum API in
-[`backend/`](backend). The shared design system ships as the published
-`@evinvest/uikit`.
+`landing` is the public landing of the **EV Investment** fund at
+`estate.evinvest.ltd` — a real-estate advisory and investment fund specializing
+in premium coastal developments in Quy Nhon, Vietnam. A Next.js 16 (App Router)
+front end in [`frontend/`](frontend) sits next to an axum + Postgres API in
+[`backend/`](backend) (vacancies, applications, contact, newsletter) with its
+pure model in [`domain/`](domain). `/analytics` mounts the analytics dashboard
+microfrontend; the investor cabinet is a separate app on
+`invest.evinvest.ltd/cabinet`. Moved from
+`EV-Main/site_conductor` at `ac600eb`. The shared design system ships as the
+published `@evinvest/uikit`.
 <!-- markdownlint-disable -->
 <details>
 <summary>
@@ -20,11 +19,11 @@ front end in [`frontend/`](frontend) lives alongside an axum API in
 
 ## Deployment
 
-Production runs on k3s, rolled out by Flux from the `gitops` repo; hosts,
-failover and cluster setup live in
-[EV-Main/devops](https://github.com/EV-Main/devops). On `estate.evinvest.ltd`
-this app serves the coming-soon page, the analytics dashboard at `/analytics` and 404s for
-the retired landing pages; the landing itself is EV-Estate/landing.
+One host, three routes (Traefik, k3s): `estate.evinvest.ltd/` → `landing-frontend`
+(:58845), `estate.evinvest.ltd/api/v1` → `landing-backend` (:58846),
+`estate.evinvest.ltd/mfe/analytics` → analytics (:59079). The backend owns the
+`landing` Postgres database and applies `backend/migrations` itself at boot, so
+rolling out an image applies its schema.
 
 ### Deploy
 
@@ -32,12 +31,13 @@ the retired landing pages; the landing itself is EV-Estate/landing.
 nix run .#publish -- major|minor|patch
 ```
 
-That bumps the latest remote `vX.Y.Z` tag and pushes it. The tag triggers the
-release workflow (`containerRelease` in `flake.nix`): CI builds the `frontend`
-and `backend` OCI images — re-resolving the private inputs (blog, whitepaper)
-to fresh `main` — pushes them to `ghcr.io/ev-estate`, and Flux
-rolls them out (see the `gitops` repo). Frontend and backend are separate
-images, so each rolls out independently.
+That bumps the latest remote `vX.Y.Z` tag and pushes it — a tag is a deploy. The
+tag triggers the release workflow (`containerRelease` in `flake.nix`): CI builds
+the `frontend` and `backend` OCI images — re-resolving the private inputs (blog,
+whitepaper) to fresh `main` — pushes them to
+`ghcr.io/ev-estate/landing-{frontend,backend}`, and Flux rolls them out (see the
+`gitops` repo). Frontend and backend are separate images, so each rolls out
+independently.
 
 </details>
 <!-- markdownlint-restore -->
@@ -55,32 +55,27 @@ export them, so nothing here hardcodes a number.
 | `nix run .#dev` | full stack: shared postgres + backend + frontend |
 | `nix run .#frontend` | Next.js site only |
 | `nix run .#backend` | axum API only (ensures the shared postgres) |
-| `nix run .#db` | ensure the shared ev_invest postgres is up (+ this repo's `site_conductor` db) |
+| `nix run .#db` | ensure the shared ev_invest postgres is up (+ this repo's `landing` db) |
 | `nix run .#gen-api` | regenerate `backend/openapi.json` + the TS client (run after any DTO/handler change; commit both) |
-| `nix run .#test` | frontend typecheck + Playwright visual regression |
-| `nix run .#accept-test` | accept new screenshots (all, or `-- <names>`) |
+| `nix run .#test` | frontend typecheck + i18n + Tailwind conflict gates + Playwright visual regression (Linux; see `frontend/README.md`) |
+| `nix run .#accept-test` | re-capture visual baselines (all, or `-- <names>`) |
+| `nix develop -c cargo test --workspace` | backend and domain unit tests |
+| `nix run .#pull-prod-db` | replace the local landing db with prod's (`PROD_DB=evinvest` before the move) |
 | `nix run .#publish` | bump latest remote `vX.Y.Z` tag (`-- major\|minor\|patch`) + push |
 
-Frontend runs build docs from `main` of the private `EV-Estate/whitepaper` and
-`EV-Main/blog` repos (over ssh). A failed build just warns: docs degrade to a PDF
-link. `/analytics` loads its bundle from `/mfe/analytics/`, which prod routes at
-the edge and dev rewrites to `ANALYTICS_DEV_URL` (`ANALYTICS_PORT` in `ports`):
-run `nix run .#dev` in an `EV-Estate/analytics` checkout.
+Frontend runs pull docs from checkouts next to `landing/` — `_estate/whitepaper/`,
+`blog/`, both optional. A missing checkout just warns: docs degrade to a PDF link.
 
 ### Microfrontends — no iframes
 
 Other EV surfaces compose at runtime through `frontend/shared/mfe`, never via
 `<iframe>`. Full reference: [`frontend/PATTERNS.md` §8](./frontend/PATTERNS.md)
-and [`frontend/README.md`](./frontend/README.md).
-
-- **Element remotes (`RemoteElement`)** — `/analytics` is analytics'
-  self-registering custom element `<mfe-analytics-dashboard>`, mounted in light
-  DOM and resolved from `frontend/mfe-registry.json`. `scriptUrl`s run
-  third-party JS in our origin — treat the registry as code.
-- **Document remotes (`RemoteDocument`)** — `/whitepaper` and `/blogs/[slug]`
-  are static HTML from the sibling typst repos. Blog injects into light DOM
-  (SSR'd, host-styled); whitepaper mounts in a shadow root (ships its own CSS).
-  Unloadable doc → PDF-link fallback.
+and [`frontend/README.md`](./frontend/README.md). The home portfolio section
+is the analytics overview tile and `/analytics` the analytics dashboard, both
+loaded live from `/mfe/analytics/` on this host (in dev rewritten to
+`ANALYTICS_DEV_URL`, from `ANALYTICS_PORT`: run `nix run .#dev` in an
+`EV-Estate/analytics` checkout); `/publications/whitepaper` and
+`/publications/[slug]` are static HTML from the sibling typst repos.
 
 
 

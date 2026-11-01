@@ -1,4 +1,20 @@
 {
+  "a11y.closeMenu": {
+    "en": "Close menu",
+    "t": "Закрыть меню"
+  },
+  "a11y.homeLink": {
+    "en": "EV Investment — home",
+    "t": "EV Investment — на главную"
+  },
+  "a11y.openMenu": {
+    "en": "Open menu",
+    "t": "Открыть меню"
+  },
+  "a11y.siteMenu": {
+    "en": "Site menu",
+    "t": "Меню сайта"
+  },
   "apply.form.email.placeholder": {
     "en": "jane@fund.com",
     "t": "ivan@fund.com"
@@ -71,10 +87,6 @@
     "en": "Which of these describe you?",
     "t": "Что из этого про вас?"
   },
-  "comingSoon.evNote": {
-    "en": "expected value",
-    "t": "ожидаемая ценность"
-  },
   "contact.channel.general": {
     "en": "Email",
     "t": "Почта"
@@ -139,6 +151,110 @@
     "en": "Download {title} as PDF",
     "t": "Скачать «{title}» в PDF"
   },
+  "footer.cabinet": {
+    "en": "Cabinet",
+    "t": "Кабинет"
+  },
+  "footer.calculator": {
+    "en": "Investment Calculator",
+    "t": "Инвестиционный калькулятор"
+  },
+  "footer.company": {
+    "en": "Company",
+    "t": "Компания"
+  },
+  "footer.description": {
+    "en": "EV Investment is a registered real estate advisory and investment management fund specializing in premium coastal developments in Quy Nhon, Binh Dinh province, Vietnam.",
+    "t": "EV Investment — зарегистрированный фонд консультирования и управления инвестициями в недвижимость, специализирующийся на премиальных прибрежных проектах в Куинёне, провинция Биньдинь, Вьетнам."
+  },
+  "footer.explore": {
+    "en": "Explore",
+    "t": "Обзор"
+  },
+  "footer.fieldNotes": {
+    "en": "Field Notes & Research",
+    "t": "Заметки и исследования"
+  },
+  "footer.investors": {
+    "en": "Investors",
+    "t": "Инвесторам"
+  },
+  "footer.legal.privacy": {
+    "en": "Privacy",
+    "t": "Конфиденциальность"
+  },
+  "footer.legal.risk": {
+    "en": "Risk disclosure",
+    "t": "Раскрытие рисков"
+  },
+  "footer.legal.terms": {
+    "en": "Terms",
+    "t": "Условия"
+  },
+  "footer.newsletter.blurb": {
+    "en": "Subscribe, to receive our macro reports",
+    "t": "Подпишитесь, чтобы получать наши макроотчёты"
+  },
+  "footer.newsletter.duplicate": {
+    "en": "You're already on the list.",
+    "t": "Вы уже в списке."
+  },
+  "footer.newsletter.error": {
+    "en": "Something went wrong — please try again.",
+    "t": "Что-то пошло не так — попробуйте ещё раз."
+  },
+  "footer.newsletter.invalidEmail": {
+    "en": "Enter a valid email address.",
+    "t": "Введите корректный адрес электронной почты."
+  },
+  "footer.newsletter.join": {
+    "en": "Join",
+    "t": "Подписаться"
+  },
+  "footer.newsletter.networkError": {
+    "en": "Network error — please try again.",
+    "t": "Ошибка сети — попробуйте ещё раз."
+  },
+  "footer.newsletter.placeholder": {
+    "en": "Institutional Email",
+    "t": "Институциональный e-mail"
+  },
+  "footer.newsletter.success": {
+    "en": "You're on the list — welcome.",
+    "t": "Вы в списке — добро пожаловать."
+  },
+  "footer.office.hcmc.address": {
+    "en": "Deutsches Haus, 33 Le Duan Blvd, District 1, Ho Chi Minh City, Vietnam",
+    "t": "Deutsches Haus, бул. Ле Зуан, 33, Район 1, Хошимин, Вьетнам"
+  },
+  "footer.office.hcmc.name": {
+    "en": "Ho Chi Minh Representative",
+    "t": "Представительство в Хошимине"
+  },
+  "footer.office.hq.address": {
+    "en": "102 An Duong Vuong St, Nguyen Van Cu Ward, Quy Nhon City, Vietnam",
+    "t": "ул. Ан Зыонг Выонг, 102, квартал Нгуен Ван Кы, Куинён, Вьетнам"
+  },
+  "footer.office.hq.name": {
+    "en": "Quy Nhon Head Office",
+    "t": "Головной офис в Куинёне"
+  },
+  "footer.reports": {
+    "en": "Reports",
+    "t": "Отчёты"
+  },
+  "footer.rights": {
+    "en": "All rights reserved.",
+    "t": "Все права защищены."
+  },
+  "footer.tagline": {
+    "en": "Quy Nhon Fund",
+    "t": "Фонд Куинёна"
+  },
+  "footer.whitepaper": {
+    "en": "Whitepaper",
+    "t": "Белая книга"
+  },
   "form.email.label": {
     "en": "Email",
     "t": "Электронная почта"
@@ -162,6 +278,10 @@
   "form.submitError": {
     "en": "Something went wrong. Please try again.",
     "t": "Что-то пошло не так. Попробуйте ещё раз."
+  },
+  "header.openCabinet": {
+    "en": "Open the cabinet",
+    "t": "Открыть кабинет"
   },
   "hiring.board.allRoles": {
     "en": "All roles",
@@ -343,6 +463,230 @@
     "en": "Aligned upside",
     "t": "Общая выгода"
   },
+  "home.cabinetTour.caption": {
+    "en": "Screens from the live cabinet, demo data",
+    "t": "Экраны живого кабинета, демо-данные"
+  },
+  "home.cabinetTour.cta": {
+    "en": "See your cabinet",
+    "t": "Открыть свой кабинет"
+  },
+  "home.cabinetTour.eyebrow": {
+    "en": "Inside the investor cabinet",
+    "t": "Внутри кабинета инвестора"
+  },
+  "home.cabinetTour.intro": {
+    "en": "The cabinet is where the fund reports to you: what you hold, how it has been valued, where you stand on verification and what is in your wallet — funded in crypto today, with a fiat on-ramp to follow. These are its actual screens.",
+    "t": "Кабинет — это место, где фонд отчитывается перед вами: что вы держите, как это оценено, на какой стадии проверка и что в кошельке — сегодня он пополняется криптовалютой, фиатный ввод появится позже. Это его настоящие экраны."
+  },
+  "home.cabinetTour.shot.home": {
+    "en": "Cabinet home: portfolio value, NAV history with your own participation drawn on it, and recent activity (demo data)",
+    "t": "Главная кабинета: стоимость портфеля, история NAV с линией вашего участия и последние операции (демо-данные)"
+  },
+  "home.cabinetTour.shot.invest": {
+    "en": "Invest: the product catalogue with your units, value and P&L per fund (demo data)",
+    "t": "Инвестиции: каталог продуктов с вашими юнитами, стоимостью и P&L по каждому фонду (демо-данные)"
+  },
+  "home.cabinetTour.shot.profile": {
+    "en": "Profile: verified identity, account standing and the devices signed in (demo data)",
+    "t": "Профиль: подтверждённая личность, состояние счёта и устройства, с которых выполнен вход (демо-данные)"
+  },
+  "home.cabinetTour.step.follow": {
+    "en": "Follow NAV, reports and payouts in the cabinet",
+    "t": "Следите за NAV, отчётами и выплатами в кабинете"
+  },
+  "home.cabinetTour.step.subscribe": {
+    "en": "Subscribe to allocation units at the posted NAV",
+    "t": "Подпишитесь на юниты аллокации по опубликованной NAV"
+  },
+  "home.cabinetTour.step.verify": {
+    "en": "Sign in with Google and verify your identity",
+    "t": "Войдите через Google и подтвердите личность"
+  },
+  "home.cabinetTour.title": {
+    "en": "Your investment, *in full view*",
+    "t": "Ваша инвестиция *как на ладони*"
+  },
+  "home.fieldNotes.all": {
+    "en": "All field notes",
+    "t": "Все полевые заметки"
+  },
+  "home.fieldNotes.eyebrow": {
+    "en": "From the ground",
+    "t": "С места событий"
+  },
+  "home.fieldNotes.intro": {
+    "en": "Research explains the thesis. Field notes show you the place — our people on the ground, filming the districts we underwrite, the roads being built, and what daily life actually costs.",
+    "t": "Исследования объясняют тезис. Полевые заметки показывают само место: наши люди снимают районы, которые мы оцениваем, строящиеся дороги и то, сколько на самом деле стоит повседневная жизнь."
+  },
+  "home.fieldNotes.latest": {
+    "en": "Latest dispatch",
+    "t": "Последний репортаж"
+  },
+  "home.fieldNotes.more": {
+    "en": "More from the field",
+    "t": "Ещё с места событий"
+  },
+  "home.fieldNotes.previous": {
+    "en": "Previous",
+    "t": "Предыдущий"
+  },
+  "home.fieldNotes.title": {
+    "en": "Field Notes from *Quy Nhơn*",
+    "t": "Полевые заметки из *Куинёна*"
+  },
+  "home.hero.b.aum": {
+    "en": "AUM Under Advisory",
+    "t": "Активы под управлением"
+  },
+  "home.hero.b.coastline": {
+    "en": "Coastline",
+    "t": "Береговая линия"
+  },
+  "home.hero.b.copy": {
+    "en": "EV Investment bridges the gap between premium coastal real estate development and sophisticated investors. Experience high-yield real estate assets in Vietnam's fastest-growing coastal hub.",
+    "t": "EV Investment соединяет девелопмент премиальной прибрежной недвижимости с квалифицированными инвесторами. Получите доступ к высокодоходным объектам в самом быстрорастущем прибрежном центре Вьетнама."
+  },
+  "home.hero.b.eyebrow": {
+    "en": "Institutional Real Estate • Quy Nhon",
+    "t": "Институциональная недвижимость • Куинён"
+  },
+  "home.hero.b.headline": {
+    "en": "Invest in *Quy Nhon*\nThrough Institutional Vision.",
+    "t": "Инвестируйте в *Куинён*\nс институциональным подходом."
+  },
+  "home.hero.b.photoAlt": {
+    "en": "Quy Nhon coastal development",
+    "t": "Прибрежная застройка в Куинёне"
+  },
+  "home.hero.copy.edge": {
+    "en": "our visarun branch lets us keep a pulse on regional trends in foreign purchases.",
+    "t": "наше визаранное направление позволяет держать руку на пульсе региональных тенденций в зарубежных покупках."
+  },
+  "home.hero.copy.edgeLabel": {
+    "en": "Edge",
+    "t": "Преимущество"
+  },
+  "home.hero.copy.line1": {
+    "en": "Invest in Emergent Markets through Vietnam.",
+    "t": "Инвестируйте в развивающиеся рынки через Вьетнам."
+  },
+  "home.hero.copy.line2": {
+    "en": "See why and how to invest directly. China+1 narrative ensures consistently increasing FDI inflows.",
+    "t": "Узнайте, почему и как инвестировать напрямую. Стратегия «Китай+1» обеспечивает устойчивый рост притока прямых иностранных инвестиций."
+  },
+  "home.hero.cta.explore": {
+    "en": "Explore Assets",
+    "t": "Смотреть активы"
+  },
+  "home.hero.cta.start": {
+    "en": "Start investing",
+    "t": "Начать инвестировать"
+  },
+  "home.hero.cta.whitepaper": {
+    "en": "Whitepaper",
+    "t": "Whitepaper"
+  },
+  "home.hero.headline.a": {
+    "en": "Invest in *China+1*\nThrough *Vietnam*",
+    "t": "Инвестируйте в *«Китай+1»*\nчерез *Вьетнам*"
+  },
+  "home.hero.headline.b": {
+    "en": "Invest in *Vietnam*\nThrough Institutional Vision.",
+    "t": "Инвестируйте во *Вьетнам*\nс институциональным подходом."
+  },
+  "home.hero.scrollHint": {
+    "en": "Follow the money",
+    "t": "Следуйте за деньгами"
+  },
+  "home.hero.stat.asOf": {
+    "en": "Figures as of {date}",
+    "t": "Показатели на {date}"
+  },
+  "home.hero.stat.aumCap": {
+    "en": "Closing at",
+    "t": "Закрытие на"
+  },
+  "home.hero.stat.currentCity": {
+    "en": "Highest EV City",
+    "t": "Город с наибольшим EV"
+  },
+  "home.hero.stat.specialization": {
+    "en": "Specialization",
+    "t": "Специализация"
+  },
+  "home.hero.stat.specializationValue": {
+    "en": "Rentals",
+    "t": "Аренда"
+  },
+  "home.hero.stat.targetIrr": {
+    "en": "Target IRR",
+    "t": "Целевая IRR"
+  },
+  "home.partners.eyebrow": {
+    "en": "What your money runs on",
+    "t": "На чём работают ваши деньги"
+  },
+  "home.partners.github": {
+    "en": "See the code on GitHub",
+    "t": "Посмотреть код на GitHub"
+  },
+  "home.partners.intro": {
+    "en": "Custody by Turnkey, identity verification by Didit, Google sign-in, every balance on a TigerBeetle ledger, errors and product analytics through Sentry and PostHog. Our client-facing products — the investor cabinet and this site — are developed in the open on GitHub.",
+    "t": "Хранение — Turnkey, проверка личности — Didit, вход через Google, каждый баланс — в леджере TigerBeetle, ошибки и продуктовая аналитика — через Sentry и PostHog. Наши клиентские продукты — кабинет инвестора и этот сайт — разрабатываются открыто на GitHub."
+  },
+  "home.partners.title": {
+    "en": "The stack behind *the numbers*",
+    "t": "Инфраструктура за *цифрами*"
+  },
+  "home.research.department": {
+    "en": "EV Research Department",
+    "t": "Исследовательский отдел EV"
+  },
+  "home.research.download": {
+    "en": "Download",
+    "t": "Скачать"
+  },
+  "home.research.downloadFull": {
+    "en": "Download Full Report",
+    "t": "Скачать отчёт целиком"
+  },
+  "home.research.eyebrow": {
+    "en": "Academic Rigor",
+    "t": "Академическая строгость"
+  },
+  "home.research.intro": {
+    "en": "We believe in deep macroeconomic analysis. Our research team produces exhaustive monthly reports on Vietnam’s economic landscape, urbanization trends, and Quy Nhon’s real estate cycles.",
+    "t": "Мы верим в глубокий макроэкономический анализ. Наша исследовательская команда ежемесячно готовит подробные отчёты об экономике Вьетнама, тенденциях урбанизации и циклах рынка недвижимости Куинёна."
+  },
+  "home.research.leadAuthor": {
+    "en": "Lead Author: Dr. Nguyen An, Chief Economist",
+    "t": "Ведущий автор: д-р Нгуен Ан, главный экономист"
+  },
+  "home.research.read": {
+    "en": "Read",
+    "t": "Читать"
+  },
+  "home.research.readAria": {
+    "en": "Read full report: {title}",
+    "t": "Читать отчёт целиком: {title}"
+  },
+  "home.research.readFull": {
+    "en": "Read Full Report",
+    "t": "Читать отчёт целиком"
+  },
+  "home.research.title": {
+    "en": "Data-Driven *Research & Insights*",
+    "t": "*Исследования и аналитика* на данных"
+  },
+  "home.team.placeholder.hiring.sub": {
+    "en": "Investment Analyst",
+    "t": "Инвестиционный аналитик"
+  },
+  "home.team.placeholder.ir.sub": {
+    "en": "Investor Relations (IR)",
+    "t": "Отношения с инвесторами (IR)"
+  },
   "legal.contactUs": {
     "en": "Contact us",
     "t": "Напишите нам"
@@ -507,14 +851,6 @@
     "en": "Identity verification",
     "t": "Проверка личности"
   },
-  "meta.comingSoon.description": {
-    "en": "Expected Value Investment — the new site is on its way.",
-    "t": "Expected Value Investment — новый сайт уже в пути."
-  },
-  "meta.comingSoon.title": {
-    "en": "Expected value, arriving soon",
-    "t": "Expected value — скоро"
-  },
   "meta.contact.description": {
     "en": "Get in touch with EV Investment — hiring, investment, and our coastal developments in Quy Nhơn, Vietnam.",
     "t": "Свяжитесь с EV Investment — вакансии, инвестиции и наши прибрежные проекты в Куинёне, Вьетнам."
@@ -599,9 +935,33 @@
     "en": "Whitepaper",
     "t": "Whitepaper"
   },
+  "nav.contact": {
+    "en": "Contact",
+    "t": "Контакты"
+  },
+  "nav.hiring": {
+    "en": "Hiring",
+    "t": "Вакансии"
+  },
+  "nav.home": {
+    "en": "Home",
+    "t": "Главная"
+  },
+  "nav.portfolio": {
+    "en": "Portfolio",
+    "t": "Портфель"
+  },
   "nav.publications": {
     "en": "Publications",
     "t": "Публикации"
+  },
+  "nav.research": {
+    "en": "Research",
+    "t": "Исследования"
+  },
+  "nav.team": {
+    "en": "Team",
+    "t": "Команда"
   },
   "publications.allPublications": {
     "en": "All publications",

@@ -210,7 +210,11 @@ impl LocalizedVacancy {
 	/// apologise to an English reader for the absence of English. Only a
 	/// non-English request landing here is the fallback worth announcing.
 	pub fn canonical(vacancy: Vacancy, locale: Locale) -> Self {
-		Self { vacancy, locale, translated: locale == Locale::En }
+		Self {
+			vacancy,
+			locale,
+			translated: locale == Locale::En,
+		}
 	}
 
 	/// A vacancy with a current translation applied.

@@ -16,8 +16,8 @@ import { config } from "@/config";
 // Patched at module scope (not in an effect): client modules evaluate during the
 // hydration bootstrap, after Next installs its own console.error hook but before
 // hydrateRoot runs — so this wrapper sits outermost and intercepts first. The
-// `typeof window` guard keeps it off the server; the whole thing is stripped from
-// production builds.
+// `typeof window` guard keeps it off the server; the `isProduction` guard keeps
+// it inert in production builds.
 if (!config.isProduction && typeof window !== "undefined") {
   const darkReaderActive = () =>
     !!document.querySelector(

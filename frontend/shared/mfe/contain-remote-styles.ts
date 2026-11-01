@@ -1,28 +1,23 @@
-// A light-DOM component remote styles itself by injecting
-// its own Tailwind stylesheet into the host <head>. That sheet's `@layer
+// A light-DOM element remote (e.g. the analytics overview tile) styles itself by
+// injecting its own Tailwind stylesheet into the host <head>. That sheet's `@layer
 // utilities` merges with the host's and, loading last, wins — its non-responsive
 // `.grid-cols-1` overrode our `lg:grid-cols-3` and collapsed grids to one column.
 // We move every stylesheet the remote injects into the low-priority `reamfe`
 // layer (declared first in application/styles/globals.css, below all host layers)
-// so host styles always win while the remote stays fully styled. The remote is
-// served from the host's own origin (`/mfe/…`), so we can't tell its sheet apart
-// by origin — we key on the asset path instead.
+// so host styles always win while the remote stays fully styled.
 //
-// Matched by the asset directory the remote's bundle is served from (e.g. `/mfe/`),
-// never the host's first-party CSS (which lives elsewhere, e.g. `/_next/`). Keying
-// on path, not origin, keeps this working when the remote is proxied through the
-// host's own origin — a same-origin remote still injects its own overriding sheet.
+// Keyed on the entry's own stem (`/mfe/analytics/overview.js` → sheets under
+// `/mfe/analytics/overview.`), not on origin or directory: the remote is served
+// from this host's origin, and a page remote shares the directory
+// (`dashboard.css`), whose sheet must never be demoted.
 //
-// Only `<link>`s are demoted. The account chip ships its CSS as a filled
-// `<style data-mfe>` already wrapped in `@layer reamfe` (a late `<link>` or
-// `@import` re-resolved the page's fonts and re-wrapped the hero), so there is
-// nothing to demote and turning it into an `@import` would bring that back. Its
-// network fallback is a plain `<link>`, which still lands here; the chip reads
-// readiness off `document.styleSheets`, so the swap does not strand it.
+// Only `<link>`s are demoted: a remote that ships a filled `<style>` already
+// wrapped in `@layer reamfe` has nothing to demote.
 export function containRemoteStyles(scriptUrl: string): () => void {
   if (typeof document === "undefined") return () => {};
-  const base = new URL(scriptUrl, window.location.href);
-  const assetDir = base.href.slice(0, base.href.lastIndexOf("/") + 1);
+  const entry = new URL(scriptUrl, window.location.href).href;
+  if (!entry.endsWith(".js")) throw new Error(`remote entry ${entry} is not a .js module`);
+  const stem = entry.slice(0, -"js".length);
 
   const demote = (link: HTMLLinkElement) => {
     const style = document.createElement("style");
@@ -35,7 +30,7 @@ export function containRemoteStyles(scriptUrl: string): () => void {
     document.head
       .querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]')
       .forEach((link) => {
-        if (link.href.startsWith(assetDir)) demote(link);
+        if (link.href.startsWith(stem)) demote(link);
       });
   };
 

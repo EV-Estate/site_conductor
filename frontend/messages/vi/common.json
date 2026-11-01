@@ -1,4 +1,20 @@
 {
+  "a11y.closeMenu": {
+    "en": "Close menu",
+    "t": "Đóng menu"
+  },
+  "a11y.homeLink": {
+    "en": "EV Investment — home",
+    "t": "EV Investment — trang chủ"
+  },
+  "a11y.openMenu": {
+    "en": "Open menu",
+    "t": "Mở menu"
+  },
+  "a11y.siteMenu": {
+    "en": "Site menu",
+    "t": "Menu trang web"
+  },
   "apply.form.email.placeholder": {
     "en": "jane@fund.com",
     "t": "an@fund.com"
@@ -71,10 +87,6 @@
     "en": "Which of these describe you?",
     "t": "Điều nào dưới đây đúng với bạn?"
   },
-  "comingSoon.evNote": {
-    "en": "expected value",
-    "t": "giá trị kỳ vọng"
-  },
   "contact.channel.general": {
     "en": "Email",
     "t": "Email"
@@ -139,6 +151,110 @@
     "en": "Download {title} as PDF",
     "t": "Tải {title} dưới dạng PDF"
   },
+  "footer.cabinet": {
+    "en": "Cabinet",
+    "t": "Cabinet"
+  },
+  "footer.calculator": {
+    "en": "Investment Calculator",
+    "t": "Công cụ tính đầu tư"
+  },
+  "footer.company": {
+    "en": "Company",
+    "t": "Công ty"
+  },
+  "footer.description": {
+    "en": "EV Investment is a registered real estate advisory and investment management fund specializing in premium coastal developments in Quy Nhon, Binh Dinh province, Vietnam.",
+    "t": "EV Investment là quỹ tư vấn bất động sản và quản lý đầu tư đã đăng ký, chuyên về các dự án ven biển cao cấp tại Quy Nhơn, tỉnh Bình Định, Việt Nam."
+  },
+  "footer.explore": {
+    "en": "Explore",
+    "t": "Khám phá"
+  },
+  "footer.fieldNotes": {
+    "en": "Field Notes & Research",
+    "t": "Ghi chép & Nghiên cứu"
+  },
+  "footer.investors": {
+    "en": "Investors",
+    "t": "Nhà đầu tư"
+  },
+  "footer.legal.privacy": {
+    "en": "Privacy",
+    "t": "Quyền riêng tư"
+  },
+  "footer.legal.risk": {
+    "en": "Risk disclosure",
+    "t": "Công bố rủi ro"
+  },
+  "footer.legal.terms": {
+    "en": "Terms",
+    "t": "Điều khoản"
+  },
+  "footer.newsletter.blurb": {
+    "en": "Subscribe, to receive our macro reports",
+    "t": "Đăng ký để nhận các báo cáo vĩ mô của chúng tôi"
+  },
+  "footer.newsletter.duplicate": {
+    "en": "You're already on the list.",
+    "t": "Bạn đã có trong danh sách rồi."
+  },
+  "footer.newsletter.error": {
+    "en": "Something went wrong — please try again.",
+    "t": "Đã có lỗi xảy ra — vui lòng thử lại."
+  },
+  "footer.newsletter.invalidEmail": {
+    "en": "Enter a valid email address.",
+    "t": "Vui lòng nhập địa chỉ email hợp lệ."
+  },
+  "footer.newsletter.join": {
+    "en": "Join",
+    "t": "Đăng ký"
+  },
+  "footer.newsletter.networkError": {
+    "en": "Network error — please try again.",
+    "t": "Lỗi kết nối — vui lòng thử lại."
+  },
+  "footer.newsletter.placeholder": {
+    "en": "Institutional Email",
+    "t": "Email tổ chức"
+  },
+  "footer.newsletter.success": {
+    "en": "You're on the list — welcome.",
+    "t": "Bạn đã có trong danh sách — chào mừng."
+  },
+  "footer.office.hcmc.address": {
+    "en": "Deutsches Haus, 33 Le Duan Blvd, District 1, Ho Chi Minh City, Vietnam",
+    "t": "Deutsches Haus, 33 đại lộ Lê Duẩn, Quận 1, Thành phố Hồ Chí Minh, Việt Nam"
+  },
+  "footer.office.hcmc.name": {
+    "en": "Ho Chi Minh Representative",
+    "t": "Văn phòng đại diện TP. Hồ Chí Minh"
+  },
+  "footer.office.hq.address": {
+    "en": "102 An Duong Vuong St, Nguyen Van Cu Ward, Quy Nhon City, Vietnam",
+    "t": "102 đường An Dương Vương, phường Nguyễn Văn Cừ, thành phố Quy Nhơn, Việt Nam"
+  },
+  "footer.office.hq.name": {
+    "en": "Quy Nhon Head Office",
+    "t": "Trụ sở chính Quy Nhơn"
+  },
+  "footer.reports": {
+    "en": "Reports",
+    "t": "Báo cáo"
+  },
+  "footer.rights": {
+    "en": "All rights reserved.",
+    "t": "Bảo lưu mọi quyền."
+  },
+  "footer.tagline": {
+    "en": "Quy Nhon Fund",
+    "t": "Quỹ Quy Nhơn"
+  },
+  "footer.whitepaper": {
+    "en": "Whitepaper",
+    "t": "Sách trắng"
+  },
   "form.email.label": {
     "en": "Email",
     "t": "Email"
@@ -162,6 +278,10 @@
   "form.submitError": {
     "en": "Something went wrong. Please try again.",
     "t": "Đã có lỗi xảy ra. Vui lòng thử lại."
+  },
+  "header.openCabinet": {
+    "en": "Open the cabinet",
+    "t": "Mở cabinet"
   },
   "hiring.board.allRoles": {
     "en": "All roles",
@@ -343,6 +463,230 @@
     "en": "Aligned upside",
     "t": "Lợi ích song hành"
   },
+  "home.cabinetTour.caption": {
+    "en": "Screens from the live cabinet, demo data",
+    "t": "Màn hình từ cabinet thật, dữ liệu demo"
+  },
+  "home.cabinetTour.cta": {
+    "en": "See your cabinet",
+    "t": "Xem cabinet của bạn"
+  },
+  "home.cabinetTour.eyebrow": {
+    "en": "Inside the investor cabinet",
+    "t": "Bên trong cabinet nhà đầu tư"
+  },
+  "home.cabinetTour.intro": {
+    "en": "The cabinet is where the fund reports to you: what you hold, how it has been valued, where you stand on verification and what is in your wallet — funded in crypto today, with a fiat on-ramp to follow. These are its actual screens.",
+    "t": "Cabinet là nơi quỹ báo cáo với bạn: bạn đang nắm giữ gì, được định giá ra sao, xác minh đến đâu và ví có gì — hiện nạp bằng tiền mã hoá, kênh nạp tiền pháp định sẽ có sau. Đây là những màn hình thật của nó."
+  },
+  "home.cabinetTour.shot.home": {
+    "en": "Cabinet home: portfolio value, NAV history with your own participation drawn on it, and recent activity (demo data)",
+    "t": "Trang chủ cabinet: giá trị danh mục, lịch sử NAV với phần tham gia của bạn và hoạt động gần đây (dữ liệu demo)"
+  },
+  "home.cabinetTour.shot.invest": {
+    "en": "Invest: the product catalogue with your units, value and P&L per fund (demo data)",
+    "t": "Đầu tư: danh mục sản phẩm với số đơn vị, giá trị và P&L của bạn theo từng quỹ (dữ liệu demo)"
+  },
+  "home.cabinetTour.shot.profile": {
+    "en": "Profile: verified identity, account standing and the devices signed in (demo data)",
+    "t": "Hồ sơ: danh tính đã xác minh, tình trạng tài khoản và các thiết bị đã đăng nhập (dữ liệu demo)"
+  },
+  "home.cabinetTour.step.follow": {
+    "en": "Follow NAV, reports and payouts in the cabinet",
+    "t": "Theo dõi NAV, báo cáo và chi trả trong cabinet"
+  },
+  "home.cabinetTour.step.subscribe": {
+    "en": "Subscribe to allocation units at the posted NAV",
+    "t": "Đăng ký đơn vị phân bổ theo NAV đã công bố"
+  },
+  "home.cabinetTour.step.verify": {
+    "en": "Sign in with Google and verify your identity",
+    "t": "Đăng nhập bằng Google và xác minh danh tính"
+  },
+  "home.cabinetTour.title": {
+    "en": "Your investment, *in full view*",
+    "t": "Khoản đầu tư của bạn, *rõ ràng trước mắt*"
+  },
+  "home.fieldNotes.all": {
+    "en": "All field notes",
+    "t": "Tất cả ghi chép thực địa"
+  },
+  "home.fieldNotes.eyebrow": {
+    "en": "From the ground",
+    "t": "Từ thực địa"
+  },
+  "home.fieldNotes.intro": {
+    "en": "Research explains the thesis. Field notes show you the place — our people on the ground, filming the districts we underwrite, the roads being built, and what daily life actually costs.",
+    "t": "Nghiên cứu giải thích luận điểm. Ghi chép thực địa cho bạn thấy chính nơi đó — đội ngũ của chúng tôi quay lại các khu vực đang thẩm định, những con đường đang xây và chi phí sinh hoạt thực tế."
+  },
+  "home.fieldNotes.latest": {
+    "en": "Latest dispatch",
+    "t": "Bản tin mới nhất"
+  },
+  "home.fieldNotes.more": {
+    "en": "More from the field",
+    "t": "Thêm từ thực địa"
+  },
+  "home.fieldNotes.previous": {
+    "en": "Previous",
+    "t": "Trước đó"
+  },
+  "home.fieldNotes.title": {
+    "en": "Field Notes from *Quy Nhơn*",
+    "t": "Ghi chép thực địa từ *Quy Nhơn*"
+  },
+  "home.hero.b.aum": {
+    "en": "AUM Under Advisory",
+    "t": "Tài sản tư vấn quản lý"
+  },
+  "home.hero.b.coastline": {
+    "en": "Coastline",
+    "t": "Đường bờ biển"
+  },
+  "home.hero.b.copy": {
+    "en": "EV Investment bridges the gap between premium coastal real estate development and sophisticated investors. Experience high-yield real estate assets in Vietnam's fastest-growing coastal hub.",
+    "t": "EV Investment kết nối hoạt động phát triển bất động sản ven biển cao cấp với các nhà đầu tư chuyên nghiệp. Tiếp cận những tài sản sinh lợi cao tại trung tâm ven biển tăng trưởng nhanh nhất Việt Nam."
+  },
+  "home.hero.b.eyebrow": {
+    "en": "Institutional Real Estate • Quy Nhon",
+    "t": "Bất động sản tổ chức • Quy Nhơn"
+  },
+  "home.hero.b.headline": {
+    "en": "Invest in *Quy Nhon*\nThrough Institutional Vision.",
+    "t": "Đầu tư vào *Quy Nhơn*\nvới tầm nhìn tổ chức."
+  },
+  "home.hero.b.photoAlt": {
+    "en": "Quy Nhon coastal development",
+    "t": "Dự án ven biển tại Quy Nhơn"
+  },
+  "home.hero.copy.edge": {
+    "en": "our visarun branch lets us keep a pulse on regional trends in foreign purchases.",
+    "t": "mảng visa-run của chúng tôi giúp nắm bắt xu hướng mua bất động sản của người nước ngoài trong khu vực."
+  },
+  "home.hero.copy.edgeLabel": {
+    "en": "Edge",
+    "t": "Lợi thế"
+  },
+  "home.hero.copy.line1": {
+    "en": "Invest in Emergent Markets through Vietnam.",
+    "t": "Đầu tư vào các thị trường mới nổi thông qua Việt Nam."
+  },
+  "home.hero.copy.line2": {
+    "en": "See why and how to invest directly. China+1 narrative ensures consistently increasing FDI inflows.",
+    "t": "Tìm hiểu vì sao và cách đầu tư trực tiếp. Xu hướng Trung Quốc+1 bảo đảm dòng vốn FDI tăng đều đặn."
+  },
+  "home.hero.cta.explore": {
+    "en": "Explore Assets",
+    "t": "Khám phá tài sản"
+  },
+  "home.hero.cta.start": {
+    "en": "Start investing",
+    "t": "Bắt đầu đầu tư"
+  },
+  "home.hero.cta.whitepaper": {
+    "en": "Whitepaper",
+    "t": "Sách trắng"
+  },
+  "home.hero.headline.a": {
+    "en": "Invest in *China+1*\nThrough *Vietnam*",
+    "t": "Đầu tư vào *Trung Quốc+1*\nthông qua *Việt Nam*"
+  },
+  "home.hero.headline.b": {
+    "en": "Invest in *Vietnam*\nThrough Institutional Vision.",
+    "t": "Đầu tư vào *Việt Nam*\nvới tầm nhìn tổ chức."
+  },
+  "home.hero.scrollHint": {
+    "en": "Follow the money",
+    "t": "Lần theo dòng tiền"
+  },
+  "home.hero.stat.asOf": {
+    "en": "Figures as of {date}",
+    "t": "Số liệu tính đến {date}"
+  },
+  "home.hero.stat.aumCap": {
+    "en": "Closing at",
+    "t": "Đóng ở mức"
+  },
+  "home.hero.stat.currentCity": {
+    "en": "Highest EV City",
+    "t": "Thành phố có EV cao nhất"
+  },
+  "home.hero.stat.specialization": {
+    "en": "Specialization",
+    "t": "Chuyên môn"
+  },
+  "home.hero.stat.specializationValue": {
+    "en": "Rentals",
+    "t": "Cho thuê"
+  },
+  "home.hero.stat.targetIrr": {
+    "en": "Target IRR",
+    "t": "IRR mục tiêu"
+  },
+  "home.partners.eyebrow": {
+    "en": "What your money runs on",
+    "t": "Tiền của bạn vận hành trên gì"
+  },
+  "home.partners.github": {
+    "en": "See the code on GitHub",
+    "t": "Xem mã nguồn trên GitHub"
+  },
+  "home.partners.intro": {
+    "en": "Custody by Turnkey, identity verification by Didit, Google sign-in, every balance on a TigerBeetle ledger, errors and product analytics through Sentry and PostHog. Our client-facing products — the investor cabinet and this site — are developed in the open on GitHub.",
+    "t": "Lưu ký bởi Turnkey, xác minh danh tính bởi Didit, đăng nhập bằng Google, mọi số dư nằm trong sổ cái TigerBeetle, lỗi và phân tích sản phẩm qua Sentry và PostHog. Các sản phẩm dành cho khách hàng của chúng tôi — khu vực nhà đầu tư và trang web này — được phát triển công khai trên GitHub."
+  },
+  "home.partners.title": {
+    "en": "The stack behind *the numbers*",
+    "t": "Hạ tầng đằng sau *những con số*"
+  },
+  "home.research.department": {
+    "en": "EV Research Department",
+    "t": "Bộ phận Nghiên cứu EV"
+  },
+  "home.research.download": {
+    "en": "Download",
+    "t": "Tải về"
+  },
+  "home.research.downloadFull": {
+    "en": "Download Full Report",
+    "t": "Tải toàn bộ báo cáo"
+  },
+  "home.research.eyebrow": {
+    "en": "Academic Rigor",
+    "t": "Chuẩn mực học thuật"
+  },
+  "home.research.intro": {
+    "en": "We believe in deep macroeconomic analysis. Our research team produces exhaustive monthly reports on Vietnam’s economic landscape, urbanization trends, and Quy Nhon’s real estate cycles.",
+    "t": "Chúng tôi tin vào phân tích vĩ mô chuyên sâu. Đội ngũ nghiên cứu công bố báo cáo hằng tháng đầy đủ về bức tranh kinh tế Việt Nam, xu hướng đô thị hóa và chu kỳ bất động sản Quy Nhơn."
+  },
+  "home.research.leadAuthor": {
+    "en": "Lead Author: Dr. Nguyen An, Chief Economist",
+    "t": "Tác giả chính: TS. Nguyễn An, Kinh tế trưởng"
+  },
+  "home.research.read": {
+    "en": "Read",
+    "t": "Đọc"
+  },
+  "home.research.readAria": {
+    "en": "Read full report: {title}",
+    "t": "Đọc toàn bộ báo cáo: {title}"
+  },
+  "home.research.readFull": {
+    "en": "Read Full Report",
+    "t": "Đọc toàn bộ báo cáo"
+  },
+  "home.research.title": {
+    "en": "Data-Driven *Research & Insights*",
+    "t": "*Nghiên cứu & phân tích* dựa trên dữ liệu"
+  },
+  "home.team.placeholder.hiring.sub": {
+    "en": "Investment Analyst",
+    "t": "Chuyên viên phân tích đầu tư"
+  },
+  "home.team.placeholder.ir.sub": {
+    "en": "Investor Relations (IR)",
+    "t": "Quan hệ nhà đầu tư (IR)"
+  },
   "legal.contactUs": {
     "en": "Contact us",
     "t": "Liên hệ với chúng tôi"
@@ -507,14 +851,6 @@
     "en": "Identity verification",
     "t": "Xác minh danh tính"
   },
-  "meta.comingSoon.description": {
-    "en": "Expected Value Investment — the new site is on its way.",
-    "t": "Expected Value Investment — trang web mới sắp ra mắt."
-  },
-  "meta.comingSoon.title": {
-    "en": "Expected value, arriving soon",
-    "t": "Expected value — sắp ra mắt"
-  },
   "meta.contact.description": {
     "en": "Get in touch with EV Investment — hiring, investment, and our coastal developments in Quy Nhơn, Vietnam.",
     "t": "Liên hệ với EV Investment — tuyển dụng, đầu tư và các dự án ven biển của chúng tôi tại Quy Nhơn, Việt Nam."
@@ -599,9 +935,33 @@
     "en": "Whitepaper",
     "t": "Sách trắng"
   },
+  "nav.contact": {
+    "en": "Contact",
+    "t": "Liên hệ"
+  },
+  "nav.hiring": {
+    "en": "Hiring",
+    "t": "Tuyển dụng"
+  },
+  "nav.home": {
+    "en": "Home",
+    "t": "Trang chủ"
+  },
+  "nav.portfolio": {
+    "en": "Portfolio",
+    "t": "Danh mục đầu tư"
+  },
   "nav.publications": {
     "en": "Publications",
     "t": "Ấn phẩm"
+  },
+  "nav.research": {
+    "en": "Research",
+    "t": "Nghiên cứu"
+  },
+  "nav.team": {
+    "en": "Team",
+    "t": "Đội ngũ"
   },
   "publications.allPublications": {
     "en": "All publications",

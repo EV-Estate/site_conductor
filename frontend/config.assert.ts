@@ -23,4 +23,3 @@ export function assertConfig(): void {
     process.exit(1);
   }
 }
-

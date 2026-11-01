@@ -1,0 +1,81 @@
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { localePath, type Locale } from "@evinvest/i18n";
+
+import { formatPublicationDate } from "@/entities/publication";
+import { cn } from "@/shared/lib/utils";
+import { MediaPlate } from "@/shared/ui/media-plate";
+
+import type { NoteView } from "../model/to-note-view";
+
+/// One dispatch: the plate, then the type set on the page beneath it. `lead`
+/// only changes scale — the anatomy is identical, so the two never read as
+/// different components.
+export function NoteSummary({
+  note,
+  lead = false,
+  eyebrow,
+  locale,
+}: {
+  note: NoteView;
+  lead?: boolean;
+  eyebrow: string;
+  locale: Locale;
+}) {
+  const { publication } = note;
+  return (
+    <article className="flex flex-col">
+      <div className="flex items-center justify-between gap-4 pb-3.5 font-mono-tech text-[11px] tracking-[0.19em]">
+        <span
+          className={cn(
+            "flex items-center gap-2.5",
+            lead ? "text-primary-ink" : "text-ink/40"
+          )}
+        >
+          {lead && (
+            <span aria-hidden className="size-[7px] bg-primary-ink" />
+          )}
+          {eyebrow}
+        </span>
+        <span className="text-ink/40">
+          {formatPublicationDate(publication.date, "long", locale)}
+        </span>
+      </div>
+
+      <MediaPlate
+        cover={note.cover}
+        size={lead ? "wide" : "inline"}
+        caption={publication.cover?.caption}
+        plateLabel={note.plateLabel}
+      />
+
+      <h3
+        className={cn(
+          "mt-5 font-serif-display font-bold text-white",
+          lead ? "text-2xl sm:text-3xl" : "text-xl"
+        )}
+      >
+        {publication.title}
+      </h3>
+      <p className="mt-2.5 leading-relaxed font-light text-ink/70">
+        {publication.dek}
+      </p>
+
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-ink/10 pt-4">
+        {publication.author && (
+          <span className="font-mono-tech text-[10px] tracking-[0.14em] text-ink/45 uppercase">
+            {publication.author}
+            {publication.role ? ` · ${publication.role}` : ""}
+          </span>
+        )}
+        <Link
+          href={localePath(locale, note.href)}
+          className="inline-flex items-center gap-2 font-mono-tech text-[11px] tracking-[0.15em] text-primary-ink transition-colors hover:text-ink"
+        >
+          {note.cta}
+          <ArrowRight aria-hidden className="size-3.5" />
+        </Link>
+      </div>
+    </article>
+  );
+}

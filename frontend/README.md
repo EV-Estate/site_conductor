@@ -1,44 +1,36 @@
-# site_conductor
+# landing — frontend
 
-Conductor shell of `estate.evinvest.ltd` — Next.js 16 (App Router) + React 19, FSD,
-Tailwind v4. The public landing moved to its own host (repo EV-Estate/landing); this origin
-links nowhere near it. It serves the coming-soon page at `/`
-(`views/coming-soon`), answers 404 for every retired landing page,
-with or without a locale prefix (`next.config.ts` `rewrites()`), and mounts the
-analytics dashboard at `/analytics`.
-The dev port comes from the `ports` attrset in the repo's `flake.nix`.
+Public landing of the EV Investment fund, served at `estate.evinvest.ltd/` —
+Next.js 16 (App Router) + React 19, laid out with Feature-Sliced Design, styled
+with Tailwind v4. Moved from `site_conductor/frontend` (origin/main `ac600eb`)
+without its zone machinery: the investor cabinet is a separate app on
+`invest.evinvest.ltd/cabinet` (see [`PATTERNS.md` §9](./PATTERNS.md)).
 
 ## Layout
 
 ```
 app/          routing + root layout (Server Components by default)
-views/        page composition (ComingSoonView, …), agnostic of A/B
+views/        page composition (HomeView), agnostic of A/B
 features/     behaviour slices: analytics, ab-variant, error-monitoring, contact-message, job-application, publication-search
 entities/     domain data (team, …)
 shared/       app-agnostic ui/, lib/, config/, hooks/, mfe/ (microfrontend host)
 application/  styles/globals.css → imports @evinvest/uikit/styles/tokens.css
-public/       static assets
-tests/        per-section Playwright visual baselines
-mfe-registry.json  microfrontend registry (name → tag/scriptUrl/kind)
+public/       static assets (populated by the build; see below)
 ```
 
 FSD import order `app → views → features → entities → shared`; import from a
 slice's `index.ts`, never deep paths. Conventions live in [`PATTERNS.md`](./PATTERNS.md).
 
-## Run only the frontend
+## Run
 
 ```sh
-nix run .#frontend           # port from flake.nix `ports`
+cp .env.example .env.local   # set NEXT_PUBLIC_API_URL at least
+npm ci && npm run dev
 ```
-This first runs `populate-docs`: it builds `main` of the private
-`EV-Estate/whitepaper` and `EV-Main/blog` flakes over ssh and copies their
-output into `public/`. A failed build only warns — the dev server still boots and the
-doc pages degrade to a PDF link.
 
-Or inside the dev shell (`.envrc` + direnv), which runs `populate-docs` on entry:
-```sh
-cd site_conductor/frontend && npm install && npm run dev
-```
+`public/` is filled by the build, not by hand: the whitepaper and publications
+HTML/PDF, and a copy of `assets/`. Without them the dev server still boots.
+
 Tailwind builds automatically inside Next via the `@tailwindcss/postcss` plugin —
 no separate step. It imports the shared tokens from
 `@evinvest/uikit/styles/tokens.css` through `application/styles/globals.css`;
@@ -48,36 +40,87 @@ reach this repo through a `@evinvest/uikit` bump, never a local edit.
 ## Checks
 
 ```sh
-npm run lint                 # eslint
 npm run check                # tsc --noEmit
+npm run lint                 # eslint
+npm run lint:css             # stylelint
+npm run css:check            # Tailwind class conflicts in cn()
+npm run i18n:check           # en generated from code + translation drift
+npm run redirects:check      # /en/* collapse and the English rewrite
 ```
 
-## Visual-regression tests
-
-> Not served on this origin since the move: `/publications` and `/whitepaper`
-> answer 404 (`next.config.ts` `rewrites()`); the code under
-> `app/[locale]` stays until removed.
-
-Playwright screenshots of the coming-soon page in [`tests/`](./tests) — one
-baseline per viewport. Browsers come from nixpkgs, pinned to the `@playwright/test`
-revision via the flake, so screenshots are reproducible.
-```sh
-npm run test:visual          # compare against committed baselines
-npm run test:visual:update   # regenerate baselines after an intentional UI change
-```
-> Linux-only via nix; skip locally on macOS.
-
-> The site calls only its own backend (vacancies / applications / contact)
+> The site calls only its own backend (vacancies / applications / contact / newsletter)
 > through the generated client in `shared/api` — there is no hub API client here.
+
+### Visual regression
+
+`tests/sections.spec.ts` screenshots each home-page section (desktop and
+mobile, plus the open mobile drawer), checks the first-viewport cabinet CTA and
+the Russian portfolio. Baselines live in `tests/__screenshots__/`.
+
+```sh
+nix run .#test                      # check, i18n:check, css:check, then the suite against the baselines
+nix run .#accept-test               # re-capture every baseline
+nix run .#accept-test -- hero team  # re-capture only tests whose title matches a name
+```
+
+Linux only. The flake pins nixpkgs' Chromium, and a macOS render does not match
+the committed Linux pixels, so baselines are never captured on a Mac. Known
+limit: on darwin the dev shell's `PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=nixos` makes
+`tests/global-setup.ts` look for `chrome-linux64`; a local run needs
+`unset PLAYWRIGHT_HOST_PLATFORM_OVERRIDE` first, and its diffs are not
+meaningful.
+
+CI: [`visual-baselines.yml`](../.github/workflows/visual-baselines.yml) runs on
+PRs touching `frontend/`, `flake.*` or itself. The gate step runs
+`nix run .#test` and keeps its expected/actual/diff images as the
+`visual-diffs` artifact; the render step runs `nix run .#accept-test` and
+uploads the fresh PNGs as `visual-snapshots`, even when the gate is red. To
+refresh the baselines from a run, download them and look at every changed PNG
+(and the run's `visual-diffs`) before committing — the artifact is what the
+branch renders, not proof that the render is right:
+
+```sh
+gh run download <run-id> -R EV-Fund/landing -n visual-snapshots -D frontend/tests/__screenshots__
+git add frontend/tests/__screenshots__
+git commit -m 'test(visual): refresh baselines (run <run-id>)'
+```
+
+Status: the committed baselines are still the ones from `site_conductor@ac600eb`
+and are stale — `header.png`, `mobile/header.png` and `mobile/header-drawer.png`
+predate the header rewrite, and `cabinet-tour.png` / `mobile/cabinet-tour.png`
+may too. Expect the gate to be red until they are refreshed from a CI run. The
+job itself cannot pass until the repo has the `CACHIX_AUTH_TOKEN` secret.
+
+## Environment
+
+One typed reader, [`config.ts`](./config.ts); `process.env` anywhere else fails
+lint. Annotated defaults: [`.env.example`](./.env.example). The prod values are
+set in `flake.nix` (image build and container env).
+
+| Variable | When | Prod value | If unset |
+| --- | --- | --- | --- |
+| `NEXT_PUBLIC_SITE_URL` | build | `https://estate.evinvest.ltd` | placeholder origin at build; prod server refuses to boot |
+| `NEXT_PUBLIC_API_URL` | build | `https://estate.evinvest.ltd` (`/api/v1` via Traefik) | throws on first use, dev and prod |
+| `NEXT_PUBLIC_POSTHOG_KEY` / `_HOST` | build | literal in `flake.nix` | analytics no-op |
+| `NEXT_PUBLIC_SENTRY_DSN`, `NEXT_PUBLIC_APP_ENV` | build | — | error monitoring no-op |
+| `NEXT_PUBLIC_ANALYTICS_ENDPOINT` / `_WEBSITE_ID` | build | — | Umami not loaded |
+| `API_URL_INTERNAL` | runtime | `http://landing-backend:58846` | prod server throws on first server fetch; dev falls back to the public URL |
+| `ANALYTICS_DEV_URL` | dev | — (the edge routes `/mfe/analytics`) | `/mfe/analytics/*` is not proxied |
+| `SENTRY_DSN`, `APP_ENV`, `SENTRY_ORG` / `_PROJECT` / `_AUTH_TOKEN` | runtime / CI | — | no-op |
+
+`NEXT_PUBLIC_*` is inlined at `next build`; changing it means a new image.
+Dropped with the zone machinery: `CABINET_ZONE_URL`, `REA_ZONE_URL`,
+`AUTH_WEB_URL`. The backend's contract (`CORS_ALLOWED_ORIGINS` and the rest) is
+the `RawSettings` struct in `backend/src/config.rs`.
 
 ## Microfrontends
 
-site_conductor composes other EV surfaces at runtime — **never via `<iframe>`** (see
+The landing composes other EV surfaces at runtime — **never via `<iframe>`** (see
 [`PATTERNS.md` §8](./PATTERNS.md)). Two transports from `@/shared/mfe`:
 
 | Remote ships… | Use | Mount |
 | --- | --- | --- |
-| a self-registering custom-element ESM bundle (React, Rust/WASM) | `RemoteElement` | light DOM; inline or a whole page (`/analytics`) |
+| a self-registering custom-element ESM bundle (React, Rust/WASM) | `RemoteElement` | light DOM; inline (`kind="component"`) or a whole page (`kind="page"`, `/analytics`) |
 | a self-contained static HTML document (typst whitepaper/blog) | `RemoteDocument` | light DOM (`prose`) or, if self-styled, a shadow root |
 
 ### Element remotes — `RemoteElement`
@@ -92,35 +135,19 @@ props to attributes and CustomEvents to callbacks. The boundary is identical for
 every framework. **Light DOM only** — Tailwind v4 `@property` tokens break inside
 shadow roots, and the global uikit tokens must cascade in.
 
-- **Registry.** A logical name resolves to `{tag, scriptUrl, kind}` from
-  [`mfe-registry.json`](./mfe-registry.json) (served to the browser at
-  `/api/mfe-registry`). Remotes deploy independently — add an entry, don't rebuild
-  site_conductor. Tags are globally unique and versioned. Registry reads
-  (`shared/mfe/registry.ts`) use `node:fs` and are **server-only**; the client-safe
-  `RemoteElement` is the public API from `@/shared/mfe`. `scriptUrl`s are
-  operator-controlled and served openly at `/api/mfe-registry` — **treat registry
-  edits as code** (they execute third-party JS in the site_conductor origin); gate them
-  against an origin allowlist if the registry ever becomes user-/dynamically-sourced.
-
-  ```jsonc
-  // mfe-registry.json — kind:"page" names must be a single URL segment (no dots)
-  [{ "name": "calculator.yield", "tag": "mfe-calculator-yield",
-     "scriptUrl": "https://cdn.example.com/yield.js", "kind": "component" }]
-  ```
-
-- **Inline widget** — render `<RemoteElement>` anywhere (resolve the entry server-side
-  with `findMfe` from `@/shared/mfe/registry`, or pass `tag`/`scriptUrl` directly):
+- **Inline widget or page** — render `<RemoteElement>` with the remote's `tag`,
+  `scriptUrl` and `kind` as in-repo constants. A `component`'s stylesheet (its
+  entry's stem, `overview.js` → `overview.css`) is demoted into the `reamfe`
+  layer so host styles win; a `page`'s is not. `scriptUrl`s are operator-controlled and run
+  third-party JS in this origin — **treat them as code**; gate them against an
+  origin allowlist if they ever become user-/dynamically-sourced.
 
   ```tsx
-  <RemoteElement tag="mfe-calculator-yield" scriptUrl="…"
-    fallback={<p>loading…</p>} />
+  <RemoteElement tag="mfe-analytics-overview"
+    scriptUrl="/mfe/analytics/overview.js" kind="component" />
   ```
 
-- **Whole page** — register an entry with `"kind": "page"` and give it a route that
-  looks it up by name: `analytics.dashboard` mounts at `/analytics`
-  ([`app/[locale]/analytics`](<./app/[locale]/analytics/page.tsx>)) and owns the whole page.
-
-**Producing a microfrontend** (other repos — site_conductor ships no producer SDK). The
+**Producing a microfrontend** (other repos — this app ships no producer SDK). The
 canonical, fuller recipe lives in the hub's
 [`docs/ARCHITECTURE.md` § Microfrontends](https://github.com/EV-Main/banking/blob/main/docs/ARCHITECTURE.md#microfrontends); the
 contract is shared with `cabinet`, so keep this in sync with it.
@@ -137,10 +164,6 @@ contract is shared with `cabinet`, so keep this in sync with it.
   relying on it.
 
 ### Document remotes — `RemoteDocument`
-
-> Not served on this origin since the move: `/publications` and `/whitepaper`
-> answer 404 (`next.config.ts` `rewrites()`); the code under
-> `app/[locale]` stays until removed.
 
 For remotes that are a self-contained **static HTML document** (the typst-built
 [whitepaper](<./app/[locale]/publications/whitepaper>) and
@@ -162,8 +185,7 @@ the page natively, keeping the host chrome and scroll.
 `isolate={false}` (default) is a pure Server Component; `isolate` mounts a client
 shadow island. A source that can't be loaded renders the `fallback`, so a missing
 doc build degrades gracefully. The docs are produced by the sibling `whitepaper`/
-`blog` repos and copied into `public/` by the flake's `populate-docs` (see
-[`../flake.nix`](../flake.nix)).
+`blog` repos and copied into `public/` by the build.
 
 ## Design system (Figma)
 

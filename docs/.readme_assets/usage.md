@@ -10,29 +10,24 @@ export them, so nothing here hardcodes a number.
 | `nix run .#dev` | full stack: shared postgres + backend + frontend |
 | `nix run .#frontend` | Next.js site only |
 | `nix run .#backend` | axum API only (ensures the shared postgres) |
-| `nix run .#db` | ensure the shared ev_invest postgres is up (+ this repo's `site_conductor` db) |
+| `nix run .#db` | ensure the shared ev_invest postgres is up (+ this repo's `landing` db) |
 | `nix run .#gen-api` | regenerate `backend/openapi.json` + the TS client (run after any DTO/handler change; commit both) |
-| `nix run .#test` | frontend typecheck + Playwright visual regression |
-| `nix run .#accept-test` | accept new screenshots (all, or `-- <names>`) |
+| `nix run .#test` | frontend typecheck + i18n + Tailwind conflict gates + Playwright visual regression (Linux; see `frontend/README.md`) |
+| `nix run .#accept-test` | re-capture visual baselines (all, or `-- <names>`) |
+| `nix develop -c cargo test --workspace` | backend and domain unit tests |
+| `nix run .#pull-prod-db` | replace the local landing db with prod's (`PROD_DB=evinvest` before the move) |
 | `nix run .#publish` | bump latest remote `vX.Y.Z` tag (`-- major\|minor\|patch`) + push |
 
-Frontend runs build docs from `main` of the private `EV-Estate/whitepaper` and
-`EV-Main/blog` repos (over ssh). A failed build just warns: docs degrade to a PDF
-link. `/analytics` loads its bundle from `/mfe/analytics/`, which prod routes at
-the edge and dev rewrites to `ANALYTICS_DEV_URL` (`ANALYTICS_PORT` in `ports`):
-run `nix run .#dev` in an `EV-Estate/analytics` checkout.
+Frontend runs pull docs from checkouts next to `landing/` — `_estate/whitepaper/`,
+`blog/`, both optional. A missing checkout just warns: docs degrade to a PDF link.
 
 ## Microfrontends — no iframes
 
 Other EV surfaces compose at runtime through `frontend/shared/mfe`, never via
 `<iframe>`. Full reference: [`frontend/PATTERNS.md` §8](../../frontend/PATTERNS.md)
-and [`frontend/README.md`](../../frontend/README.md).
-
-- **Element remotes (`RemoteElement`)** — `/analytics` is analytics'
-  self-registering custom element `<mfe-analytics-dashboard>`, mounted in light
-  DOM and resolved from `frontend/mfe-registry.json`. `scriptUrl`s run
-  third-party JS in our origin — treat the registry as code.
-- **Document remotes (`RemoteDocument`)** — `/whitepaper` and `/blogs/[slug]`
-  are static HTML from the sibling typst repos. Blog injects into light DOM
-  (SSR'd, host-styled); whitepaper mounts in a shadow root (ships its own CSS).
-  Unloadable doc → PDF-link fallback.
+and [`frontend/README.md`](../../frontend/README.md). The home portfolio section
+is the analytics overview tile and `/analytics` the analytics dashboard, both
+loaded live from `/mfe/analytics/` on this host (in dev rewritten to
+`ANALYTICS_DEV_URL`, from `ANALYTICS_PORT`: run `nix run .#dev` in an
+`EV-Estate/analytics` checkout); `/publications/whitepaper` and
+`/publications/[slug]` are static HTML from the sibling typst repos.

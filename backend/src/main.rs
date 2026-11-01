@@ -54,7 +54,7 @@ fn main() -> Result<()> {
 		// without this they are separable only by pod hostname. Read from the
 		// same variable OTEL uses rather than repeating the literal, so an issue
 		// and its trace cannot disagree about which service they came from — the
-		// deployment sets it (`site-conductor-backend`); unset leaves events
+		// deployment sets it (`landing-backend`); unset leaves events
 		// untagged, which is the honest answer when nothing named the service.
 		service: std::env::var("OTEL_SERVICE_NAME").ok().filter(|s| !s.trim().is_empty()),
 		traces_sample_rate: error_monitoring::Config::traces_sample_rate_for(&config.app_env),
@@ -97,7 +97,7 @@ async fn run(config: AppConfig) -> Result<()> {
 	let newsletter = NewsletterService::new(newsletter_repo, notifier);
 	let state = AppState::new(vacancies, applications, contacts, newsletter, analytics);
 
-	let router = api::router::build(state);
+	let router = api::router::build(state, config.cors_allowed_origins.clone());
 
 	let listener = tokio::net::TcpListener::bind(config.bind_addr)
 		.await

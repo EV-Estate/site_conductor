@@ -4,17 +4,17 @@ import { defineConfig, devices } from "@playwright/test";
 // PLAYWRIGHT_BROWSERS_PATH), pinned to the same revision as @playwright/test,
 // so screenshots render identically across every machine on this flake.
 // Env fallbacks live in flake.nix only — run via `nix run .#test`.
-const PORT = process.env.SITE_CONDUCTOR_FRONTEND_PORT;
+const PORT = process.env.LANDING_FRONTEND_PORT;
 if (!PORT)
   throw new Error(
-    "missing SITE_CONDUCTOR_FRONTEND_PORT — run via the flake: nix run .#test"
+    "missing LANDING_FRONTEND_PORT — run via the flake: nix run .#test"
   );
 
 export default defineConfig({
   testDir: "./tests",
   // Bail with a clear error if the browser binary is missing (see global-setup).
   globalSetup: "./tests/global-setup.ts",
-  // Baselines live beside the test file: tests/sections.spec.ts-snapshots/.
+  // Baselines: tests/__screenshots__/<name>.png (mobile: .../mobile/<name>.png).
   snapshotPathTemplate: "{testDir}/__screenshots__/{arg}{ext}",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,

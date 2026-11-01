@@ -33,10 +33,12 @@ code into the client bundle):
 
 - **`children` / props slot** — a Client Component renders `{children}`; the
   Server Component passes server-rendered elements in.
-  Example: `ExperimentTracker` (client) wraps the server-rendered variant in
-  `entities/team/ui/leadership-intro.tsx`.
+  Example: `ExperimentTracker` (client) wraps the server-rendered team grid in
+  `views/home/ui/team/ui/team.tsx`.
 - **Extract the interactive leaf** — pull just the handler into a tiny client
   component and render it from the server parent.
+  Examples: `hero/ui/cta/cabinet-first.tsx` / `explore-first.tsx` (the only client
+  bits of the hero CTA row `HeroA` and `HeroB` share).
 
 **Litmus test:** if a section is static except for one button, the section is a
 Server Component and the button is the client island — not the other way around.
@@ -44,6 +46,8 @@ Server Component and the button is the client island — not the other way aroun
 The exception is a component that is interactive _throughout_ — that
 legitimately is one Client Component. Even then, pass static sub-sections as
 `ReactNode` props from the server wrapper so they stay out of the client bundle.
+Example: `HeroA`'s scroll-zoom shell `HeroACanvas` (client) — the server `HeroA`
+passes headline/copy as `children` and the CTA row as `cta={…}`.
 
 ### Context providers
 
@@ -142,7 +146,7 @@ Practical split strategies:
 ## 5. FSD layering (where things go)
 
 - `app/` — routing, root layout. Server by default.
-- `views/` — page composition (e.g. `ComingSoonView`). Agnostic of A/B.
+- `views/` — page composition (e.g. `HomeView`). Agnostic of A/B.
 - `features/` — behaviour slices: `analytics`, `ab-variant`, `error-monitoring`,
   `contact-message`, `job-application`, `publication-search`.
 - `entities/` — domain data (`team`, …).
@@ -180,7 +184,8 @@ backend (utoipa) → backend/openapi.json → @hey-api/openapi-ts → shared/api
 Two sibling `@evinvest/uikit` `<Button asChild>` (Radix Slot → `<Link>`) **desync
 hydration** under React 19 and one silently drops from the client DOM. For nav CTAs
 (which are just links), use the uikit `<Button href>` (a plain `<a>`, no Slot), a
-plain styled `<Link className={…}>` or a plain `<button onClick>` instead. A single `Button asChild`, or a non-`asChild`
+plain styled `<Link className={…}>` or a plain `<button onClick>` instead — see
+`application/layout/header-cta.tsx`. A single `Button asChild`, or a non-`asChild`
 `<Button onClick>`, is fine.
 
 ---
@@ -197,10 +202,9 @@ transports, picked by what the remote ships:
   bundle that defines a custom element (`customElements.define("mfe-<svc>-<name>",
   …)`); identical for JS (React via `@r2wc/react-to-web-component`) and Rust/WASM
   (Dioxus/Leptos). Mounted in **light DOM** — Tailwind v4 `@property` tokens break
-  inside shadow roots and the global uikit tokens must cascade in. Resolved from
-  `mfe-registry.json` (`findMfe`, server-only) so remotes deploy independently.
-  Inline anywhere, or as a whole page (`/analytics`, `app/[locale]/analytics`,
-  mounts `analytics.dashboard`).
+  inside shadow roots and the global uikit tokens must cascade in. The tag and
+  bundle URL are in-repo constants at the call site (the home portfolio
+  section is the live example; `/analytics` mounts one as a whole page).
 - **Document remote — `RemoteDocument`.** The remote is a self-contained static
   HTML document (the typst-built whitepaper / blog). `isolate={false}` (default)
   injects its `<body>` into the **light DOM** so host typography (`prose`) styles
@@ -208,7 +212,8 @@ transports, picked by what the remote ships:
   research articles). `isolate` mounts a **self-styled** doc (its own CSS targets
   bare tags) in a **shadow root** via a small client island, so its styles can't
   reach the host (use for the whitepaper). `/publications/whitepaper` and
-  `/publications/[slug]` are the live examples (now on the invest host, EV-Estate/landing).
+  `/publications/[slug]` are
+  the live examples.
 
 Notes that bite:
 - **Shadow remotes are client-only.** React 19 can emit Declarative Shadow DOM
@@ -227,8 +232,8 @@ Notes that bite:
   of the sitemap (see `shared/config/site.ts`). Only the `isolate={false}`
   light-DOM path is SSR'd and indexable.
 - **Trust boundary = treat as code.** Element `scriptUrl`s and document HTML are
-  operator-controlled (in-repo registry / typst build), injected with no sandbox
-  and **no sanitization** — registry edits and doc sources are code. If either ever
+  operator-controlled (in-repo constants / typst build), injected with no sandbox
+  and **no sanitization** — `scriptUrl` edits and doc sources are code. If either ever
   becomes user-/dynamically-sourced, gate it (origin allowlist / DOMPurify).
 - Degrade gracefully: a `RemoteDocument` whose source can't be loaded renders its
   `fallback` (a PDF link), so a missing doc build never breaks the page.
@@ -245,14 +250,25 @@ Notes that bite:
 
 ### Component MFEs load live from their producer
 
-A `kind:"component"` remote is loaded live from its producer's `/mfe/<service>/`
-prefix on this origin (the edge routes it to the producer; dev rewrites it, see
-`next.config.ts`). No host bakes a snapshot of it: a remote that never upgrades
-leaves its `fallback`, so the producer ships without host rebuilds.
+A microfrontend is served by its producer under `/mfe/<service>/` on this host (the
+edge routes the prefix to the producer; dev rewrites it, see `next.config.ts`). Nothing of
+it is baked into this image, so a producer release needs no host rebuild. The bundle
+derives its API and asset origin from its own `import.meta.url`; the host passes none.
+There is no static snapshot and no `fallback`: the section stays empty until the
+element upgrades, and for good with JS off or the producer down. The host `id` anchor
+sits on the light-DOM wrapper `<div>`, so it lands either way. The home portfolio
+section (`mfe-analytics-overview`) and `/analytics` (`mfe-analytics-dashboard`,
+`kind="page"`) are the live examples.
+
+## 9. The cabinet — another app on another host
+
+The investor cabinet is EV-Estate/invest on `invest.evinvest.ltd/cabinet`. Links
+into it are hard links to `CABINET_URL` (`shared/config/site.ts`): `<a>` /
+`Button href`, never `next/link`, never locale-prefixed.
 
 ---
 
-## 9. Motion — three primitives
+## 10. Motion — three primitives, two engines
 
 Motion on this site is a **design system, not a set of one-off animations**.
 Everything comes from `@/shared/ui/motion`, whose `tokens.ts` owns the curves and
@@ -284,7 +300,23 @@ Rules that are not negotiable:
   sentence — do not strip that.
 - **Never wrap a `position: fixed` descendant in a moving `Reveal`.** An animated
   transform makes the wrapper that descendant's containing block. Use
-  `from="none"` (pure fade).
+  `from="none"` (pure fade) — this is exactly why the portfolio MFE uses it.
+
+### The second engine: the header
+
+`application/layout/header.tsx` and its parts may **not** use `motion`: the bar
+and drawer are Server Component markup, and their motion is CSS transitions keyed
+off `data-*` attributes that one client leaf (`header-behavior.tsx`) toggles.
+Two traps live there:
+
+- **Tailwind v4 compiles `translate-x-*` to the standalone `translate`
+  property, not `transform`.** A `transition-[transform,…]` list silently matches
+  nothing and the element teleports. Name `translate`.
+- **`visibility` belongs in the transition list.** It is discretely animated with
+  `visible` winning any intermediate value, so it shows instantly on open and
+  waits for the slide-out on close — and, being `hidden` at rest, it keeps the
+  closed drawer out of the tab order and the accessibility tree with no `inert`
+  bookkeeping and no JS.
 
 ### Visual tests
 

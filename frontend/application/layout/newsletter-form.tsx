@@ -1,0 +1,105 @@
+"use client";
+
+import { type FormEvent, useState } from "react";
+import { useT } from "@evinvest/i18n/react";
+import {
+  subscribeToNewsletter,
+  type SubscribeError,
+} from "@/entities/newsletter";
+
+type Status = "idle" | "sending" | "sent" | "error";
+
+// The footer's only stateful piece. The footer itself is already a client tree
+// (footer.tsx: `linkComponent` cannot cross the server→client boundary), so
+// this split is not a bundle boundary.
+export function NewsletterForm() {
+  const t = useT();
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<Status>("idle");
+  // The reason, not the sentence: the sentence is looked up at render so it
+  // follows the reader's locale rather than the locale at submit time.
+  const [error, setError] = useState<SubscribeError | "invalidEmail" | null>(
+    null
+  );
+  const sentence = {
+    invalidEmail: t(
+      "footer.newsletter.invalidEmail",
+      "Enter a valid email address."
+    ),
+    duplicate: t("footer.newsletter.duplicate", "You're already on the list."),
+    server: t(
+      "footer.newsletter.error",
+      "Something went wrong — please try again."
+    ),
+    network: t(
+      "footer.newsletter.networkError",
+      "Network error — please try again."
+    ),
+  };
+
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    const trimmed = email.trim();
+    if (!trimmed || !trimmed.includes("@")) {
+      setError("invalidEmail");
+      setStatus("error");
+      return;
+    }
+    setStatus("sending");
+    const result = await subscribeToNewsletter(trimmed);
+    if (result.ok) {
+      setStatus("sent");
+    } else {
+      setError(result.error);
+      setStatus("error");
+    }
+  }
+
+  if (status === "sent") {
+    return (
+      <div className="flex items-center gap-2 border border-primary-ink/40 px-4 py-3">
+        <p className="text-xs text-primary-ink font-mono-tech uppercase">
+          {t("footer.newsletter.success", "You're on the list — welcome.")}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={submit} noValidate>
+      <div className="flex border border-ink/20">
+        <input
+          type="email"
+          placeholder={t(
+            "footer.newsletter.placeholder",
+            "Institutional Email"
+          )}
+          value={email}
+          onChange={e => {
+            setEmail(e.target.value);
+            if (status === "error") {
+              setStatus("idle");
+              setError(null);
+            }
+          }}
+          // text-base on phones: under 16px iOS zooms the viewport on focus
+          // (see shared/ui/control.ts). sm: keeps the 12px footer design.
+          className="bg-transparent text-base sm:text-xs p-3 w-full focus:outline-none text-white"
+          disabled={status === "sending"}
+        />
+        <button
+          type="submit"
+          disabled={status === "sending"}
+          className="bg-primary text-on-primary px-4 font-mono-tech text-xs uppercase font-bold hover:bg-ink hover:text-background transition-colors disabled:opacity-60"
+        >
+          {status === "sending" ? "…" : t("footer.newsletter.join", "Join")}
+        </button>
+      </div>
+      {status === "error" && error && (
+        <p role="alert" className="mt-2 text-xs text-red-400">
+          {sentence[error]}
+        </p>
+      )}
+    </form>
+  );
+}

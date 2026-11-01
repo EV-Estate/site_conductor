@@ -1,35 +1,31 @@
+import { execSync } from "node:child_process";
 import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 import { config } from "./config";
 
-// Restates LOCALES from @evinvest/i18n — this file loads as CJS and the
-// package is ESM-only (same boundary as `unprefixed` in rewrites()).
-const LOCALE_ALT = "en|ru|vi|fr|de";
+// The Nix/CI build injects NEXT_PUBLIC_BUILD_VERSION (the release tag). A bare
+// `npm run dev` has no such env, so fall back to git so the footer still shows a
+// version; "unknown" only when git is absent too (e.g. the hermetic sandbox,
+// where the env var is always set anyway).
+const git = (cmd: string, fallback: string) => {
+  try {
+    return execSync(cmd, { encoding: "utf8" }).trim();
+  } catch {
+    return fallback;
+  }
+};
 
-// The public landing is gone from this origin and its pages answer 404 — no redirect to the new landing host, by decision (2026-10-18):
-// whoever wants it knows the address. The match is the whole path, written as
-// a regex fragment so the same text serves three rules:
-//   - the 404 rewrites in rewrites() (bare and locale-prefixed),
-//   - the lookahead that keeps the /en/* collapse off these paths in
-//     redirects() — a 308 there would answer `/en/team` with a redirect
-//     before the 404 rewrite is ever consulted,
-//   - scripts/redirect-check.mts, through the rules' output.
-// Segment-wise: each root matches itself and anything below it; the dotted
-// whitepaper builds (pdf, dark/light html) and llms.txt are single files.
-const RETIRED_ROOTS =
-  "publications|team|hiring|contact|privacy|terms|risk|apps|blogs|whitepaper";
-const RETIRED_PATH = `(?:(?:${RETIRED_ROOTS})(?:/.*)?|whitepaper\\..*|llms\\.txt)`;
-// Same set as a lookahead, for sources that must leave these paths alone.
-// `(?:/|$)` keeps it to the whole segment: `/en/teams` is another page and
-// still collapses.
-const NOT_COLLAPSED = `(?!(?:(?:${RETIRED_ROOTS})(?:/|$)|whitepaper\\.|llms\\.txt$))`;
-// A destination no route owns, two segments deep so the `[locale]` dynamic
-// route cannot claim it (that path 404s via NoFallbackError and re-renders,
-// the shape behind the #229 loop). Next answers a real 404.
-const GONE = "/_retired/gone";
+const buildVersion =
+  config.public.buildVersion ?? git("git describe --tags --always", "unknown");
+// Full SHA the footer link resolves to, kept separate from the display version.
+const buildCommit = config.public.buildCommit || git("git rev-parse HEAD", "");
 
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_BUILD_VERSION: buildVersion,
+    NEXT_PUBLIC_BUILD_COMMIT: buildCommit,
+  },
   reactStrictMode: true,
   // Dev-only: Next 16 blocks its dev resources (incl. the HMR socket) for any
   // origin but `localhost`, and a dead HMR socket means the client runtime
@@ -55,18 +51,22 @@ const nextConfig: NextConfig = {
     // without it the only way to learn the locale is `useParams()` in a Client
     // Component — which would ship all five message catalogues (~176 KB).
   },
-  // The retired landing pages answer 404 from the beforeFiles rewrites in
-  // rewrites().
+  // /blogs and /whitepaper were separate shelves for the same thing: documents
+  // the fund publishes. They are now one route, so the old paths keep working
+  // forever as 308s — inbound links, the old sitemap and anything already
+  // bookmarked must not break. 308 (not 307) so the method and the SEO signal
+  // both transfer.
   async redirects() {
     return [
-      // The analytics dashboard was the /rea zone, then /data. `:path*` also
-      // matches bare `/rea`, and Next carries the query: `/rea/?building=x` →
-      // `/analytics?building=x`.
-      { source: "/rea/:path*", destination: "/analytics", permanent: true },
-      { source: "/data", destination: "/analytics", permanent: true },
+      { source: "/blogs", destination: "/publications", permanent: true },
       {
-        source: `/:locale(${LOCALE_ALT})/data`,
-        destination: "/:locale/analytics",
+        source: "/blogs/:path*",
+        destination: "/publications/:path*",
+        permanent: true,
+      },
+      {
+        source: "/whitepaper",
+        destination: "/publications/whitepaper",
         permanent: true,
       },
       // Collapse the explicit /en/* form onto the unprefixed one so each page has
@@ -74,18 +74,8 @@ const nextConfig: NextConfig = {
       // this is external and matched against the incoming request, while the
       // rewrite is internal and never re-enters the redirect pipeline. Every
       // source here is itself /en-prefixed, so an unprefixed path never matches.
-      //
-      // Except the retired paths (see RETIRED_PATH): `/en/team` must answer 404
-      // itself, not 308 to `/team` and 404 there.
       { source: "/en", destination: "/", permanent: true },
-      {
-        // The lookahead is on the source only; the destination is untouched.
-        // `npm run redirects:check` asserts both halves against Next's own
-        // matcher.
-        source: `/en/:path(${NOT_COLLAPSED}.*)`,
-        destination: "/:path*",
-        permanent: true,
-      },
+      { source: "/en/:path*", destination: "/:path*", permanent: true },
     ];
   },
   // The raw flake-built documents in public/ (whitepaper.*.html,
@@ -152,20 +142,15 @@ const nextConfig: NextConfig = {
     ],
   },
   async rewrites() {
-    // Under a locale prefix the retired pages 404 too.
-    const beforeFiles = [
-      { source: `/:path(${RETIRED_PATH})`, destination: GONE },
-      {
-        source: `/:locale(${LOCALE_ALT})/:path(${RETIRED_PATH})`,
-        destination: GONE,
-      },
-    ];
     // Prod routes /mfe/analytics at the edge; dev has no edge.
-    if (config.analyticsDevUrl)
-      beforeFiles.push({
-        source: "/mfe/analytics/:path*",
-        destination: `${config.analyticsDevUrl}/mfe/analytics/:path*`,
-      });
+    const beforeFiles = config.analyticsDevUrl
+      ? [
+          {
+            source: "/mfe/analytics/:path*",
+            destination: `${config.analyticsDevUrl}/mfe/analytics/:path*`,
+          },
+        ]
+      : [];
     // Serves the default locale at unprefixed paths, so no indexed English URL
     // moves and the site still ships no proxy.ts.
     //
@@ -195,15 +180,15 @@ const nextConfig: NextConfig = {
     // the `Next-URL` request header (base-server `setVaryHeader`, our routes
     // are not interceptable), so the second pass recomputes the hash without
     // `Next-URL` and 307s to a hash the first pass will reject again — an
-    // endless 307 loop on every English soft navigation (site_conductor#229).
+    // endless 307 loop on every English soft navigation
+    // (EV-Main/site_conductor#229).
     // `experimental.validateRSCRequestHeaders`, on by default since 16.4, is
     // the CDN cache-poisoning guard and stays on.
     //
     // The lookahead is what keeps this from being the broken afterFiles rule
     // described above: a locale-prefixed path never matches, so `/ru/team`
     // still reaches [locale] as itself. The other excluded roots are API space
-    // and Next's own — they keep exactly the pre-16.4 path through the fallback,
-    // which stays for them and for `/`. `.+` leaves `/` to the fallback too.
+    // and Next's own. `.+` leaves `/` to the fallback too.
     // The locale list restates LOCALES from @evinvest/i18n (CJS boundary,
     // as above): a new locale must be added here or its pages 404.
     const unprefixed = [
