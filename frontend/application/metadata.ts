@@ -1,11 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { SITE } from "@/shared/config/site";
-import { config } from "@/config";
-
-// REA's backend origin, advertised to the MFE bundle via <meta name="rea-url">.
-// Only the production image build exports NEXT_PUBLIC_REA_URL; the dev launch
-// omits it, so fall back to the local REA port rather than failing the build.
-const reaUrl = config.public.reaUrl ?? "http://localhost:59079";
 
 // Must stay a STATIC export (no request data) so it streams despite the layout's
 // `await cookies()` making routes dynamic — do NOT switch to generateMetadata.
@@ -26,8 +20,6 @@ export const metadata: Metadata = {
   // doesn't define its own (noindexed /apps/*, the 404) and
   // stamps them canonical-to-homepage — a contradictory signal pair. Each
   // indexable page declares its own self-canonical (home's is in app/page.tsx).
-  // Read by the real-estate MFE bundle (`rea_origin()`) for its REA backend calls.
-  other: { "rea-url": reaUrl },
   robots: {
     index: true,
     follow: true,

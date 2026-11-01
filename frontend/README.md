@@ -5,14 +5,14 @@ Tailwind v4. The public landing moved to its own host (repo EV-Estate/landing); 
 links nowhere near it. It serves the coming-soon page at `/`
 (`views/coming-soon`), answers 404 for every retired landing page,
 with or without a locale prefix (`next.config.ts` `rewrites()`), and mounts the
-REA dashboard at `/data`.
+analytics dashboard at `/analytics`.
 The dev port comes from the `ports` attrset in the repo's `flake.nix`.
 
 ## Layout
 
 ```
 app/          routing + root layout (Server Components by default)
-views/        page composition (HomeView), agnostic of A/B
+views/        page composition (ComingSoonView, …), agnostic of A/B
 features/     behaviour slices: analytics, ab-variant, error-monitoring, contact-message, job-application, publication-search
 entities/     domain data (team, …)
 shared/       app-agnostic ui/, lib/, config/, hooks/, mfe/ (microfrontend host)
@@ -31,7 +31,7 @@ slice's `index.ts`, never deep paths. Conventions live in [`PATTERNS.md`](./PATT
 nix run .#frontend           # port from flake.nix `ports`
 ```
 This first runs `populate-docs`: it builds `main` of the private
-`ev-main/{whitepaper,blog,real_estate_allocation}` flakes over ssh and copies their
+`EV-Estate/whitepaper` and `EV-Main/blog` flakes over ssh and copies their
 output into `public/`. A failed build only warns — the dev server still boots and the
 doc pages degrade to a PDF link.
 
@@ -58,8 +58,8 @@ npm run check                # tsc --noEmit
 > answer 404 (`next.config.ts` `rewrites()`); the code under
 > `app/[locale]` stays until removed.
 
-Per-section Playwright screenshots in [`tests/`](./tests) — one baseline per
-addressable section (`#hero`, `#portfolio`, `#calculator`, `#research`, `#team`). Browsers come from nixpkgs, pinned to the `@playwright/test`
+Playwright screenshots of the coming-soon page in [`tests/`](./tests) — one
+baseline per viewport. Browsers come from nixpkgs, pinned to the `@playwright/test`
 revision via the flake, so screenshots are reproducible.
 ```sh
 npm run test:visual          # compare against committed baselines
@@ -77,7 +77,7 @@ site_conductor composes other EV surfaces at runtime — **never via `<iframe>`*
 
 | Remote ships… | Use | Mount |
 | --- | --- | --- |
-| a self-registering custom-element ESM bundle (React, Rust/WASM) | `RemoteElement` | light DOM; inline or a whole page (`/data`) |
+| a self-registering custom-element ESM bundle (React, Rust/WASM) | `RemoteElement` | light DOM; inline or a whole page (`/analytics`) |
 | a self-contained static HTML document (typst whitepaper/blog) | `RemoteDocument` | light DOM (`prose`) or, if self-styled, a shadow root |
 
 ### Element remotes — `RemoteElement`
@@ -117,8 +117,8 @@ shadow roots, and the global uikit tokens must cascade in.
   ```
 
 - **Whole page** — register an entry with `"kind": "page"` and give it a route that
-  looks it up by name: `real-estate.data` mounts at `/data`
-  ([`app/[locale]/data`](<./app/[locale]/data/page.tsx>)) and owns the whole page.
+  looks it up by name: `analytics.dashboard` mounts at `/analytics`
+  ([`app/[locale]/analytics`](<./app/[locale]/analytics/page.tsx>)) and owns the whole page.
 
 **Producing a microfrontend** (other repos — site_conductor ships no producer SDK). The
 canonical, fuller recipe lives in the hub's

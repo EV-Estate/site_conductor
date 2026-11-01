@@ -16,12 +16,11 @@ export them, so nothing here hardcodes a number.
 | `nix run .#accept-test` | accept new screenshots (all, or `-- <names>`) |
 | `nix run .#publish` | bump latest remote `vX.Y.Z` tag (`-- major\|minor\|patch`) + push |
 
-Frontend runs build docs and the REA bundle from `main` of the private
-`EV-Estate/{whitepaper,real_estate_allocation}` and `EV-Main/blog` repos (over ssh). A failed
-build just warns: docs degrade to a PDF link, the portfolio section falls back
-to the in-repo render. For a live REA remote instead of the baked bundle: run
-`nix run .#dev` in a `real_estate_allocation` checkout (→ :59079, verify with
-`nix run .#healthcheck` there).
+Frontend runs build docs from `main` of the private `EV-Estate/whitepaper` and
+`EV-Main/blog` repos (over ssh). A failed build just warns: docs degrade to a PDF
+link. `/analytics` loads its bundle from `/mfe/analytics/`, which prod routes at
+the edge and dev rewrites to `ANALYTICS_DEV_URL` (`ANALYTICS_PORT` in `ports`):
+run `nix run .#dev` in an `EV-Estate/analytics` checkout.
 
 ## Microfrontends — no iframes
 
@@ -29,11 +28,10 @@ Other EV surfaces compose at runtime through `frontend/shared/mfe`, never via
 `<iframe>`. Full reference: [`frontend/PATTERNS.md` §8](../../frontend/PATTERNS.md)
 and [`frontend/README.md`](../../frontend/README.md).
 
-- **Element remotes (`RemoteElement`)** — the home "Premium Asset Portfolio"
-  section is `real_estate_allocation`'s self-registering custom element
-  `<mfe-real-estate-overview>`, mounted in light DOM and resolved from
-  `frontend/mfe-registry.json`. `scriptUrl`s run third-party JS in our origin —
-  treat the registry as code.
+- **Element remotes (`RemoteElement`)** — `/analytics` is analytics'
+  self-registering custom element `<mfe-analytics-dashboard>`, mounted in light
+  DOM and resolved from `frontend/mfe-registry.json`. `scriptUrl`s run
+  third-party JS in our origin — treat the registry as code.
 - **Document remotes (`RemoteDocument`)** — `/whitepaper` and `/blogs/[slug]`
   are static HTML from the sibling typst repos. Blog injects into light DOM
   (SSR'd, host-styled); whitepaper mounts in a shadow root (ships its own CSS).

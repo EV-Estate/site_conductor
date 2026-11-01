@@ -59,9 +59,16 @@ const nextConfig: NextConfig = {
   // rewrites().
   async redirects() {
     return [
-      // The REA dashboard used to be the /rea zone. `:path*` also matches bare
-      // `/rea`, and Next carries the query: `/rea/?building=x` → `/data?building=x`.
-      { source: "/rea/:path*", destination: "/data", permanent: true },
+      // The analytics dashboard was the /rea zone, then /data. `:path*` also
+      // matches bare `/rea`, and Next carries the query: `/rea/?building=x` →
+      // `/analytics?building=x`.
+      { source: "/rea/:path*", destination: "/analytics", permanent: true },
+      { source: "/data", destination: "/analytics", permanent: true },
+      {
+        source: `/:locale(${LOCALE_ALT})/data`,
+        destination: "/:locale/analytics",
+        permanent: true,
+      },
       // Collapse the explicit /en/* form onto the unprefixed one so each page has
       // exactly one canonical URL. Cannot loop with the locale rewrite below:
       // this is external and matched against the incoming request, while the
@@ -153,11 +160,11 @@ const nextConfig: NextConfig = {
         destination: GONE,
       },
     ];
-    // Prod routes /mfe/data at the edge; dev has no edge.
-    if (config.reaDevUrl)
+    // Prod routes /mfe/analytics at the edge; dev has no edge.
+    if (config.analyticsDevUrl)
       beforeFiles.push({
-        source: "/mfe/data/:path*",
-        destination: `${config.reaDevUrl}/mfe/data/:path*`,
+        source: "/mfe/analytics/:path*",
+        destination: `${config.analyticsDevUrl}/mfe/analytics/:path*`,
       });
     // Serves the default locale at unprefixed paths, so no indexed English URL
     // moves and the site still ships no proxy.ts.

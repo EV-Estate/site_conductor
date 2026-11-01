@@ -12,7 +12,7 @@
 //   3. The English afterFiles rewrite (site_conductor#229): an unprefixed
 //      English page must reach app/[locale] in one pass, and a locale-prefixed
 //      path must never be claimed by it.
-//   4. The old /rea zone URLs land on /data.
+//   4. The dashboard's old URLs (/rea, /data) land on /analytics.
 import assert from "node:assert/strict";
 
 // Next vendors this as CommonJS, so it has no named ESM exports.
@@ -58,7 +58,7 @@ const apply = (pathname: string) => applyRule(rule, pathname);
 
 const collapses: [string, string][] = [
   ["/en/status", "/status"],
-  ["/en/data", "/data"],
+  ["/en/analytics", "/analytics"],
   // Siblings that merely start with a retired root's name are other pages.
   ["/en/teams", "/teams"],
   ["/en/teams/list", "/teams/list"],
@@ -140,7 +140,7 @@ function rewrite(pathname: string): string | null | { error: string } {
 const rewritten: [string, string][] = [
   ["/status", "/en/status"],
   ["/foo/x", "/en/foo/x"],
-  ["/data", "/en/data"],
+  ["/analytics", "/en/analytics"],
   // Siblings that merely start with an excluded root are ordinary pages.
   ["/english", "/en/english"],
   ["/apis/x", "/en/apis/x"],
@@ -184,17 +184,36 @@ if (rewriteFailures.length > 0) {
 
 console.log(`English afterFiles rewrite OK — ${rewritten.length} rewritten, ${leftAlone.length} left alone.`);
 
-// The old /rea zone URLs. Next carries the query (`/rea/?building=x` →
-// `/data?building=x`) itself, which no rule here can express.
-const rea = redirects.filter(r => r.destination === "/data");
-assert.equal(rea.length, 1, "expected exactly one /rea redirect");
-assert.equal(rea[0]!.permanent, true, "/rea must be a 308");
-const reaCases = ["/rea", "/rea/", "/rea/listings", "/rea/a/b"];
-for (const from of reaCases) {
-  assert.equal(applyRule(rea[0]!, from), "/data", `${from} should redirect to /data`);
+// The dashboard's old URLs: the /rea zone, then /data. Followed hop by hop
+// like a browser, carrying the query the way Next does when the destination
+// has none (`/rea/?building=x` → `/analytics?building=x`).
+function settle(from: string): string {
+  let url = new URL(from, "http://host");
+  for (let hops = 0; hops < 5; hops++) {
+    const hit = redirects
+      .map(r => [r, applyRule(r, url.pathname)] as const)
+      .find(([, got]) => got !== null);
+    if (!hit) return url.pathname + url.search;
+    assert.equal(hit[0].permanent, true, `${url.pathname} -> ${hit[1]} must be a 308`);
+    url = new URL(hit[1]! + url.search, url);
+  }
+  throw new Error(`${from} redirects more than 5 times`);
 }
-assert.equal(applyRule(rea[0]!, "/reax"), null, "sibling must not match");
-console.log(`/rea redirect OK — ${reaCases.length} cases.`);
+const moved: [string, string][] = [
+  ["/rea", "/analytics"],
+  ["/rea/", "/analytics"],
+  ["/rea/listings", "/analytics"],
+  ["/rea/a/b", "/analytics"],
+  ["/rea/?building=x", "/analytics?building=x"],
+  ["/data", "/analytics"],
+  ["/data?building=x", "/analytics?building=x"],
+  ["/en/data", "/analytics"],
+  ...LOCALES.filter(locale => locale !== "en").map((locale): [string, string] => [`/${locale}/data`, `/${locale}/analytics`]),
+  ["/reax", "/reax"],
+  ["/datax", "/datax"],
+];
+for (const [from, to] of moved) assert.equal(settle(from), to, `${from} should land on ${to}`);
+console.log(`/rea + /data redirects OK — ${moved.length} cases.`);
 
 // Retired pages answer 404 (decision 2026-10-18: no redirect to the landing's
 // host). Next consults redirects() first, then beforeFiles rewrites; a request
@@ -250,12 +269,11 @@ const retired = [
 const stays = [
   "/",
   ...LOCALES.map(locale => `/${locale}`),
-  "/data",
-  "/ru/data",
-  "/mfe/data/mfe-real-estate-data.js",
+  "/analytics",
+  "/ru/analytics",
+  "/mfe/analytics/dashboard.js",
+  "/mfe/analytics/api/embed/building/1",
   "/api/mfe-registry",
-  "/rea",
-  "/rea/listings",
   "/robots.txt",
   "/sitemap.xml",
   // Siblings that merely start with a retired name are not retired.
@@ -273,9 +291,8 @@ for (const path of retired) {
 for (const path of stays) {
   if (answers404(path)) retiredFailures.push(`${path} must keep working but the 404 rewrite claims it`);
   const redirect = redirectedTo(path);
-  // /rea (asserted above) and the bare /en -> / are the only redirects a path
-  // outside the retired set may get, both on this origin.
-  if (redirect !== null && !path.startsWith("/rea") && path !== "/en") {
+  // The bare /en -> / is the only redirect a path here may get.
+  if (redirect !== null && path !== "/en") {
     retiredFailures.push(`${path} must not redirect, got ${redirect}`);
   }
 }

@@ -8,11 +8,11 @@ export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 // The element owns the whole page; deep links (`?building=`) stay in the host
 // URL, where the remote reads them.
-export default async function DataPage() {
-  const entry = await findMfe("real-estate.data");
+export default async function AnalyticsPage() {
+  const entry = await findMfe("analytics.dashboard");
   // The registry is in-repo static data; a missing or misfiled entry is a broken build.
   if (entry?.kind !== "page")
-    throw new Error("real-estate.data missing from mfe-registry.json as a page");
+    throw new Error("analytics.dashboard missing from mfe-registry.json as a page");
 
   return (
     <RemoteElement

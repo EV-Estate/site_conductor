@@ -33,12 +33,10 @@ code into the client bundle):
 
 - **`children` / props slot** — a Client Component renders `{children}`; the
   Server Component passes server-rendered elements in.
-  Example: `ExperimentTracker` (client) wraps the server-rendered team grid in
-  `views/home/ui/team/ui/team.tsx`.
+  Example: `ExperimentTracker` (client) wraps the server-rendered variant in
+  `entities/team/ui/leadership-intro.tsx`.
 - **Extract the interactive leaf** — pull just the handler into a tiny client
   component and render it from the server parent.
-  Examples: `hero/ui/cta/cabinet-first.tsx` / `explore-first.tsx` (the only client
-  bits of the hero CTA row `HeroA` and `HeroB` share).
 
 **Litmus test:** if a section is static except for one button, the section is a
 Server Component and the button is the client island — not the other way around.
@@ -46,8 +44,6 @@ Server Component and the button is the client island — not the other way aroun
 The exception is a component that is interactive _throughout_ — that
 legitimately is one Client Component. Even then, pass static sub-sections as
 `ReactNode` props from the server wrapper so they stay out of the client bundle.
-Example: `HeroA`'s scroll-zoom shell `HeroACanvas` (client) — the server `HeroA`
-passes headline/copy as `children` and the CTA row as `cta={…}`.
 
 ### Context providers
 
@@ -146,7 +142,7 @@ Practical split strategies:
 ## 5. FSD layering (where things go)
 
 - `app/` — routing, root layout. Server by default.
-- `views/` — page composition (e.g. `HomeView`). Agnostic of A/B.
+- `views/` — page composition (e.g. `ComingSoonView`). Agnostic of A/B.
 - `features/` — behaviour slices: `analytics`, `ab-variant`, `error-monitoring`,
   `contact-message`, `job-application`, `publication-search`.
 - `entities/` — domain data (`team`, …).
@@ -203,9 +199,8 @@ transports, picked by what the remote ships:
   (Dioxus/Leptos). Mounted in **light DOM** — Tailwind v4 `@property` tokens break
   inside shadow roots and the global uikit tokens must cascade in. Resolved from
   `mfe-registry.json` (`findMfe`, server-only) so remotes deploy independently.
-  Inline anywhere, or as a whole page (`/data`, `app/[locale]/data`, mounts
-  `real-estate.data`). The home portfolio/REA section is the inline example
-  (now in EV-Estate/landing).
+  Inline anywhere, or as a whole page (`/analytics`, `app/[locale]/analytics`,
+  mounts `analytics.dashboard`).
 - **Document remote — `RemoteDocument`.** The remote is a self-contained static
   HTML document (the typst-built whitepaper / blog). `isolate={false}` (default)
   injects its `<body>` into the **light DOM** so host typography (`prose`) styles
@@ -248,37 +243,12 @@ Notes that bite:
   the race for values the remote reads *later* — it does not make an attribute a
   sound channel for something needed at boot.)
 
-### Component-MFE snapshot contract
+### Component MFEs load live from their producer
 
-Every `kind:"component"` microfrontend MUST emit a self-contained static HTML
-snapshot of its root component from its own `nix build`, **one per locale**, named
-`<name>.<locale>.html` beside the embed bundle (e.g. `real-estate.overview` →
-`portfolio.{en,ru,vi,fr,de}.html`), each carrying its own `<html lang>`. Per-locale
-because of the sentence two paragraphs down: the snapshot shows **permanently** if
-the remote never upgrades, so one `lang="en"` file served under `/ru` is not a flash
-of English — it is English forever, for every reader with JS off or a 404'd bundle.
-The snapshot is rendered **natively** (e.g. `dioxus_ssr`) from the **same**
-presentation components the live bundle mounts — never hand-authored — so it can't
-drift, in copy any more than in markup. Self-contained:
-the producer's compiled MFE stylesheet is inlined + a minimal reset + dark
-`color-scheme` (the conductor is dark-only; snapshots use system-font fallback, as
-the MFE stylesheet ships no fonts and the shadow boundary blocks host inheritance).
-Any value the snapshot can't resolve at build time (live-fetched data) renders the
-**standard missing-data placeholder `—`** (`"ERR"` is reserved for detected data
-faults — a value that *should* exist but is absent).
-
-The host wires it as the element's fallback, picking the file by page locale:
-`<RemoteElement fallback={<ShadowDocument src={`/mfe/<name>.${locale}.html`} />}>`. `RemoteElement`
-renders `{ready ? null : fallback}`, so the snapshot shows until the remote upgrades
-and **permanently** if it never does; `ShadowDocument` adopts the full document
-(head + body) into a shadow root (full style containment — the inlined MFE css
-can't leak). A missing registry entry
-OR a missing snapshot at **build** time is a broken build (`findMfe` + `loadDocHtml`
-both throw); the snapshot is **runtime** degradation only. The host `id` anchor stays
-on the light-DOM wrapper `<div>`; the snapshot's own inner `id` is shadow-scoped, so
-there's no `getElementById` collision. The home portfolio/REA section is the live
-example (now on the invest host, EV-Estate/landing). (One producer today — the cargo-run + css-inline + anchor-grep lives in REA's
-flake; extract to `v_flakes` when a second component-MFE producer appears.)
+A `kind:"component"` remote is loaded live from its producer's `/mfe/<service>/`
+prefix on this origin (the edge routes it to the producer; dev rewrites it, see
+`next.config.ts`). No host bakes a snapshot of it: a remote that never upgrades
+leaves its `fallback`, so the producer ships without host rebuilds.
 
 ---
 
@@ -314,7 +284,7 @@ Rules that are not negotiable:
   sentence — do not strip that.
 - **Never wrap a `position: fixed` descendant in a moving `Reveal`.** An animated
   transform makes the wrapper that descendant's containing block. Use
-  `from="none"` (pure fade) — this is exactly why the portfolio MFE uses it.
+  `from="none"` (pure fade).
 
 ### Visual tests
 

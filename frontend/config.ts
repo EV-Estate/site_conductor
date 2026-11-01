@@ -50,9 +50,9 @@ export const config = {
   get apiUrlInternal(): string | undefined {
     return prodRequired("API_URL_INTERNAL");
   },
-  // Prod routes /mfe/data at the edge; dev has no edge.
-  get reaDevUrl(): string | undefined {
-    return optional(process.env.REA_DEV_URL);
+  // Prod routes /mfe/analytics at the edge; dev has no edge.
+  get analyticsDevUrl(): string | undefined {
+    return optional(process.env.ANALYTICS_DEV_URL);
   },
   // Server/edge Sentry environment tag (instrumentation.ts).
   get appEnv(): string | undefined {
@@ -89,12 +89,6 @@ export const config = {
       if (!process.env.NEXT_PUBLIC_SITE_URL && isProdRuntime())
         throw new Error("missing required env var NEXT_PUBLIC_SITE_URL");
       return optional(process.env.NEXT_PUBLIC_SITE_URL);
-    },
-    // REA backend origin advertised to the MFE bundle. Same prod contract.
-    get reaUrl(): string | undefined {
-      if (!process.env.NEXT_PUBLIC_REA_URL && isProdRuntime())
-        throw new Error("missing required env var NEXT_PUBLIC_REA_URL");
-      return optional(process.env.NEXT_PUBLIC_REA_URL);
     },
     get analyticsEndpoint(): string | undefined {
       return optional(process.env.NEXT_PUBLIC_ANALYTICS_ENDPOINT);

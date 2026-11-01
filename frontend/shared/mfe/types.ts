@@ -5,7 +5,7 @@ export type MfeKind = "component" | "page";
 
 export interface MfeEntry {
   /** Logical name, e.g. "calculator.yield". A `kind: "page"` entry is mounted by
-   *  the route that looks it up by name (`real-estate.data` → `/data`). */
+   *  the route that looks it up by name (`analytics.dashboard` → `/analytics`). */
   name: string;
   /** Globally-unique, versioned custom-element tag, e.g. "mfe-calculator-yield". */
   tag: string;

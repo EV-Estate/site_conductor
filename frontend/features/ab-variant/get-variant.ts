@@ -14,8 +14,8 @@ import { config } from "@/config";
  * per-request dynamic-render cost on the VPS. Development reads the cookie so
  * the dev A/B panel can switch variants live.
  *
- * Curried over the app's `experiments` config so sections call `getVariant("hero")`
- * and the **page** stays agnostic of A/B: `HomeView` just renders `<Hero />` etc.
+ * Curried over the app's `experiments` config so sections call `getVariant("<key>")`
+ * and the **page** stays agnostic of A/B.
  */
 export function getVariant<K extends ExperimentKey>(
   key: K,

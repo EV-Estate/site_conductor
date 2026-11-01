@@ -1,4 +1,4 @@
-// A light-DOM element remote (e.g. the REA portfolio) styles itself by injecting
+// A light-DOM component remote styles itself by injecting
 // its own Tailwind stylesheet into the host <head>. That sheet's `@layer
 // utilities` merges with the host's and, loading last, wins — its non-responsive
 // `.grid-cols-1` overrode our `lg:grid-cols-3` and collapsed grids to one column.

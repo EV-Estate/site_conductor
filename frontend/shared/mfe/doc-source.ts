@@ -3,9 +3,7 @@
 // A document remote is addressed by URL, exactly like an element remote's
 // scriptUrl: an absolute http(s) URL is fetched (a doc service on its own
 // origin/CDN), a site-relative path is read straight off disk from public/ —
-// the common case, since the typst builds are copied there by the flake. Same
-// "accepts any URL, optimizes the same-origin case" shape as the element
-// registry's ${REA_URL} substitution.
+// the common case, since the typst builds are copied there by the flake.
 
 import { promises as fs } from "node:fs";
 import path from "node:path";
