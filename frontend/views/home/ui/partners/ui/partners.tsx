@@ -36,7 +36,7 @@ export function Partners({ locale }: { locale: Locale }) {
   return (
     <section
       id="partners"
-      className="border-b border-ink/10 bg-background py-20 text-ink"
+      className="border-b border-ink/10 bg-background py-24 text-ink"
     >
       <Container>
         <Reveal className="max-w-2xl">
