@@ -1,5 +1,7 @@
-# landing
+# site_conductor
 ![Minimum Supported Rust Version](https://img.shields.io/badge/nightly-1.92+-ab6000.svg)
+![Build time](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/valeratrades/b48e6f02c61942200e7d1e3eeabf9bcb/raw/site_conductor-build.json)
+![Test time](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/valeratrades/b48e6f02c61942200e7d1e3eeabf9bcb/raw/site_conductor-test.json)
 
 `landing` is the public landing of the **EV Investment** fund at
 `estate.evinvest.ltd` — a real-estate advisory and investment fund specializing
@@ -38,6 +40,7 @@ whitepaper) to fresh `main` — pushes them to
 `ghcr.io/ev-estate/landing-{frontend,backend}`, and Flux rolls them out (see the
 `gitops` repo). Frontend and backend are separate images, so each rolls out
 independently.
+
 
 </details>
 <!-- markdownlint-restore -->
@@ -81,9 +84,11 @@ loaded live from `/mfe/analytics/` on this host (in dev rewritten to
 
 <br>
 
-<sup>
-	This repository follows <a href="https://github.com/valeratrades/.github/tree/master/best_practices">my best practices</a> and <a href="https://github.com/tigerbeetle/tigerbeetle/blob/main/docs/TIGER_STYLE.md">Tiger Style</a> (except "proper capitalization for acronyms": (VsrState, not VSRState) and formatting). For project's architecture, see <a href="./docs/ARCHITECTURE.md">ARCHITECTURE.md</a>.
-</sup>
+<sup>Links for devs:</sup>
+- <sup><a href="./docs/ARCHITECTURE.md">architecture</a></sup>
+- <sup><a href="https://github.com/EV-Main/.github/blob/main/code/STYLE.md">style</a></sup>
+- <sup><a href="https://github.com/EV-Main/.github/tree/main/code/conventions">conventions</a></sup>
+- <sup><a href="https://github.com/EV-Main/.github/blob/main/code/conventions/git">contributing</a></sup>
 
 #### License
 

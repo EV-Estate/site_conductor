@@ -61,7 +61,7 @@ ev_lib::settings! {
 /// Browsers send `Origin` without a path or trailing slash and the CORS layer
 /// compares bytes, so `https://estate.evinvest.ltd/` would never match. That
 /// typo is rejected at boot rather than surfacing as blocked requests.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct CorsOrigin(HeaderValue);
 
 impl CorsOrigin {

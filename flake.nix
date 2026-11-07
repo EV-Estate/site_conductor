@@ -154,6 +154,11 @@
             other.augment = [ "loc-badge" ];
           };
           lfs = true;
+          # macOS: rust-lld (wasm32 linker) needs the rustc sysroot's libLLVM; the FALLBACK var, since DYLD_LIBRARY_PATH would also force it onto Nix's clang.
+          envrc.extra = ''
+            export DYLD_FALLBACK_LIBRARY_PATH="$(rustc --print sysroot)/lib''${DYLD_FALLBACK_LIBRARY_PATH:+:$DYLD_FALLBACK_LIBRARY_PATH}"
+          '';
+          visualBaselines = { dir = "frontend/tests/__screenshots__"; render = "accept-test"; gate = "test"; paths = [ "frontend/**" "flake.nix" "flake.lock" ]; };
         };
         readme = v_flakes.readme-fw {
           inherit pkgs pname;
