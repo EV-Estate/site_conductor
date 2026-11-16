@@ -50,7 +50,7 @@ export const config = {
   get apiUrlInternal(): string | undefined {
     return prodRequired("API_URL_INTERNAL");
   },
-  // Prod routes /mfe/analytics at the edge; dev has no edge.
+  // Prod routes /mfe/analytics and /api/analytics at the edge; dev has no edge.
   get analyticsDevUrl(): string | undefined {
     return optional(process.env.ANALYTICS_DEV_URL);
   },

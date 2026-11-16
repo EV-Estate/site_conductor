@@ -142,14 +142,12 @@ const nextConfig: NextConfig = {
     ],
   },
   async rewrites() {
-    // Prod routes /mfe/analytics at the edge; dev has no edge.
+    // Prod routes /mfe/analytics and /api/analytics at the edge; dev has no edge.
     const beforeFiles = config.analyticsDevUrl
-      ? [
-          {
-            source: "/mfe/analytics/:path*",
-            destination: `${config.analyticsDevUrl}/mfe/analytics/:path*`,
-          },
-        ]
+      ? ["mfe", "api"].map((kind) => ({
+          source: `/${kind}/analytics/:path*`,
+          destination: `${config.analyticsDevUrl}/${kind}/analytics/:path*`,
+        }))
       : [];
     // Serves the default locale at unprefixed paths, so no indexed English URL
     // moves and the site still ships no proxy.ts.

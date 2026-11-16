@@ -105,7 +105,7 @@ set in `flake.nix` (image build and container env).
 | `NEXT_PUBLIC_SENTRY_DSN`, `NEXT_PUBLIC_APP_ENV` | build | — | error monitoring no-op |
 | `NEXT_PUBLIC_ANALYTICS_ENDPOINT` / `_WEBSITE_ID` | build | — | Umami not loaded |
 | `API_URL_INTERNAL` | runtime | `http://landing-backend:58846` | prod server throws on first server fetch; dev falls back to the public URL |
-| `ANALYTICS_DEV_URL` | dev | — (the edge routes `/mfe/analytics`) | `/mfe/analytics/*` is not proxied |
+| `ANALYTICS_DEV_URL` | dev | — (the edge routes `/{mfe,api}/analytics`) | `/{mfe,api}/analytics/*` is not proxied |
 | `SENTRY_DSN`, `APP_ENV`, `SENTRY_ORG` / `_PROJECT` / `_AUTH_TOKEN` | runtime / CI | — | no-op |
 
 `NEXT_PUBLIC_*` is inlined at `next build`; changing it means a new image.
