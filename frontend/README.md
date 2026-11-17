@@ -81,9 +81,8 @@ git add frontend/tests/__screenshots__
 git commit -m 'test(visual): refresh baselines (run <run-id>)'
 ```
 
-`portfolio reads Russian on /ru` reads the analytics service's live tile, so it
-passes only with analytics' dev server up (`ANALYTICS_DEV_URL`, its port in
-`flake.nix`); without it the gate is red on that test alone.
+The analytics tile is a stub in every test (`TILE` in `tests/sections.spec.ts`):
+the suite needs no other repo's server.
 
 ## Environment
 

@@ -10,8 +10,9 @@ import { CABINET_URL } from "../shared/config/site";
 // nav hash, e.g. <baseURL>/#team — those use an id selector. The
 // page chrome (header/footer) has no anchor, so it's keyed by tag.
 //
-// No portfolio baseline: the section is the analytics service's tile, loaded live
-// from its own origin, so its pixels are not ours to pin.
+// No portfolio baseline: the section is the analytics service's tile, so its pixels
+// are not ours to pin. Every test mounts `TILE` in its place: the live one is another
+// repo's server, and its height above the footer moved the footer's subpixel offset.
 //
 // `on` lists the viewports (playwright.config.ts projects, matched by tag) a
 // section is baselined at. Mobile covers the page chrome and the hero — the
@@ -52,7 +53,16 @@ const BASELINE_VARIANTS: { [K in keyof typeof experiments]: string } = {
   team_bio_shade: "a",
   team_office: "a",
 };
+// What the landing owes the tile: a custom element under its tag, mounted in
+// #portfolio on a page whose `lang` is already set when it connects.
+const TILE = `customElements.define("mfe-analytics-overview", class extends HTMLElement {
+  connectedCallback() { this.textContent = "tile mounted under lang=" + document.documentElement.lang; }
+});`;
+
 test.beforeEach(async ({ context, baseURL }) => {
+  await context.route("**/mfe/analytics/overview.js", route =>
+    route.fulfill({ contentType: "text/javascript", body: TILE })
+  );
   await context.addCookies(
     Object.entries(BASELINE_VARIANTS).map(([key, value]) => ({
       name: cookieName(key),
@@ -261,15 +271,12 @@ for (const viewport of ["desktop", "mobile"] as const) {
   );
 }
 
-// Issue 39's regression gate. The portfolio section is the one place on the
-// landing where the copy belongs to another repo, and it was English under every
-// locale's chrome. The live bundle resolves the locale itself off the page's `lang`
-// (ev_lib::mfe::host_locale); nothing is passed to it, a prop or an attribute
-// would arrive too late.
-//
-// Text, not a screenshot: the point is the language, and a per-locale baseline
-// would have to be re-captured on every copy edit in analytics.
-const RU_PORTFOLIO = "Почему Куинён?";
+// Issue 39's regression gate, the landing's half. The portfolio section is the one
+// place on the landing where the copy belongs to another repo, and it was English
+// under every locale's chrome. The bundle resolves the locale itself off the page's
+// `lang` (ev_lib::mfe::host_locale) when it connects; nothing is passed to it, a
+// prop or an attribute would arrive too late. Its Russian copy is analytics' own
+// check (analytics_embeds/tests/catalogue.rs).
 
 test(
   "- portfolio reads Russian on /ru",
@@ -280,8 +287,6 @@ test(
 
     const section = page.locator("#portfolio");
     await section.scrollIntoViewIfNeeded();
-    await expect(section.getByText(RU_PORTFOLIO).first()).toBeVisible({
-      timeout: 15_000,
-    });
+    await expect(section.getByText("tile mounted under lang=ru")).toBeVisible();
   }
 );

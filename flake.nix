@@ -112,7 +112,6 @@
         playwrightEnv = ''
           ${portEnv}
           export NEXT_PUBLIC_API_URL="''${NEXT_PUBLIC_API_URL:-http://localhost:$LANDING_BACKEND_PORT}"
-          export ANALYTICS_DEV_URL="''${ANALYTICS_DEV_URL:-http://localhost:$ANALYTICS_PORT}" # the portfolio tile, as `nix run .#frontend` serves it
         '';
         visual = js.playwright {
           name = "visual";
