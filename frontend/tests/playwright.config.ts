@@ -90,5 +90,7 @@ export default defineConfig({
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
+    // the footer prints the build; a baseline must not depend on which commit rendered it
+    env: { NEXT_PUBLIC_BUILD_VERSION: "v0.0.0-0-g0000000", NEXT_PUBLIC_BUILD_COMMIT: "0000000" },
   },
 });

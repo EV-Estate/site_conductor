@@ -81,11 +81,9 @@ git add frontend/tests/__screenshots__
 git commit -m 'test(visual): refresh baselines (run <run-id>)'
 ```
 
-Status: the committed baselines are still the ones from `site_conductor@ac600eb`
-and are stale — `header.png`, `mobile/header.png` and `mobile/header-drawer.png`
-predate the header rewrite, and `cabinet-tour.png` / `mobile/cabinet-tour.png`
-may too. Expect the gate to be red until they are refreshed from a CI run. The
-job itself cannot pass until the repo has the `CACHIX_AUTH_TOKEN` secret.
+`portfolio reads Russian on /ru` reads the analytics service's live tile, so it
+passes only with analytics' dev server up (`ANALYTICS_DEV_URL`, its port in
+`flake.nix`); without it the gate is red on that test alone.
 
 ## Environment
 
