@@ -23,7 +23,7 @@ published `@evinvest/uikit`.
 
 One host, three routes (Traefik, k3s): `estate.evinvest.ltd/` → `landing-frontend`
 (:58845), `estate.evinvest.ltd/api/v1` → `landing-backend` (:58846),
-`estate.evinvest.ltd/{mfe,api}/analytics` → analytics (:59079). The backend owns the
+`estate.evinvest.ltd/mfe/analytics` → analytics (:59079). The backend owns the
 `landing` Postgres database and applies `backend/migrations` itself at boot, so
 rolling out an image applies its schema.
 
@@ -60,7 +60,8 @@ export them, so nothing here hardcodes a number.
 | `nix run .#backend` | axum API only (ensures the shared postgres) |
 | `nix run .#db` | ensure the shared ev_invest postgres is up (+ this repo's `landing` db) |
 | `nix run .#gen-api` | regenerate `backend/openapi.json` + the TS client (run after any DTO/handler change; commit both) |
-| `nix run .#test` | frontend typecheck + i18n + Tailwind conflict gates + Playwright visual regression (Linux; see `frontend/README.md`) |
+| `nix run .#test` | every check (v_flakes particles: rust tests, frontend typecheck/lint/static gates, visual regression), in parallel; `-- --help` lists them |
+| `nix run .#visual` | the Playwright visual regression alone (Linux; see `frontend/README.md`) |
 | `nix run .#accept-test` | re-capture visual baselines (all, or `-- <names>`) |
 | `nix develop -c cargo test --workspace` | backend and domain unit tests |
 | `nix run .#pull-prod-db` | replace the local landing db with prod's (`PROD_DB=evinvest` before the move) |

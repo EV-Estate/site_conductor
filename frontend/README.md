@@ -40,7 +40,7 @@ reach this repo through a `@evinvest/uikit` bump, never a local edit.
 ## Checks
 
 ```sh
-npm run check                # tsc --noEmit
+npm run typecheck            # tsc --noEmit
 npm run lint                 # eslint
 npm run lint:css             # stylelint
 npm run css:check            # Tailwind class conflicts in cn()
@@ -58,21 +58,17 @@ mobile, plus the open mobile drawer), checks the first-viewport cabinet CTA and
 the Russian portfolio. Baselines live in `tests/__screenshots__/`.
 
 ```sh
-nix run .#test                      # check, i18n:check, css:check, then the suite against the baselines
+nix run .#visual                    # the suite against the baselines (`nix run .#test` runs every check)
 nix run .#accept-test               # re-capture every baseline
 nix run .#accept-test -- hero team  # re-capture only tests whose title matches a name
 ```
 
 Linux only. The flake pins nixpkgs' Chromium, and a macOS render does not match
-the committed Linux pixels, so baselines are never captured on a Mac. Known
-limit: on darwin the dev shell's `PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=nixos` makes
-`tests/global-setup.ts` look for `chrome-linux64`; a local run needs
-`unset PLAYWRIGHT_HOST_PLATFORM_OVERRIDE` first, and its diffs are not
-meaningful.
+the committed Linux pixels, so baselines are never captured on a Mac.
 
 CI: [`visual-baselines.yml`](../.github/workflows/visual-baselines.yml) runs on
 PRs touching `frontend/`, `flake.*` or itself. The gate step runs
-`nix run .#test` and keeps its expected/actual/diff images as the
+`nix run .#visual` and keeps its expected/actual/diff images as the
 `visual-diffs` artifact; the render step runs `nix run .#accept-test` and
 uploads the fresh PNGs as `visual-snapshots`, even when the gate is red. To
 refresh the baselines from a run, download them and look at every changed PNG
